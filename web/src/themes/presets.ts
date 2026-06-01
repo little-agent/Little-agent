@@ -46,17 +46,95 @@ const DEFAULT_LAYOUT: ThemeLayout = {
 
 export const defaultTheme: DashboardTheme = {
   name: "default",
-  label: "Little Slate",
-  description: "Modern deep space slate — the canonical Little look",
+  label: "Little Obsidian Glow",
+  description: "Obsidian space void with sleek amethyst gradients & custom ambient glassmorphism",
   palette: {
-    background: { hex: "#090d16", alpha: 1 },
-    midground: { hex: "#e2e8f0", alpha: 1 },
-    foreground: { hex: "#ffffff", alpha: 0 },
-    warmGlow: "rgba(99, 102, 241, 0.25)",
-    noiseOpacity: 0.8,
+    background: { hex: "#08050c", alpha: 1 },
+    midground: { hex: "#e9e4f5", alpha: 1 },
+    foreground: { hex: "#a855f7", alpha: 0 },
+    warmGlow: "radial-gradient(circle at 0% 0%, rgba(168, 85, 247, 0.28) 0%, transparent 60%), radial-gradient(circle at 100% 100%, rgba(6, 182, 212, 0.22) 0%, transparent 60%)",
+    noiseOpacity: 0.55,
   },
   typography: DEFAULT_TYPOGRAPHY,
-  layout: DEFAULT_LAYOUT,
+  layout: {
+    ...DEFAULT_LAYOUT,
+    radius: "0.375rem",
+  },
+  componentStyles: {
+    sidebar: {
+      background: "rgba(11, 8, 17, 0.45)",
+      backdropBlur: "16px",
+      borderRight: "1px solid rgba(233, 228, 245, 0.08)",
+    },
+    card: {
+      background: "rgba(15, 11, 23, 0.4)",
+      backdropBlur: "12px",
+      border: "1px solid rgba(233, 228, 245, 0.08)",
+      boxShadow: "0 8px 32px 0 rgba(0, 0, 0, 0.35)",
+    },
+    header: {
+      background: "rgba(8, 5, 12, 0.75)",
+      backdropBlur: "12px",
+      borderBottom: "1px solid rgba(233, 228, 245, 0.08)",
+    },
+    badge: {
+      background: "rgba(168, 85, 247, 0.1)",
+      border: "1px solid rgba(168, 85, 247, 0.22)",
+      color: "#d8b4fe",
+    },
+    tab: {
+      background: "rgba(233, 228, 245, 0.03)",
+      border: "1px solid rgba(233, 228, 245, 0.06)",
+    },
+    progress: {
+      background: "rgba(168, 85, 247, 0.1)",
+      barBackground: "linear-gradient(90deg, #a855f7 0%, #06b6d4 100%)",
+    },
+  },
+  customCSS: `
+    /* Add subtle ambient anim to the backdrop glow */
+    @keyframes subtle-nebula {
+      0% { filter: hue-rotate(0deg) brightness(1); }
+      50% { filter: hue-rotate(15deg) brightness(1.1); }
+      100% { filter: hue-rotate(0deg) brightness(1); }
+    }
+    :root {
+      animation: subtle-nebula 20s infinite ease-in-out;
+    }
+    
+    /* Make scrollbars thin, rounded, and elegant */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(233, 228, 245, 0.12);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(233, 228, 245, 0.25);
+    }
+    
+    /* Enhance sidebar headings & active items styling */
+    #app-sidebar ul li a.active {
+      background: rgba(168, 85, 247, 0.09) !important;
+      border-left: 2px solid #a855f7 !important;
+      box-shadow: inset 4px 0 16px rgba(168, 85, 247, 0.08);
+      font-weight: 600;
+    }
+    
+    /* Soft border glows on cards on hover */
+    .bg-card {
+      transition: border 0.2s ease, box-shadow 0.2s ease;
+    }
+    .bg-card:hover {
+      border-color: rgba(168, 85, 247, 0.2) !important;
+      box-shadow: 0 12px 40px 0 rgba(168, 85, 247, 0.06), 0 8px 32px 0 rgba(0, 0, 0, 0.4) !important;
+    }
+  `,
 };
 
 export const midnightTheme: DashboardTheme = {
@@ -196,8 +274,8 @@ export const roseTheme: DashboardTheme = {
  */
 export const defaultLargeTheme: DashboardTheme = {
   name: "default-large",
-  label: "Little Slate (Large)",
-  description: "Little Slate with bigger fonts and roomier spacing",
+  label: "Little Obsidian Glow (Large)",
+  description: "Little Obsidian Glow with bigger fonts and roomier spacing",
   palette: defaultTheme.palette,
   typography: {
     ...DEFAULT_TYPOGRAPHY,
@@ -208,6 +286,8 @@ export const defaultLargeTheme: DashboardTheme = {
     ...DEFAULT_LAYOUT,
     density: "spacious",
   },
+  componentStyles: defaultTheme.componentStyles,
+  customCSS: defaultTheme.customCSS,
 };
 
 export const BUILTIN_THEMES: Record<string, DashboardTheme> = {

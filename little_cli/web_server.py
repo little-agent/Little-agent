@@ -3934,8 +3934,8 @@ def mount_spa(application: FastAPI):
 # Built-in dashboard themes — label + description only.  The actual color
 # definitions live in the frontend (web/src/themes/presets.ts).
 _BUILTIN_DASHBOARD_THEMES = [
-    {"name": "default",       "label": "Little Slate",         "description": "Modern deep space slate — the canonical Little look"},
-    {"name": "default-large", "label": "Little Slate (Large)", "description": "Little Slate with bigger fonts and roomier spacing"},
+    {"name": "default",       "label": "Little Obsidian Glow",         "description": "Obsidian space void with sleek amethyst gradients & custom ambient glassmorphism"},
+    {"name": "default-large", "label": "Little Obsidian Glow (Large)", "description": "Little Obsidian Glow with bigger fonts and roomier spacing"},
     {"name": "midnight",      "label": "Midnight",            "description": "Deep blue-violet with cool accents"},
     {"name": "ember",     "label": "Ember",          "description": "Warm crimson and bronze — forge vibes"},
     {"name": "mono",      "label": "Mono",           "description": "Clean grayscale — minimal and focused"},
