@@ -114,6 +114,11 @@ export const defaultTheme: DashboardTheme = {
       opacity: 0.85;
     }
     
+    /* Globally override retro Mondwest pixel font to Outfit */
+    .font-mondwest {
+      font-family: var(--theme-font-sans) !important;
+    }
+    
     /* Make scrollbars thin, rounded, and elegant */
     ::-webkit-scrollbar {
       width: 6.5px;
@@ -131,6 +136,15 @@ export const defaultTheme: DashboardTheme = {
     }
     
     /* Enhance sidebar headings & active items styling with linear-gradient neon indicator */
+    #app-sidebar ul li a {
+      transition: all 0.2s ease-in-out;
+      border-radius: 8px !important;
+      margin: 2px 10px !important;
+    }
+    #app-sidebar ul li a:hover {
+      background: rgba(233, 228, 245, 0.04) !important;
+      transform: translateX(4px);
+    }
     #app-sidebar ul li a.active {
       background: rgba(168, 85, 247, 0.09) !important;
       box-shadow: inset 4px 0 16px rgba(168, 85, 247, 0.08);
@@ -149,9 +163,52 @@ export const defaultTheme: DashboardTheme = {
       box-shadow: 0 0 8px rgba(168, 85, 247, 0.6);
     }
     
+    /* Transform traditional table and list rows into floating titanium cards */
+    tr, .ListItem, [role="row"], .list-row {
+      background: rgba(15, 11, 23, 0.22) !important;
+      border: 1px solid rgba(168, 85, 247, 0.05) !important;
+      border-radius: 8px !important;
+      transition: all 0.2s ease-in-out !important;
+      margin-bottom: 8px !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+    }
+    tr:hover, .ListItem:hover, [role="row"]:hover, .list-row:hover {
+      background: rgba(168, 85, 247, 0.04) !important;
+      border-color: rgba(168, 85, 247, 0.2) !important;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+      transform: translateY(-1px);
+    }
+    
+    /* Clean up list headers */
+    th, .list-header {
+      font-family: var(--theme-font-sans) !important;
+      text-transform: uppercase !important;
+      font-size: 0.72rem !important;
+      letter-spacing: 0.08em !important;
+      color: rgba(233, 228, 245, 0.45) !important;
+      padding-bottom: 12px !important;
+      border-bottom: 1px solid rgba(233, 228, 245, 0.05) !important;
+    }
+    
+    /* Glowing Segmented Controls */
+    .Segmented, [role="tablist"] {
+      background: rgba(10, 7, 16, 0.5) !important;
+      border: 1px solid rgba(168, 85, 247, 0.1) !important;
+      padding: 3px !important;
+      border-radius: 8px !important;
+    }
+    .Segmented button[data-active="true"], [role="tab"][aria-selected="true"] {
+      background: linear-gradient(135deg, rgba(168, 85, 247, 0.18) 0%, rgba(124, 58, 237, 0.18) 100%) !important;
+      border: 1px solid rgba(168, 85, 247, 0.35) !important;
+      color: #fff !important;
+      box-shadow: 0 0 12px rgba(168, 85, 247, 0.2) !important;
+      border-radius: 6px !important;
+    }
+    
     /* Soft border glows on cards on hover with transform zoom */
     .bg-card {
       transition: border 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease !important;
+      border-radius: 12px !important;
     }
     .bg-card:hover {
       border-color: rgba(168, 85, 247, 0.25) !important;
@@ -160,10 +217,19 @@ export const defaultTheme: DashboardTheme = {
     }
 
     /* Refined inputs glow */
-    input:focus, textarea:focus, select:focus {
+    input[type="text"], input[type="search"], textarea, select {
+      background: rgba(10, 7, 16, 0.5) !important;
+      border: 1px solid rgba(168, 85, 247, 0.12) !important;
+      border-radius: 8px !important;
+      padding: 10px 14px !important;
+      color: #eae5f5 !important;
+      transition: all 0.25s ease !important;
+    }
+    input[type="text"]:focus, input[type="search"]:focus, textarea:focus, select:focus {
       outline: none !important;
-      border-color: rgba(168, 85, 247, 0.35) !important;
-      box-shadow: 0 0 12px rgba(168, 85, 247, 0.15) !important;
+      background: rgba(10, 7, 16, 0.8) !important;
+      border-color: rgba(168, 85, 247, 0.38) !important;
+      box-shadow: 0 0 16px rgba(168, 85, 247, 0.18) !important;
     }
     
     /* Custom primary buttons premium styling */
