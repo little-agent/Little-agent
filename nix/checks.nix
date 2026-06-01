@@ -6,18 +6,18 @@
 { inputs, ... }: {
   perSystem = { pkgs, lib, self', ... }:
     let
-      hermes-agent = self'.packages.default;
-      hermesVenv = hermes-agent.hermesVenv;
+      little-agent = self'.packages.default;
+      littleVenv = little-agent.littleVenv;
 
       configMergeScript = pkgs.callPackage ./configMergeScript.nix { };
 
       # Auto-generated config key reference — always in sync with Python
-      configKeys = pkgs.runCommand "hermes-config-keys" {} ''
+      configKeys = pkgs.runCommand "little-config-keys" {} ''
         set -euo pipefail
         export HOME=$TMPDIR
-        ${hermesVenv}/bin/python3 -c '
+        ${littleVenv}/bin/python3 -c '
 import json, sys
-from hermes_cli.config import DEFAULT_CONFIG
+from little_cli.config import DEFAULT_CONFIG
 
 def leaf_paths(d, prefix=""):
     paths = []
@@ -49,7 +49,7 @@ json.dump(sorted(leaf_paths(DEFAULT_CONFIG)), sys.stdout, indent=2)
           results = map (sys: { inherit sys; result = tryEvalPkg sys; }) targetSystems;
           failures = builtins.filter (r: !r.result.success) results;
           failMsg = lib.concatMapStringsSep "\n" (r: "  - ${r.sys}") failures;
-        in pkgs.runCommand "hermes-cross-eval" { } (
+        in pkgs.runCommand "little-cross-eval" { } (
           if failures != [] then
             throw "Package fails to evaluate on:\n${failMsg}"
           else ''
@@ -60,15 +60,15 @@ json.dump(sorted(leaf_paths(DEFAULT_CONFIG)), sys.stdout, indent=2)
         );
       } // lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
         # Verify binaries exist and are executable
-        package-contents = pkgs.runCommand "hermes-package-contents" { } ''
+        package-contents = pkgs.runCommand "little-package-contents" { } ''
           set -e
           echo "=== Checking binaries ==="
-          test -x ${hermes-agent}/bin/hermes || (echo "FAIL: hermes binary missing"; exit 1)
-          test -x ${hermes-agent}/bin/hermes-agent || (echo "FAIL: hermes-agent binary missing"; exit 1)
+          test -x ${little-agent}/bin/little || (echo "FAIL: little binary missing"; exit 1)
+          test -x ${little-agent}/bin/little-agent || (echo "FAIL: little-agent binary missing"; exit 1)
           echo "PASS: All binaries present"
 
           echo "=== Checking version ==="
-          ${hermes-agent}/bin/hermes version 2>&1 | grep -qi "hermes" || (echo "FAIL: version check"; exit 1)
+          ${little-agent}/bin/little version 2>&1 | grep -qi "little" || (echo "FAIL: version check"; exit 1)
           echo "PASS: Version check"
 
           echo "=== All checks passed ==="
@@ -77,11 +77,11 @@ json.dump(sorted(leaf_paths(DEFAULT_CONFIG)), sys.stdout, indent=2)
         '';
 
         # Verify every pyproject.toml [project.scripts] entry has a wrapped binary
-        entry-points-sync = pkgs.runCommand "hermes-entry-points-sync" { } ''
+        entry-points-sync = pkgs.runCommand "little-entry-points-sync" { } ''
           set -e
           echo "=== Checking entry points match pyproject.toml [project.scripts] ==="
-          for bin in hermes hermes-agent hermes-acp; do
-            test -x ${hermes-agent}/bin/$bin || (echo "FAIL: $bin binary missing from Nix package"; exit 1)
+          for bin in little little-agent little-acp; do
+            test -x ${little-agent}/bin/$bin || (echo "FAIL: $bin binary missing from Nix package"; exit 1)
             echo "PASS: $bin present"
           done
 
@@ -90,13 +90,13 @@ json.dump(sorted(leaf_paths(DEFAULT_CONFIG)), sys.stdout, indent=2)
         '';
 
         # Verify CLI subcommands are accessible
-        cli-commands = pkgs.runCommand "hermes-cli-commands" { } ''
+        cli-commands = pkgs.runCommand "little-cli-commands" { } ''
           set -e
           export HOME=$(mktemp -d)
 
-          echo "=== Checking hermes --help ==="
-          ${hermes-agent}/bin/hermes --help 2>&1 | grep -q "gateway" || (echo "FAIL: gateway subcommand missing"; exit 1)
-          ${hermes-agent}/bin/hermes --help 2>&1 | grep -q "config" || (echo "FAIL: config subcommand missing"; exit 1)
+          echo "=== Checking little --help ==="
+          ${little-agent}/bin/little --help 2>&1 | grep -q "gateway" || (echo "FAIL: gateway subcommand missing"; exit 1)
+          ${little-agent}/bin/little --help 2>&1 | grep -q "config" || (echo "FAIL: config subcommand missing"; exit 1)
           echo "PASS: All subcommands accessible"
 
           echo "=== All CLI checks passed ==="
@@ -105,19 +105,19 @@ json.dump(sorted(leaf_paths(DEFAULT_CONFIG)), sys.stdout, indent=2)
         '';
 
         # Verify bundled skills are present in the package
-        bundled-skills = pkgs.runCommand "hermes-bundled-skills" { } ''
+        bundled-skills = pkgs.runCommand "little-bundled-skills" { } ''
           set -e
           echo "=== Checking bundled skills ==="
-          test -d ${hermes-agent}/share/hermes-agent/skills || (echo "FAIL: skills directory missing"; exit 1)
+          test -d ${little-agent}/share/little-agent/skills || (echo "FAIL: skills directory missing"; exit 1)
           echo "PASS: skills directory exists"
 
-          SKILL_COUNT=$(find ${hermes-agent}/share/hermes-agent/skills -name "SKILL.md" | wc -l)
+          SKILL_COUNT=$(find ${little-agent}/share/little-agent/skills -name "SKILL.md" | wc -l)
           test "$SKILL_COUNT" -gt 0 || (echo "FAIL: no SKILL.md files found in skills directory"; exit 1)
           echo "PASS: $SKILL_COUNT bundled skills found"
 
-          grep -q "HERMES_BUNDLED_SKILLS" ${hermes-agent}/bin/hermes || \
-            (echo "FAIL: HERMES_BUNDLED_SKILLS not in wrapper"; exit 1)
-          echo "PASS: HERMES_BUNDLED_SKILLS set in wrapper"
+          grep -q "LITTLE_BUNDLED_SKILLS" ${little-agent}/bin/little || \
+            (echo "FAIL: LITTLE_BUNDLED_SKILLS not in wrapper"; exit 1)
+          echo "PASS: LITTLE_BUNDLED_SKILLS set in wrapper"
 
           echo "=== All bundled skills checks passed ==="
           mkdir -p $out
@@ -125,19 +125,19 @@ json.dump(sorted(leaf_paths(DEFAULT_CONFIG)), sys.stdout, indent=2)
         '';
 
         # Verify bundled plugins (platforms, memory, context_engine) are present
-        bundled-plugins = pkgs.runCommand "hermes-bundled-plugins" { } ''
+        bundled-plugins = pkgs.runCommand "little-bundled-plugins" { } ''
           set -e
           echo "=== Checking bundled plugins ==="
-          test -d ${hermes-agent}/share/hermes-agent/plugins || (echo "FAIL: plugins directory missing"; exit 1)
+          test -d ${little-agent}/share/little-agent/plugins || (echo "FAIL: plugins directory missing"; exit 1)
           echo "PASS: plugins directory exists"
 
-          test -f ${hermes-agent}/share/hermes-agent/plugins/platforms/irc/plugin.yaml || \
+          test -f ${little-agent}/share/little-agent/plugins/platforms/irc/plugin.yaml || \
             (echo "FAIL: irc plugin manifest missing"; exit 1)
           echo "PASS: irc plugin manifest present"
 
-          grep -q "HERMES_BUNDLED_PLUGINS" ${hermes-agent}/bin/hermes || \
-            (echo "FAIL: HERMES_BUNDLED_PLUGINS not in wrapper"; exit 1)
-          echo "PASS: HERMES_BUNDLED_PLUGINS set in wrapper"
+          grep -q "LITTLE_BUNDLED_PLUGINS" ${little-agent}/bin/little || \
+            (echo "FAIL: LITTLE_BUNDLED_PLUGINS not in wrapper"; exit 1)
+          echo "PASS: LITTLE_BUNDLED_PLUGINS set in wrapper"
 
           echo "=== All bundled plugins checks passed ==="
           mkdir -p $out
@@ -145,65 +145,65 @@ json.dump(sorted(leaf_paths(DEFAULT_CONFIG)), sys.stdout, indent=2)
         '';
 
         # Verify bundled TUI is present and compiled
-        bundled-tui = pkgs.runCommand "hermes-bundled-tui" { } ''
+        bundled-tui = pkgs.runCommand "little-bundled-tui" { } ''
           set -e
           echo "=== Checking bundled TUI ==="
-          test -d ${hermes-agent}/ui-tui || (echo "FAIL: ui-tui directory missing"; exit 1)
+          test -d ${little-agent}/ui-tui || (echo "FAIL: ui-tui directory missing"; exit 1)
           echo "PASS: ui-tui directory exists"
 
-          test -f ${hermes-agent}/ui-tui/dist/entry.js || (echo "FAIL: compiled entry.js missing"; exit 1)
+          test -f ${little-agent}/ui-tui/dist/entry.js || (echo "FAIL: compiled entry.js missing"; exit 1)
           echo "PASS: compiled entry.js present"
 
           # self-contained bundle; no runtime node_modules expected
 
-          grep -q "HERMES_TUI_DIR" ${hermes-agent}/bin/hermes || \
-            (echo "FAIL: HERMES_TUI_DIR not in wrapper"; exit 1)
-          echo "PASS: HERMES_TUI_DIR set in wrapper"
+          grep -q "LITTLE_TUI_DIR" ${little-agent}/bin/little || \
+            (echo "FAIL: LITTLE_TUI_DIR not in wrapper"; exit 1)
+          echo "PASS: LITTLE_TUI_DIR set in wrapper"
 
           echo "=== All bundled TUI checks passed ==="
           mkdir -p $out
           echo "ok" > $out/result
         '';
 
-        # Verify HERMES_NODE is set in wrapper and points to Node 20+
+        # Verify LITTLE_NODE is set in wrapper and points to Node 20+
         # (string-width uses the /v regex flag which requires Node 20+)
-        hermes-node = pkgs.runCommand "hermes-node-version" { } ''
+        little-node = pkgs.runCommand "little-node-version" { } ''
           set -e
-          echo "=== Checking HERMES_NODE in wrapper ==="
-          grep -q "HERMES_NODE" ${hermes-agent}/bin/hermes || \
-            (echo "FAIL: HERMES_NODE not set in wrapper"; exit 1)
-          echo "PASS: HERMES_NODE present in wrapper"
+          echo "=== Checking LITTLE_NODE in wrapper ==="
+          grep -q "LITTLE_NODE" ${little-agent}/bin/little || \
+            (echo "FAIL: LITTLE_NODE not set in wrapper"; exit 1)
+          echo "PASS: LITTLE_NODE present in wrapper"
 
-          HERMES_NODE=$(sed -n "s/^export HERMES_NODE='\(.*\)'/\1/p" ${hermes-agent}/bin/hermes)
-          test -x "$HERMES_NODE" || (echo "FAIL: HERMES_NODE=$HERMES_NODE not executable"; exit 1)
-          echo "PASS: HERMES_NODE executable at $HERMES_NODE"
+          LITTLE_NODE=$(sed -n "s/^export LITTLE_NODE='\(.*\)'/\1/p" ${little-agent}/bin/little)
+          test -x "$LITTLE_NODE" || (echo "FAIL: LITTLE_NODE=$LITTLE_NODE not executable"; exit 1)
+          echo "PASS: LITTLE_NODE executable at $LITTLE_NODE"
 
-          NODE_MAJOR=$("$HERMES_NODE" --version | sed 's/^v//' | cut -d. -f1)
+          NODE_MAJOR=$("$LITTLE_NODE" --version | sed 's/^v//' | cut -d. -f1)
           test "$NODE_MAJOR" -ge 20 || \
             (echo "FAIL: Node v$NODE_MAJOR < 20, TUI needs /v regex flag support"; exit 1)
           echo "PASS: Node v$NODE_MAJOR >= 20"
 
-          echo "=== All HERMES_NODE checks passed ==="
+          echo "=== All LITTLE_NODE checks passed ==="
           mkdir -p $out
           echo "ok" > $out/result
         '';
 
-        # Verify HERMES_MANAGED guard works on all mutation commands
-        managed-guard = pkgs.runCommand "hermes-managed-guard" { } ''
+        # Verify LITTLE_MANAGED guard works on all mutation commands
+        managed-guard = pkgs.runCommand "little-managed-guard" { } ''
           set -e
           export HOME=$(mktemp -d)
 
           check_blocked() {
             local label="$1"
             shift
-            OUTPUT=$(HERMES_MANAGED=true "$@" 2>&1 || true)
+            OUTPUT=$(LITTLE_MANAGED=true "$@" 2>&1 || true)
             echo "$OUTPUT" | grep -q "managed by NixOS" || (echo "FAIL: $label not guarded"; echo "$OUTPUT"; exit 1)
             echo "PASS: $label blocked in managed mode"
           }
 
-          echo "=== Checking HERMES_MANAGED guards ==="
-          check_blocked "config set" ${hermes-agent}/bin/hermes config set model foo
-          check_blocked "config edit" ${hermes-agent}/bin/hermes config edit
+          echo "=== Checking LITTLE_MANAGED guards ==="
+          check_blocked "config set" ${little-agent}/bin/little config set model foo
+          check_blocked "config edit" ${little-agent}/bin/little config edit
 
           echo "=== All guard checks passed ==="
           mkdir -p $out
@@ -213,23 +213,23 @@ json.dump(sorted(leaf_paths(DEFAULT_CONFIG)), sys.stdout, indent=2)
         # Verify extraPythonPackages PYTHONPATH injection
         extra-python-packages = let
           testPkg = pkgs.python312Packages.pyfiglet;
-          hermesWithExtra = hermes-agent.override {
+          littleWithExtra = little-agent.override {
             extraPythonPackages = [ testPkg ];
           };
-        in pkgs.runCommand "hermes-extra-python-packages" { } ''
+        in pkgs.runCommand "little-extra-python-packages" { } ''
           set -e
           echo "=== Checking extraPythonPackages PYTHONPATH injection ==="
 
-          grep -q "PYTHONPATH" ${hermesWithExtra}/bin/hermes || \
+          grep -q "PYTHONPATH" ${littleWithExtra}/bin/little || \
             (echo "FAIL: PYTHONPATH not in wrapper"; exit 1)
           echo "PASS: PYTHONPATH present in wrapper"
 
-          grep -q "${testPkg}" ${hermesWithExtra}/bin/hermes || \
+          grep -q "${testPkg}" ${littleWithExtra}/bin/little || \
             (echo "FAIL: test package path not in PYTHONPATH"; exit 1)
           echo "PASS: test package path found in wrapper"
 
           echo "=== Checking base package has no PYTHONPATH ==="
-          if grep -q "PYTHONPATH" ${hermes-agent}/bin/hermes; then
+          if grep -q "PYTHONPATH" ${little-agent}/bin/little; then
             echo "FAIL: base package should not have PYTHONPATH"; exit 1
           fi
           echo "PASS: base package clean"
@@ -241,18 +241,18 @@ json.dump(sorted(leaf_paths(DEFAULT_CONFIG)), sys.stdout, indent=2)
 
         # Verify extraDependencyGroups passes through to python.nix
         extra-dependency-groups = let
-          hermesWithGroups = hermes-agent.override {
+          littleWithGroups = little-agent.override {
             extraDependencyGroups = [ "honcho" ];
           };
-        in pkgs.runCommand "hermes-extra-dependency-groups" { } ''
+        in pkgs.runCommand "little-extra-dependency-groups" { } ''
           set -e
           echo "=== Checking extraDependencyGroups override evaluates ==="
 
           # Eval-only: verify the override produces valid derivation paths
           # without building the full venv (which is expensive and redundant
           # since the mechanism is just list concatenation into python.nix).
-          echo "derivation: ${hermesWithGroups}"
-          echo "venv: ${hermesWithGroups.hermesVenv}"
+          echo "derivation: ${littleWithGroups}"
+          echo "venv: ${littleWithGroups.littleVenv}"
           echo "PASS: extraDependencyGroups override evaluates cleanly"
 
           echo "=== All extraDependencyGroups checks passed ==="
@@ -263,10 +263,10 @@ json.dump(sorted(leaf_paths(DEFAULT_CONFIG)), sys.stdout, indent=2)
         # Regression guard: messaging deps live outside [all], so the
         # #messaging variant must actually ship discord.py — otherwise
         # `nix profile install .#messaging` regresses to the broken default.
-        messaging-variant = pkgs.runCommand "hermes-messaging-variant" { } ''
+        messaging-variant = pkgs.runCommand "little-messaging-variant" { } ''
           set -e
           echo "=== Checking discord.py importable from messaging variant ==="
-          ${self'.packages.messaging.hermesVenv}/bin/python3 -c \
+          ${self'.packages.messaging.littleVenv}/bin/python3 -c \
             "import discord; print(discord.__version__)"
           echo "PASS: discord.py importable from messaging variant venv"
           mkdir -p $out
@@ -333,7 +333,7 @@ json.dump(sorted(leaf_paths(DEFAULT_CONFIG)), sys.stdout, indent=2)
                 - USER_VAR
           '';
 
-        in pkgs.runCommand "hermes-config-roundtrip" {
+        in pkgs.runCommand "little-config-roundtrip" {
           nativeBuildInputs = [ pkgs.jq ];
         } ''
           set -e
@@ -344,12 +344,12 @@ json.dump(sorted(leaf_paths(DEFAULT_CONFIG)), sys.stdout, indent=2)
 
           # Helper: run merge then load with Python, output merged JSON
           merge_and_load() {
-            local hermes_home="$1"
-            export HERMES_HOME="$hermes_home"
-            ${configMergeScript} ${nixSettings} "$hermes_home/config.yaml"
-            ${hermesVenv}/bin/python3 -c '
+            local little_home="$1"
+            export LITTLE_HOME="$little_home"
+            ${configMergeScript} ${nixSettings} "$little_home/config.yaml"
+            ${littleVenv}/bin/python3 -c '
 import json, sys
-from hermes_cli.config import load_config
+from little_cli.config import load_config
 json.dump(load_config(), sys.stdout, default=str)
 '
           }

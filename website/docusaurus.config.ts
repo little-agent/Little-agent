@@ -3,15 +3,15 @@ import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
-  title: 'Hermes Agent',
+  title: 'Little Agent',
   tagline: 'The self-improving AI agent',
   favicon: 'img/favicon.ico',
 
-  url: 'https://hermes-agent.nousresearch.com',
+  url: 'https://little-agent.nousresearch.com',
   baseUrl: '/docs/',
 
   organizationName: 'NousResearch',
-  projectName: 'hermes-agent',
+  projectName: 'little-agent',
 
   onBrokenLinks: 'warn',
 
@@ -73,7 +73,7 @@ const config: Config = {
         docs: {
           routeBasePath: '/',  // Docs at the root of /docs/
           sidebarPath: './sidebars.ts',
-          editUrl: 'https://github.com/NousResearch/hermes-agent/edit/main/website/',
+          editUrl: 'https://github.com/little-agent/Little-agent/edit/main/website/',
         },
         blog: false,
         theme: {
@@ -84,7 +84,7 @@ const config: Config = {
   ],
 
   themeConfig: {
-    image: 'img/hermes-agent-banner.png',
+    image: 'img/little-agent-banner.png',
     colorMode: {
       defaultMode: 'dark',
       respectPrefersColorScheme: true,
@@ -96,9 +96,9 @@ const config: Config = {
       },
     },
     navbar: {
-      title: 'Hermes Agent',
+      title: 'Little Agent',
       logo: {
-        alt: 'Hermes Agent',
+        alt: 'Little Agent',
         src: 'img/logo.png',
       },
       items: [
@@ -118,12 +118,12 @@ const config: Config = {
           position: 'right',
         },
         {
-          href: 'https://hermes-agent.nousresearch.com',
+          href: 'https://little-agent.nousresearch.com',
           label: 'Home',
           position: 'right',
         },
         {
-          href: 'https://github.com/NousResearch/hermes-agent',
+          href: 'https://github.com/little-agent/Little-agent',
           label: 'GitHub',
           position: 'right',
         },
@@ -150,14 +150,14 @@ const config: Config = {
           title: 'Community',
           items: [
             { label: 'Discord', href: 'https://discord.gg/NousResearch' },
-            { label: 'GitHub Discussions', href: 'https://github.com/NousResearch/hermes-agent/discussions' },
+            { label: 'GitHub Discussions', href: 'https://github.com/little-agent/Little-agent/discussions' },
             { label: 'Skills Hub', href: 'https://agentskills.io' },
           ],
         },
         {
           title: 'More',
           items: [
-            { label: 'GitHub', href: 'https://github.com/NousResearch/hermes-agent' },
+            { label: 'GitHub', href: 'https://github.com/little-agent/Little-agent' },
             { label: 'Nous Research', href: 'https://nousresearch.com' },
           ],
         },

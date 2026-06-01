@@ -1,1 +1,1 @@
-# Hermes plugins package
+# Little plugins package

@@ -137,8 +137,8 @@ export interface Translations {
     starting: string;
     startedInBackground: string;
     stopped: string;
-    updateHermes: string;
-    updatingHermes: string;
+    updateLittle: string;
+    updatingLittle: string;
     waitingForOutput: string;
   };
 
@@ -454,7 +454,7 @@ export interface Translations {
     switchTheme: string;
   };
 
-  // ── Achievements plugin (plugins/hermes-achievements) ──
+  // ── Achievements plugin (plugins/little-achievements) ──
   achievements: {
     hero: {
       kicker: string;

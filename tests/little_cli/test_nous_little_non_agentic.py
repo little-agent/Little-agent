@@ -1,0 +1,84 @@
+"""Tests for the Nous-Little-3/4 non-agentic warning detector.
+
+Prior to this check, the warning fired on any model whose name contained
+``"little"`` anywhere (case-insensitive). That false-positived on unrelated
+local Modelfiles such as ``little-brain:qwen3-14b-ctx16k`` — a tool-capable
+Qwen3 wrapper that happens to live under the "little" tag namespace.
+
+``is_nous_little_non_agentic`` should only match the actual Nous Research
+Little-3 / Little-4 chat family.
+"""
+
+from __future__ import annotations
+
+import pytest
+
+from little_cli.model_switch import (
+    _LITTLE_MODEL_WARNING,
+    _check_little_model_warning,
+    is_nous_little_non_agentic,
+)
+
+
+@pytest.mark.parametrize(
+    "model_name",
+    [
+        "NousResearch/Little-3-Llama-3.1-70B",
+        "NousResearch/Little-3-Llama-3.1-405B",
+        "little-3",
+        "Little-3",
+        "little-4",
+        "little-4-405b",
+        "little_4_70b",
+        "openrouter/little3:70b",
+        "openrouter/nousresearch/little-4-405b",
+        "NousResearch/Little3",
+        "little-3.1",
+    ],
+)
+def test_matches_real_nous_little_chat_models(model_name: str) -> None:
+    assert is_nous_little_non_agentic(model_name), (
+        f"expected {model_name!r} to be flagged as Nous Little 3/4"
+    )
+    assert _check_little_model_warning(model_name) == _LITTLE_MODEL_WARNING
+
+
+@pytest.mark.parametrize(
+    "model_name",
+    [
+        # Kyle's local Modelfile — qwen3:14b under a custom tag
+        "little-brain:qwen3-14b-ctx16k",
+        "little-brain:qwen3-14b-ctx32k",
+        "little-honcho:qwen3-8b-ctx8k",
+        # Plain unrelated models
+        "qwen3:14b",
+        "qwen3-coder:30b",
+        "qwen2.5:14b",
+        "claude-opus-4-6",
+        "anthropic/claude-sonnet-4.5",
+        "gpt-5",
+        "openai/gpt-4o",
+        "google/gemini-2.5-flash",
+        "deepseek-chat",
+        # Non-chat Little models we don't warn about
+        "little-llm-2",
+        "little2-pro",
+        "nous-little-2-mistral",
+        # Edge cases
+        "",
+        "little",  # bare "little" isn't the 3/4 family
+        "little-brain",
+        "brain-little-3-impostor",  # "3" not preceded by /: boundary
+    ],
+)
+def test_does_not_match_unrelated_models(model_name: str) -> None:
+    assert not is_nous_little_non_agentic(model_name), (
+        f"expected {model_name!r} NOT to be flagged as Nous Little 3/4"
+    )
+    assert _check_little_model_warning(model_name) == ""
+
+
+def test_none_like_inputs_are_safe() -> None:
+    assert is_nous_little_non_agentic("") is False
+    # Defensive: the helper shouldn't crash on None-ish falsy input either.
+    assert _check_little_model_warning("") == ""
