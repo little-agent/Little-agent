@@ -17,7 +17,7 @@ Migrate a user's OpenClaw customization footprint into Little Agent. Imports Lit
 | Source | Optional — install with `little skills install official/migration/openclaw-migration` |
 | Path | `optional-skills/migration/openclaw-migration` |
 | Version | `1.0.0` |
-| Author | Little Agent (Nous Research) |
+| Author | Little Agent (Little Agent Team) |
 | License | MIT |
 | Platforms | linux, macos, windows |
 | Tags | `Migration`, `OpenClaw`, `Little`, `Memory`, `Persona`, `Import` |

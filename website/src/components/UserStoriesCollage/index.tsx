@@ -302,8 +302,8 @@ export default function UserStoriesCollage(): JSX.Element {
           Add your story to this page
         </a>{' '}
         by editing <code>userStories.json</code>, or post it in the{' '}
-        <a href="https://discord.gg/NousResearch" target="_blank" rel="noopener noreferrer">
-          Nous Research Discord
+        <a href="https://discord.gg/little-agent" target="_blank" rel="noopener noreferrer">
+          Little Agent Discord
         </a>{' '}
         and we&apos;ll pick it up.
       </div>

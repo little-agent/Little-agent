@@ -5,7 +5,7 @@ Prior to this check, the warning fired on any model whose name contained
 local Modelfiles such as ``little-brain:qwen3-14b-ctx16k`` — a tool-capable
 Qwen3 wrapper that happens to live under the "little" tag namespace.
 
-``is_nous_little_non_agentic`` should only match the actual Nous Research
+``is_nous_little_non_agentic`` should only match the actual Little Agent Team
 Little-3 / Little-4 chat family.
 """
 
@@ -23,16 +23,16 @@ from little_cli.model_switch import (
 @pytest.mark.parametrize(
     "model_name",
     [
-        "NousResearch/Little-3-Llama-3.1-70B",
-        "NousResearch/Little-3-Llama-3.1-405B",
+        "little-agent/Little-3-Llama-3.1-70B",
+        "little-agent/Little-3-Llama-3.1-405B",
         "little-3",
         "Little-3",
         "little-4",
         "little-4-405b",
         "little_4_70b",
         "openrouter/little3:70b",
-        "openrouter/nousresearch/little-4-405b",
-        "NousResearch/Little3",
+        "openrouter/little-agent/little-4-405b",
+        "little-agent/Little3",
         "little-3.1",
     ],
 )

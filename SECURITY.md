@@ -7,7 +7,7 @@ scope for vulnerability reports.
 ## 1. Reporting a Vulnerability
 
 Report privately via [GitHub Security Advisories](https://github.com/little-agent/Little-agent/security/advisories/new)
-or **security@nousresearch.com**. Do not open public issues for
+or **security@little-agent.com**. Do not open public issues for
 security vulnerabilities. **Little Agent does not operate a bug
 bounty program.**
 
@@ -326,6 +326,6 @@ that:
 - **Coordinated disclosure window:** 90 days from report, or until a
   fix is released, whichever comes first.
 - **Channel:** the GHSA thread or email correspondence with
-  security@nousresearch.com.
+  security@little-agent.com.
 - **Credit:** reporters are credited in release notes unless
   anonymity is requested.

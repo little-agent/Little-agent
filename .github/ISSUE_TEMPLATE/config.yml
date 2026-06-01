@@ -1,7 +1,7 @@
 blank_issues_enabled: true
 contact_links:
-  - name: 💬 Nous Research Discord
-    url: https://discord.gg/NousResearch
+  - name: 💬 Little Agent Discord
+    url: https://discord.gg/little-agent
     about: For quick questions, showcasing projects, sharing skills, and community chat.
   - name: 📖 Documentation
     url: https://github.com/little-agent/Little-agent/blob/main/README.md

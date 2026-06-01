@@ -13,7 +13,7 @@ body:
         - If you're in a chat session, you can use `/debug` instead — it does the same thing
         - Try `little update` to get the latest version
         - Check the [README troubleshooting section](https://github.com/little-agent/Little-agent#troubleshooting)
-        - For general questions, consider the [Nous Research Discord](https://discord.gg/NousResearch) for faster help
+        - For general questions, consider the [Little Agent Discord](https://discord.gg/little-agent) for faster help
 
   - type: textarea
     id: description

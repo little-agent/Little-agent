@@ -38,16 +38,16 @@ class NousProfile(ProviderProfile):
 
 nous = NousProfile(
     name="nous",
-    aliases=("nous-portal", "nousresearch"),
+    aliases=("nous-portal", "little-agent"),
     env_vars=("NOUS_API_KEY",),
-    display_name="Nous Research",
-    description="Nous Research — Little model family",
-    signup_url="https://nousresearch.com/",
+    display_name="Little Agent Team",
+    description="Little Agent Team — Little model family",
+    signup_url="https://little-agent.com/",
     fallback_models=(
         "little-3-405b",
         "little-3-70b",
     ),
-    base_url="https://inference.nousresearch.com/v1",
+    base_url="https://inference.little-agent.com/v1",
     auth_type="oauth_device_code",
 )
 

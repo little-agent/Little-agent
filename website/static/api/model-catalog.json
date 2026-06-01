@@ -3,7 +3,7 @@
   "updated_at": "2026-05-28T17:19:08Z",
   "metadata": {
     "source": "little-agent repo",
-    "docs": "https://little-agent.nousresearch.com/docs/reference/model-catalog"
+    "docs": "https://little-agent.little-agent.com/docs/reference/model-catalog"
   },
   "providers": {
     "openrouter": {

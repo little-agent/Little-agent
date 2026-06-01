@@ -1,5 +1,5 @@
 {
-  description = "Little Agent - AI agent framework by Nous Research";
+  description = "Little Agent - AI agent framework by Little Agent Team";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";

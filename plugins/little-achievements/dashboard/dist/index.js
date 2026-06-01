@@ -263,7 +263,7 @@
     ctx.fillStyle = "#8b95a8";
     ctx.font = "600 20px ui-monospace, 'SF Mono', Menlo, monospace";
     ctx.textBaseline = "bottom";
-    ctx.fillText("LITTLE AGENT  ·  little-agent.nousresearch.com", 70, H - 40);
+    ctx.fillText("LITTLE AGENT  ·  little-agent.little-agent.com", 70, H - 40);
 
     // "UNLOCKED" stamp upper-right
     ctx.textBaseline = "top";
@@ -345,7 +345,7 @@
         tier_part: tierPart,
         name: achievement.name,
       });
-      return tmpl + "\n\n@NousResearch · https://little-agent.nousresearch.com";
+      return tmpl + "\n\n@little-agent · https://little-agent.little-agent.com";
     }
 
     function shareOnX() {

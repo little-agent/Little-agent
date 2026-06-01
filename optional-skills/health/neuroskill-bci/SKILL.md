@@ -8,7 +8,7 @@ description: >
   running locally.
 platforms: [linux, macos, windows]
 version: 1.0.0
-author: Little Agent + Nous Research
+author: Little Agent + Little Agent Team
 license: MIT
 metadata:
   little:

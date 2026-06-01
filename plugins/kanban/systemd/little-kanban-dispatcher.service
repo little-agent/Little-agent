@@ -15,7 +15,7 @@
 
 [Unit]
 Description=Little Kanban dispatcher (DEPRECATED standalone daemon — prefer gateway-embedded dispatch)
-Documentation=https://little-agent.nousresearch.com/docs/user-guide/features/kanban
+Documentation=https://little-agent.little-agent.com/docs/user-guide/features/kanban
 After=network.target
 
 [Service]

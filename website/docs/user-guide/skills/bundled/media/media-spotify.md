@@ -31,7 +31,7 @@ The following is the complete skill definition that Little loads when this skill
 
 # Spotify
 
-Control the user's Spotify account via the Little Spotify toolset (7 tools). Setup guide: https://little-agent.nousresearch.com/docs/user-guide/features/spotify
+Control the user's Spotify account via the Little Spotify toolset (7 tools). Setup guide: https://little-agent.little-agent.com/docs/user-guide/features/spotify
 
 ## When to use this skill
 

@@ -8,7 +8,7 @@
 
 ## ✨ Highlights
 
-- **Nous Tool Gateway** — Paid [Nous Portal](https://portal.nousresearch.com) subscribers now get automatic access to **web search** (Firecrawl), **image generation** (FAL / FLUX 2 Pro), **text-to-speech** (OpenAI TTS), and **browser automation** (Browser Use) through their existing subscription. No separate API keys needed — just run `little model`, select Nous Portal, and pick which tools to enable. Per-tool opt-in via `use_gateway` config, full integration with `little tools` and `little status`, and the runtime correctly prefers the gateway even when direct API keys exist. Replaces the old hidden `LITTLE_ENABLE_NOUS_MANAGED_TOOLS` env var with clean subscription-based detection. ([#11206](https://github.com/little-agent/Little-agent/pull/11206), based on work by @jquesnelle; docs: [#11208](https://github.com/little-agent/Little-agent/pull/11208))
+- **Nous Tool Gateway** — Paid [Nous Portal](https://portal.little-agent.com) subscribers now get automatic access to **web search** (Firecrawl), **image generation** (FAL / FLUX 2 Pro), **text-to-speech** (OpenAI TTS), and **browser automation** (Browser Use) through their existing subscription. No separate API keys needed — just run `little model`, select Nous Portal, and pick which tools to enable. Per-tool opt-in via `use_gateway` config, full integration with `little tools` and `little status`, and the runtime correctly prefers the gateway even when direct API keys exist. Replaces the old hidden `LITTLE_ENABLE_NOUS_MANAGED_TOOLS` env var with clean subscription-based detection. ([#11206](https://github.com/little-agent/Little-agent/pull/11206), based on work by @jquesnelle; docs: [#11208](https://github.com/little-agent/Little-agent/pull/11208))
 
 ---
 

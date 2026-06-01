@@ -5,7 +5,7 @@ import { usePageHeader } from "@/contexts/usePageHeader";
 import { cn } from "@/lib/utils";
 import { PluginSlot } from "@/plugins";
 
-export const LITTLE_DOCS_URL = "https://little-agent.nousresearch.com/docs/";
+export const LITTLE_DOCS_URL = "https://little-agent.little-agent.com/docs/";
 
 const DS_BUTTON_OUTLINED_LINK_CN = cn(
   "group relative inline-grid grid-cols-[auto_1fr_auto] items-center",

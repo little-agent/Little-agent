@@ -257,7 +257,7 @@ class TestDeveloperRoleSwap:
         agent = _make_agent(
             monkeypatch,
             "nous",
-            base_url="https://inference-api.nousresearch.com/v1",
+            base_url="https://inference-api.little-agent.com/v1",
             model="gpt-5",
         )
         messages = [
@@ -319,7 +319,7 @@ class TestBuildApiKwargsNousPortal:
         agent = _make_agent(
             monkeypatch,
             "nous",
-            base_url="https://inference-api.nousresearch.com/v1",
+            base_url="https://inference-api.little-agent.com/v1",
             model="gpt-5",
         )
         messages = [{"role": "user", "content": "hi"}]
@@ -331,7 +331,7 @@ class TestBuildApiKwargsNousPortal:
         agent = _make_agent(
             monkeypatch,
             "nous",
-            base_url="https://inference-api.nousresearch.com/v1",
+            base_url="https://inference-api.little-agent.com/v1",
             model="gpt-5",
         )
         messages = [{"role": "user", "content": "hi"}]

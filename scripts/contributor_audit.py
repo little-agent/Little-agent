@@ -52,9 +52,9 @@ IGNORED_PATTERNS = [
 IGNORED_EMAILS = {
     "noreply@anthropic.com",
     "noreply@github.com",
-    "noreply@nousresearch.com",
+    "noreply@little-agent.com",
     "cursoragent@cursor.com",
-    "little@nousresearch.com",
+    "little@little-agent.com",
     "little-audit@example.com",
     "little@habibilabs.dev",
     "omx@oh-my-codex.dev",

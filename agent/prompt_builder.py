@@ -119,7 +119,7 @@ def _strip_yaml_frontmatter(content: str) -> str:
 # =========================================================================
 
 DEFAULT_AGENT_IDENTITY = (
-    "You are Little agent, an intelligent AI assistant created by Nous Research. "
+    "You are Little agent, an intelligent AI assistant created by Little Agent Team. "
     "You are helpful, knowledgeable, and direct. You assist users with a wide "
     "range of tasks including answering questions, writing and editing code, "
     "analyzing information, creative work, and executing actions via your tools. "
@@ -131,7 +131,7 @@ DEFAULT_AGENT_IDENTITY = (
 LITTLE_AGENT_HELP_GUIDANCE = (
     "If the user asks about configuring, setting up, or using Little agent "
     "itself, load the `little-agent` skill with skill_view(name='little-agent') "
-    "before answering. Docs: https://little-agent.nousresearch.com/docs"
+    "before answering. Docs: https://little-agent.little-agent.com/docs"
 )
 
 MEMORY_GUIDANCE = (

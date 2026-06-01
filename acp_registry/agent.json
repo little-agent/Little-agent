@@ -2,10 +2,10 @@
   "id": "little-agent",
   "name": "Little Agent",
   "version": "0.15.0",
-  "description": "Self-improving open-source AI agent by Nous Research with ACP editor integration, persistent memory, skills, and rich tool support.",
+  "description": "Self-improving open-source AI agent by Little Agent Team with ACP editor integration, persistent memory, skills, and rich tool support.",
   "repository": "https://github.com/little-agent/Little-agent",
-  "website": "https://little-agent.nousresearch.com/docs/user-guide/features/acp",
-  "authors": ["Nous Research"],
+  "website": "https://little-agent.little-agent.com/docs/user-guide/features/acp",
+  "authors": ["Little Agent Team"],
   "license": "MIT",
   "distribution": {
     "uvx": {

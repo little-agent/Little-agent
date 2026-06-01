@@ -325,7 +325,7 @@ Setting `--insecure` keeps the existing single-process session-token behaviour �
 
 If the gate would engage but **no** `DashboardAuthProvider` is registered (no Nous plugin, no custom plugin), `little dashboard` refuses to bind with an explicit error message. There is no "default-deny but accept everything" fallback — a misconfigured gated dashboard never starts.
 
-### Default provider: Nous Research
+### Default provider: Little Agent Team
 
 The bundled `plugins/dashboard_auth/nous` plugin is **always installed** and auto-loaded. It auto-registers a `DashboardAuthProvider` named `nous` when a client ID is configured.
 
@@ -339,7 +339,7 @@ The plugin reads from two surfaces, with the environment variable winning when s
 dashboard:
   oauth:
     client_id: agent:01HXYZ…             # required to engage the gate
-    portal_url: https://portal.nousresearch.com  # optional; defaults to production
+    portal_url: https://portal.little-agent.com  # optional; defaults to production
 ```
 
 **Environment variables** — operator overrides:
@@ -347,7 +347,7 @@ dashboard:
 | Env var | Overrides | Format | Provisioned by |
 |---------|-----------|--------|----------------|
 | `LITTLE_DASHBOARD_OAUTH_CLIENT_ID` | `dashboard.oauth.client_id` | `agent:{instance_id}` | Nous Portal at Fly.io provisioning time |
-| `LITTLE_DASHBOARD_PORTAL_URL` | `dashboard.oauth.portal_url` | URL (default: `https://portal.nousresearch.com`) | Portal — override only for staging or a custom deployment |
+| `LITTLE_DASHBOARD_PORTAL_URL` | `dashboard.oauth.portal_url` | URL (default: `https://portal.little-agent.com`) | Portal — override only for staging or a custom deployment |
 
 Per the Little Agent convention (`~/.little/.env` is for API keys / secrets only), **`config.yaml` is the recommended place to set these values** for local dev, on-prem, and any deployment you control directly. The environment-variable path exists so Fly.io's platform-secret injection can push per-deploy `client_id`s without anyone having to edit `config.yaml` inside the image — that's its primary purpose.
 
@@ -398,11 +398,11 @@ Validation rejects values without `http://` / `https://` scheme, without a host,
 
 ### OAuth flow
 
-The provider implements the [Nous Portal OAuth contract v1](https://github.com/NousResearch/nous-account-service/blob/main/docs/agent-dashboard-oauth-contract.md) — authorization-code grant with PKCE (S256):
+The provider implements the [Nous Portal OAuth contract v1](https://github.com/little-agent/nous-account-service/blob/main/docs/agent-dashboard-oauth-contract.md) — authorization-code grant with PKCE (S256):
 
 1. User hits `/` without a session cookie → gate redirects to `/login`.
-2. Login page shows a "Continue with Nous Research" button → `/auth/login?provider=nous`.
-3. Server stashes PKCE state in a short-lived cookie, redirects user to `https://portal.nousresearch.com/oauth/authorize?…`.
+2. Login page shows a "Continue with Little Agent Team" button → `/auth/login?provider=nous`.
+3. Server stashes PKCE state in a short-lived cookie, redirects user to `https://portal.little-agent.com/oauth/authorize?…`.
 4. User authenticates with Portal, lands at `/auth/callback?code=…&state=…`.
 5. Server exchanges the code for an access token at `POST /api/oauth/token`, verifies the JWT signature against the Portal's JWKS (`/.well-known/jwks.json`), and sets the `little_session_at` cookie.
 6. User is redirected to `/` (or to the original deep-link path via the `next=` query parameter).

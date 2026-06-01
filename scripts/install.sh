@@ -168,7 +168,7 @@ print_banner() {
     echo "┌─────────────────────────────────────────────────────────┐"
     echo "│             ⚕ Little Agent Installer                    │"
     echo "├─────────────────────────────────────────────────────────┤"
-    echo "│  An open source AI agent by Nous Research.              │"
+    echo "│  An open source AI agent by Little Agent Team.              │"
     echo "└─────────────────────────────────────────────────────────┘"
     echo -e "${NC}"
 }

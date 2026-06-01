@@ -53,7 +53,7 @@ LITTLE_OVERLAYS: Dict[str, LittleOverlay] = {
     "nous": LittleOverlay(
         transport="openai_chat",
         auth_type="oauth_device_code",
-        base_url_override="https://inference-api.nousresearch.com/v1",
+        base_url_override="https://inference-api.little-agent.com/v1",
     ),
     "openai-codex": LittleOverlay(
         transport="codex_responses",

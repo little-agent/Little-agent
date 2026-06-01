@@ -505,7 +505,7 @@ def fetch_nous_account_tier(access_token: str, portal_base_url: str = "") -> dic
 
     Returns an empty dict on any failure (network, auth, parse).
     """
-    base = (portal_base_url or "https://portal.nousresearch.com").rstrip("/")
+    base = (portal_base_url or "https://portal.little-agent.com").rstrip("/")
     url = f"{base}/api/oauth/account"
     headers = {
         "Authorization": f"Bearer {access_token}",
@@ -785,7 +785,7 @@ def fetch_nous_recommended_models(
     (network, parse, non-2xx). Callers must treat missing/null fields as
     "no recommendation" and fall back to their own default.
     """
-    base = (portal_base_url or "https://portal.nousresearch.com").rstrip("/")
+    base = (portal_base_url or "https://portal.little-agent.com").rstrip("/")
     now = time.monotonic()
     cached = _nous_recommended_cache.get(base)
     if not force_refresh and cached is not None:
@@ -823,7 +823,7 @@ def _resolve_nous_portal_url() -> str:
             return portal.rstrip("/")
         return str(DEFAULT_NOUS_PORTAL_URL).rstrip("/")
     except Exception:
-        return "https://portal.nousresearch.com"
+        return "https://portal.little-agent.com"
 
 
 def _extract_model_name(entry: Any) -> Optional[str]:
@@ -910,7 +910,7 @@ class ProviderEntry(NamedTuple):
     tui_desc: str   # detailed description for `little model` TUI
 
 CANONICAL_PROVIDERS: list[ProviderEntry] = [
-    ProviderEntry("nous",           "Nous Portal",              "Nous Portal (Nous Research subscription)"),
+    ProviderEntry("nous",           "Nous Portal",              "Nous Portal (Little Agent Team subscription)"),
     ProviderEntry("openrouter",     "OpenRouter",               "OpenRouter (100+ models, pay-per-use)"),
     ProviderEntry("novita",         "NovitaAI",                 "NovitaAI (AI-native cloud: Model API, Agent Sandbox, GPU Cloud)"),
     ProviderEntry("lmstudio",       "LM Studio",                "LM Studio (local desktop app with built-in model server)"),
@@ -1341,7 +1341,7 @@ def _resolve_openrouter_api_key() -> str:
     return os.getenv("OPENROUTER_API_KEY", "").strip()
 
 
-_DEFAULT_NOUS_INFERENCE_BASE = "https://inference-api.nousresearch.com"
+_DEFAULT_NOUS_INFERENCE_BASE = "https://inference-api.little-agent.com"
 
 
 def _resolve_nous_pricing_credentials() -> tuple[str, str]:
@@ -1380,7 +1380,7 @@ def get_pricing_for_provider(provider: str, *, force_refresh: bool = False) -> d
     if normalized == "nous":
         api_key, base_url = _resolve_nous_pricing_credentials()
         if base_url:
-            # Nous base_url typically looks like https://inference-api.nousresearch.com/v1
+            # Nous base_url typically looks like https://inference-api.little-agent.com/v1
             # We need the part before /v1 for our fetch function
             stripped = base_url.rstrip("/")
             if stripped.endswith("/v1"):

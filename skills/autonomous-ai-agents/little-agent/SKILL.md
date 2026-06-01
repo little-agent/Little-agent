@@ -14,7 +14,7 @@ metadata:
 
 # Little Agent
 
-Little Agent is an open-source AI agent framework by Nous Research that runs in your terminal, messaging platforms, and IDEs. It belongs to the same category as Claude Code (Anthropic), Codex (OpenAI), and OpenClaw — autonomous coding and task-execution agents that use tool calling to interact with your system. Little works with any LLM provider (OpenRouter, Anthropic, OpenAI, DeepSeek, local models, and 15+ others) and runs on Linux, macOS, and WSL.
+Little Agent is an open-source AI agent framework by Little Agent Team that runs in your terminal, messaging platforms, and IDEs. It belongs to the same category as Claude Code (Anthropic), Codex (OpenAI), and OpenClaw — autonomous coding and task-execution agents that use tool calling to interact with your system. Little works with any LLM provider (OpenRouter, Anthropic, OpenAI, DeepSeek, local models, and 15+ others) and runs on Linux, macOS, and WSL.
 
 What makes Little different:
 
@@ -29,7 +29,7 @@ People use Little for software development, research, system administration, dat
 
 **This skill helps you work with Little Agent effectively** — setting it up, configuring features, spawning additional agent instances, troubleshooting issues, finding the right commands and settings, and understanding how the system works when you need to extend or contribute to it.
 
-**Docs:** https://little-agent.nousresearch.com/docs/
+**Docs:** https://little-agent.little-agent.com/docs/
 
 ## Quick Start
 
@@ -153,7 +153,7 @@ little gateway setup        Configure platforms
 
 Supported platforms: Telegram, Discord, Slack, WhatsApp, Signal, Email, SMS, Matrix, Mattermost, Home Assistant, DingTalk, Feishu, WeCom, BlueBubbles (iMessage), Weixin (WeChat), API Server, Webhooks. Open WebUI connects via the API Server adapter.
 
-Platform docs: https://little-agent.nousresearch.com/docs/user-guide/messaging/
+Platform docs: https://little-agent.little-agent.com/docs/user-guide/messaging/
 
 ### Sessions
 
@@ -232,7 +232,7 @@ little uninstall            Uninstall Little
 
 Type these during an interactive chat session. New commands land fairly
 often; if something below looks stale, run `/help` in-session for the
-authoritative list or see the [live slash commands reference](https://little-agent.nousresearch.com/docs/reference/slash-commands).
+authoritative list or see the [live slash commands reference](https://little-agent.little-agent.com/docs/reference/slash-commands).
 The registry of record is `little_cli/commands.py` — every consumer
 (autocomplete, Telegram menu, Slack mapping, `/help`) derives from it.
 
@@ -365,7 +365,7 @@ Edit with `little config edit` or `little config set section.key value`.
 | `delegation` | `model`, `provider`, `base_url`, `api_key`, `max_iterations` (50), `reasoning_effort` |
 | `checkpoints` | `enabled`, `max_snapshots` (50) |
 
-Full config reference: https://little-agent.nousresearch.com/docs/user-guide/configuration
+Full config reference: https://little-agent.little-agent.com/docs/user-guide/configuration
 
 ### Providers
 
@@ -395,7 +395,7 @@ Full config reference: https://little-agent.nousresearch.com/docs/user-guide/con
 | Custom endpoint | Config | `model.base_url` + `model.api_key` in config.yaml |
 | GitHub Copilot ACP | External | `COPILOT_CLI_PATH` or Copilot CLI |
 
-Full provider docs: https://little-agent.nousresearch.com/docs/integrations/providers
+Full provider docs: https://little-agent.little-agent.com/docs/integrations/providers
 
 ### Toolsets
 
@@ -655,7 +655,7 @@ the `cronjob` tool, the `little cron` CLI (`list`, `add`, `edit`,
   header/footer instead of being mirrored into the target gateway
   session (keeps role alternation intact).
 
-User docs: https://little-agent.nousresearch.com/docs/user-guide/features/cron
+User docs: https://little-agent.little-agent.com/docs/user-guide/features/cron
 
 ### Curator (skill lifecycle)
 
@@ -676,7 +676,7 @@ so nothing is lost.
 
 Config: `curator.*` (`enabled`, `interval_hours`, `min_idle_hours`,
 `stale_after_days`, `archive_after_days`, `backup.*`).
-User docs: https://little-agent.nousresearch.com/docs/user-guide/features/curator
+User docs: https://little-agent.little-agent.com/docs/user-guide/features/curator
 
 ### Kanban (multi-agent work queue)
 
@@ -705,7 +705,7 @@ sessions still have zero `kanban_*` schema footprint unless configured.
   `LITTLE_KANBAN_BOARD` pinned in env); tenant is a soft namespace
   within a board for workspace-path + memory-key isolation.
 
-User docs: https://little-agent.nousresearch.com/docs/user-guide/features/kanban
+User docs: https://little-agent.little-agent.com/docs/user-guide/features/kanban
 
 ---
 
@@ -856,18 +856,18 @@ little config set auxiliary.vision.model <model_name>
 
 | Looking for... | Location |
 |----------------|----------|
-| Config options | `little config edit` or [Configuration docs](https://little-agent.nousresearch.com/docs/user-guide/configuration) |
-| Available tools | `little tools list` or [Tools reference](https://little-agent.nousresearch.com/docs/reference/tools-reference) |
-| Slash commands | `/help` in session or [Slash commands reference](https://little-agent.nousresearch.com/docs/reference/slash-commands) |
-| Skills catalog | `little skills browse` or [Skills catalog](https://little-agent.nousresearch.com/docs/reference/skills-catalog) |
-| Provider setup | `little model` or [Providers guide](https://little-agent.nousresearch.com/docs/integrations/providers) |
-| Platform setup | `little gateway setup` or [Messaging docs](https://little-agent.nousresearch.com/docs/user-guide/messaging/) |
-| MCP servers | `little mcp list` or [MCP guide](https://little-agent.nousresearch.com/docs/user-guide/features/mcp) |
-| Profiles | `little profile list` or [Profiles docs](https://little-agent.nousresearch.com/docs/user-guide/profiles) |
-| Cron jobs | `little cron list` or [Cron docs](https://little-agent.nousresearch.com/docs/user-guide/features/cron) |
-| Memory | `little memory status` or [Memory docs](https://little-agent.nousresearch.com/docs/user-guide/features/memory) |
-| Env variables | `little config env-path` or [Env vars reference](https://little-agent.nousresearch.com/docs/reference/environment-variables) |
-| CLI commands | `little --help` or [CLI reference](https://little-agent.nousresearch.com/docs/reference/cli-commands) |
+| Config options | `little config edit` or [Configuration docs](https://little-agent.little-agent.com/docs/user-guide/configuration) |
+| Available tools | `little tools list` or [Tools reference](https://little-agent.little-agent.com/docs/reference/tools-reference) |
+| Slash commands | `/help` in session or [Slash commands reference](https://little-agent.little-agent.com/docs/reference/slash-commands) |
+| Skills catalog | `little skills browse` or [Skills catalog](https://little-agent.little-agent.com/docs/reference/skills-catalog) |
+| Provider setup | `little model` or [Providers guide](https://little-agent.little-agent.com/docs/integrations/providers) |
+| Platform setup | `little gateway setup` or [Messaging docs](https://little-agent.little-agent.com/docs/user-guide/messaging/) |
+| MCP servers | `little mcp list` or [MCP guide](https://little-agent.little-agent.com/docs/user-guide/features/mcp) |
+| Profiles | `little profile list` or [Profiles docs](https://little-agent.little-agent.com/docs/user-guide/profiles) |
+| Cron jobs | `little cron list` or [Cron docs](https://little-agent.little-agent.com/docs/user-guide/features/cron) |
+| Memory | `little memory status` or [Memory docs](https://little-agent.little-agent.com/docs/user-guide/features/memory) |
+| Env variables | `little config env-path` or [Env vars reference](https://little-agent.little-agent.com/docs/reference/environment-variables) |
+| CLI commands | `little --help` or [CLI reference](https://little-agent.little-agent.com/docs/reference/cli-commands) |
 | Gateway logs | `~/.little/logs/gateway.log` |
 | Session files | `little sessions browse` (reads state.db) |
 | Source code | `~/.little/little-agent/` |
@@ -876,7 +876,7 @@ little config set auxiliary.vision.model <model_name>
 
 ## Contributor Quick Reference
 
-For occasional contributors and PR authors. Full developer docs: https://little-agent.nousresearch.com/docs/developer-guide/
+For occasional contributors and PR authors. Full developer docs: https://little-agent.little-agent.com/docs/developer-guide/
 
 ### Project Layout
 

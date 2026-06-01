@@ -8,7 +8,7 @@
 
 ## ✨ Highlights
 
-- **Nous Portal now supports 400+ models** — The Nous Research inference portal has expanded dramatically, giving Little Agent users access to over 400 models through a single provider endpoint
+- **Nous Portal now supports 400+ models** — The Little Agent Team inference portal has expanded dramatically, giving Little Agent users access to over 400 models through a single provider endpoint
 
 - **Hugging Face as a first-class inference provider** — Full integration with HF Inference API including curated agentic model picker that maps to OpenRouter analogues, live `/models` endpoint probe, and setup wizard flow ([#3419](https://github.com/little-agent/Little-agent/pull/3419), [#3440](https://github.com/little-agent/Little-agent/pull/3440))
 

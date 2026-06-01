@@ -149,12 +149,12 @@ little webhook subscribe pr-review \
   --deliver github_comment
 ```
 
-Full automation templates gallery: [little-agent.nousresearch.com/docs/guides/automation-templates](https://little-agent.nousresearch.com/docs/guides/automation-templates)
+Full automation templates gallery: [little-agent.little-agent.com/docs/guides/automation-templates](https://little-agent.little-agent.com/docs/guides/automation-templates)
 
-Documentation: [little-agent.nousresearch.com](https://little-agent.nousresearch.com)
+Documentation: [little-agent.little-agent.com](https://little-agent.little-agent.com)
 
 GitHub: [github.com/little-agent/Little-agent](https://github.com/little-agent/Little-agent)
 
 ---
 
-*Little Agent is built by [Nous Research](https://nousresearch.com). Open source, model-agnostic, runs on your infrastructure.*
+*Little Agent is built by the Little Agent Team. Open source, model-agnostic, runs on your infrastructure.*

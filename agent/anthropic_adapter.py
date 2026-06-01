@@ -2145,7 +2145,7 @@ def build_anthropic_kwargs(
                 text = text.replace("Little Agent", "Claude Code")
                 text = text.replace("Little agent", "Claude Code")
                 text = text.replace("little-agent", "claude-code")
-                text = text.replace("Nous Research", "Anthropic")
+                text = text.replace("Little Agent Team", "Anthropic")
                 block["text"] = text
 
         # 3. Prefix tool names with mcp_ (Claude Code convention)

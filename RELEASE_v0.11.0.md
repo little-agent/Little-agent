@@ -433,7 +433,7 @@ The `fix:` category in this window covers 482 PRs. Highlights:
 @MagicRay1217, @malaiwah, @manuelschipper, @Marvae, @MassiveMassimo, @mavrickdeveloper, @maxchernin, @memosr,
 @meng93, @mengjian-github, @MestreY0d4-Uninter, @Mibayy, @MikeFac, @mikewaters, @milkoor, @minorgod,
 @MrNiceRicee, @ms-alan, @mvanhorn, @n-WN, @N0nb0at, @Nan93, @NIDNASSER-Abdelmajid, @nish3451, @niyoh120,
-@nocoo, @nosleepcassette, @NousResearch, @ogzerber, @omnissiah-comelse, @Only-Code-A, @opriz, @OwenYWT, @pedh,
+@nocoo, @nosleepcassette, @little-agent, @ogzerber, @omnissiah-comelse, @Only-Code-A, @opriz, @OwenYWT, @pedh,
 @pefontana, @PeterBerthelsen, @phpoh, @pinion05, @plgonzalezrx8, @pradeep7127, @priveperfumes,
 @projectadmin-dev, @PStarH, @rnijhara, @Roy-oss1, @roytian1217, @RucchiZ, @Ruzzgar, @RyanLee-Dev, @Salt-555,
 @Sanjays2402, @sgaofen, @sharziki, @shenuu, @shin4, @SHL0MS, @shushuzn, @sicnuyudidi, @simon-gtcl,

@@ -18,9 +18,9 @@ from typing import Optional
 from little_cli.colors import Colors, color
 from little_cli.config import load_config
 
-DEFAULT_PORTAL_URL = "https://portal.nousresearch.com"
-SUBSCRIPTION_URL = "https://portal.nousresearch.com/manage-subscription"
-DOCS_URL = "https://little-agent.nousresearch.com/docs/user-guide/features/tool-gateway"
+DEFAULT_PORTAL_URL = "https://portal.little-agent.com"
+SUBSCRIPTION_URL = "https://portal.little-agent.com/manage-subscription"
+DOCS_URL = "https://little-agent.little-agent.com/docs/user-guide/features/tool-gateway"
 
 
 def _nous_portal_base_url() -> str:

@@ -34,7 +34,7 @@ Key capabilities:
 ## Setup
 
 :::tip Nous Subscribers
-If you have a paid [Nous Portal](https://portal.nousresearch.com) subscription, you can use browser automation through the **[Tool Gateway](tool-gateway.md)** without any separate API keys. New installs can run `little setup --portal` to log in and turn on every gateway tool at once; existing installs can pick **Nous Subscription** as the browser provider via `little model` or `little tools`.
+If you have a paid [Nous Portal](https://portal.little-agent.com) subscription, you can use browser automation through the **[Tool Gateway](tool-gateway.md)** without any separate API keys. New installs can run `little setup --portal` to log in and turn on every gateway tool at once; existing installs can pick **Nous Subscription** as the browser provider via `little model` or `little tools`.
 :::
 
 ### Browserbase cloud mode
@@ -410,7 +410,7 @@ The `browser` toolset must be included in your config's `toolsets` list or enabl
 Navigate to a URL. Must be called before any other browser tool. Initializes the Browserbase session.
 
 ```
-Navigate to https://github.com/NousResearch
+Navigate to https://github.com/little-agent
 ```
 
 :::tip

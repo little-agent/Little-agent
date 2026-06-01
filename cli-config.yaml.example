@@ -1146,7 +1146,7 @@ display:
 # dashboard:
 #   oauth:
 #     client_id: ""    # agent:{instance_id}; Portal provisions this at deploy
-#     portal_url: ""   # blank → default https://portal.nousresearch.com
+#     portal_url: ""   # blank → default https://portal.little-agent.com
 #
 #   # Force the absolute base URL the OAuth callback (and any other public
 #   # URL the dashboard hands to external systems) is built from. Set this

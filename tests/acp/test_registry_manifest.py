@@ -33,8 +33,8 @@ def test_agent_json_matches_official_registry_required_fields():
     assert data["name"] == "Little Agent"
     assert data["description"]
     assert data["repository"] == "https://github.com/little-agent/Little-agent"
-    assert data["website"].startswith("https://little-agent.nousresearch.com/")
-    assert data["authors"] == ["Nous Research"]
+    assert data["website"].startswith("https://little-agent.little-agent.com/")
+    assert data["authors"] == ["Little Agent Team"]
     assert data["license"] == "MIT"
     assert set(data["distribution"]) <= ALLOWED_DISTRIBUTIONS
 

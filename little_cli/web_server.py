@@ -655,7 +655,7 @@ async def get_status():
 
     # Dashboard auth gate (Phase 7): surface whether the gate is engaged
     # and which providers are registered so ``little status`` and the
-    # SPA's StatusPage can show "OAuth gate ON via Nous Research" or
+    # SPA's StatusPage can show "OAuth gate ON via Little Agent Team" or
     # "loopback only — no auth gate" with no extra round trips.
     auth_required = bool(getattr(app.state, "auth_required", False))
     auth_providers: list[str] = []
@@ -1479,7 +1479,7 @@ _OAUTH_PROVIDER_CATALOG: tuple[Dict[str, Any], ...] = (
         "name": "Nous Portal",
         "flow": "device_code",
         "cli_command": "little auth add nous",
-        "docs_url": "https://portal.nousresearch.com",
+        "docs_url": "https://portal.little-agent.com",
         "status_fn": None,  # dispatched via auth.get_nous_auth_status
     },
     {

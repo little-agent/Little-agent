@@ -7,10 +7,10 @@ const config: Config = {
   tagline: 'The self-improving AI agent',
   favicon: 'img/favicon.ico',
 
-  url: 'https://little-agent.nousresearch.com',
+  url: 'https://little-agent.little-agent.com',
   baseUrl: '/docs/',
 
-  organizationName: 'NousResearch',
+  organizationName: 'little-agent',
   projectName: 'little-agent',
 
   onBrokenLinks: 'warn',
@@ -118,7 +118,7 @@ const config: Config = {
           position: 'right',
         },
         {
-          href: 'https://little-agent.nousresearch.com',
+          href: 'https://little-agent.little-agent.com',
           label: 'Home',
           position: 'right',
         },
@@ -128,7 +128,7 @@ const config: Config = {
           position: 'right',
         },
         {
-          href: 'https://discord.gg/NousResearch',
+          href: 'https://discord.gg/little-agent',
           label: 'Discord',
           position: 'right',
         },
@@ -149,7 +149,7 @@ const config: Config = {
         {
           title: 'Community',
           items: [
-            { label: 'Discord', href: 'https://discord.gg/NousResearch' },
+            { label: 'Discord', href: 'https://discord.gg/little-agent' },
             { label: 'GitHub Discussions', href: 'https://github.com/little-agent/Little-agent/discussions' },
             { label: 'Skills Hub', href: 'https://agentskills.io' },
           ],
@@ -158,11 +158,11 @@ const config: Config = {
           title: 'More',
           items: [
             { label: 'GitHub', href: 'https://github.com/little-agent/Little-agent' },
-            { label: 'Nous Research', href: 'https://nousresearch.com' },
+            { label: 'Little Agent Team', href: 'https://little-agent.com' },
           ],
         },
       ],
-      copyright: `Built by <a href="https://nousresearch.com">Nous Research</a> · MIT License · ${new Date().getFullYear()}`,
+      copyright: `Built by <a href="https://little-agent.com">Little Agent Team</a> · MIT License · ${new Date().getFullYear()}`,
     },
     prism: {
       theme: prismThemes.github,

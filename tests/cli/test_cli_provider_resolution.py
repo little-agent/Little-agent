@@ -638,8 +638,8 @@ def test_cmd_model_forwards_nous_login_tls_options(monkeypatch):
 
     little_main.cmd_model(
         SimpleNamespace(
-            portal_url="https://portal.nousresearch.com",
-            inference_url="https://inference.nousresearch.com/v1",
+            portal_url="https://portal.little-agent.com",
+            inference_url="https://inference.little-agent.com/v1",
             client_id="little-local",
             scope="openid profile",
             no_browser=True,
@@ -650,8 +650,8 @@ def test_cmd_model_forwards_nous_login_tls_options(monkeypatch):
     )
 
     assert captured == {
-        "portal_url": "https://portal.nousresearch.com",
-        "inference_url": "https://inference.nousresearch.com/v1",
+        "portal_url": "https://portal.little-agent.com",
+        "inference_url": "https://inference.little-agent.com/v1",
         "client_id": "little-local",
         "scope": "openid profile",
         "no_browser": True,

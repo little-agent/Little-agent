@@ -6887,7 +6887,7 @@ def _print_curator_first_run_notice() -> None:
     print("  Preview now:  little curator run --dry-run")
     print("  Pause it:     little curator pause")
     print(
-        "  Docs:         https://little-agent.nousresearch.com/docs/user-guide/features/curator"
+        "  Docs:         https://little-agent.little-agent.com/docs/user-guide/features/curator"
     )
 
 
@@ -11370,7 +11370,7 @@ def main():
             "Manage the fallback provider chain.  Fallback providers are tried "
             "in order when the primary model fails with rate-limit, overload, or "
             "connection errors.  See: "
-            "https://little-agent.nousresearch.com/docs/user-guide/features/fallback-providers"
+            "https://little-agent.little-agent.com/docs/user-guide/features/fallback-providers"
         ),
     )
     fallback_subparsers = fallback_parser.add_subparsers(dest="fallback_command")
@@ -11404,7 +11404,7 @@ def main():
             "Pull API keys from an external secret manager at process startup "
             "instead of storing them in ~/.little/.env.  Currently supports "
             "Bitwarden Secrets Manager.  See: "
-            "https://little-agent.nousresearch.com/docs/user-guide/secrets/bitwarden"
+            "https://little-agent.little-agent.com/docs/user-guide/secrets/bitwarden"
         ),
     )
     secrets_subparsers = secrets_parser.add_subparsers(dest="secrets_command")

@@ -53,7 +53,7 @@ sidebar_position: 1
 
 ### Nous Portal
 
-[Nous Portal](https://portal.nousresearch.com) 是 Nous Research 的统一订阅网关，也是**运行 Little Agent 的推荐方式**。一次 OAuth 登录即可访问 300+ 前沿智能体模型（Claude、GPT、Gemini、DeepSeek、Qwen、Kimi、GLM、MiniMax、Grok 等），以及 [Tool Gateway](/user-guide/features/tool-gateway)（网页搜索、图像生成、TTS、浏览器自动化）和 [Nous Chat](https://chat.nousresearch.com)——费用从你的 Nous 订阅中扣除，无需单独管理各提供商账户。
+[Nous Portal](https://portal.little-agent.com) 是 Little Agent Team 的统一订阅网关，也是**运行 Little Agent 的推荐方式**。一次 OAuth 登录即可访问 300+ 前沿智能体模型（Claude、GPT、Gemini、DeepSeek、Qwen、Kimi、GLM、MiniMax、Grok 等），以及 [Tool Gateway](/user-guide/features/tool-gateway)（网页搜索、图像生成、TTS、浏览器自动化）和 [Nous Chat](https://chat.little-agent.com)——费用从你的 Nous 订阅中扣除，无需单独管理各提供商账户。
 
 ```bash
 little setup --portal     # 全新安装——一条命令完成 OAuth + 提供商 + 网关配置
@@ -61,7 +61,7 @@ little model              # 已有安装——从列表中选择"Nous Portal"
 little portal status      # 随时查看登录状态和路由信息
 ```
 
-还没有订阅？前往 [portal.nousresearch.com/manage-subscription](https://portal.nousresearch.com/manage-subscription) 购买。
+还没有订阅？前往 [portal.little-agent.com/manage-subscription](https://portal.little-agent.com/manage-subscription) 购买。
 
 **完整详情：** 参见专属的 [Nous Portal 集成页面](/integrations/nous-portal)（订阅内容、模型目录、故障排查）以及分步指南[使用 Nous Portal 运行 Little Agent](/guides/run-little-with-nous-portal)。
 

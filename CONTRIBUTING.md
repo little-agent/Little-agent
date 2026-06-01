@@ -45,7 +45,7 @@ Bundled skills (in `skills/`) ship with every Little install. They should be **b
 
 If your skill is official and useful but not universally needed (e.g., a paid service integration, a heavyweight dependency), put it in **`optional-skills/`** — it ships with the repo but isn't activated by default. Users can discover it via `little skills browse` (labeled "official") and install it with `little skills install` (no third-party warning, builtin trust).
 
-If your skill is specialized, community-contributed, or niche, it's better suited for a **Skills Hub** — upload it to a skills registry and share it in the [Nous Research Discord](https://discord.gg/NousResearch). Users can install it with `little skills install`.
+If your skill is specialized, community-contributed, or niche, it's better suited for a **Skills Hub** — upload it to a skills registry and share it in the [Little Agent Discord](https://discord.gg/little-agent). Users can install it with `little skills install`.
 
 ---
 
@@ -194,7 +194,7 @@ little-agent/
 ├── skills/                   # Bundled skills (copied to ~/.little/skills/ on install)
 ├── optional-skills/          # Official optional skills (discoverable via hub, not activated by default)
 ├── tests/                    # Test suite
-├── website/                  # Documentation site (little-agent.nousresearch.com)
+├── website/                  # Documentation site (little-agent.little-agent.com)
 │
 ├── cli-config.yaml.example   # Example configuration (copied to ~/.little/config.yaml)
 └── AGENTS.md                 # Development guide for AI coding assistants
@@ -911,7 +911,7 @@ test(tools): add unit tests for file_operations
 
 ## Community
 
-- **Discord**: [discord.gg/NousResearch](https://discord.gg/NousResearch) — for questions, showcasing projects, and sharing skills
+- **Discord**: [discord.gg/little-agent](https://discord.gg/little-agent) — for questions, showcasing projects, and sharing skills
 - **GitHub Discussions**: For design proposals and architecture discussions
 - **Skills Hub**: Upload specialized skills to a registry and share them with the community
 
