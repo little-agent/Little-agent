@@ -540,12 +540,11 @@ export default function App() {
                 <PluginSlot name="header-left" />
 
                 <Typography
-                  className="font-bold text-[1.125rem] leading-[0.95] tracking-[0.0525rem] text-midground uppercase"
-                  style={{ mixBlendMode: "plus-lighter" }}
+                  className="font-mono font-bold text-xs leading-[1.3] tracking-[0.18em] text-purple-200 uppercase"
                 >
                   Little
                   <br />
-                  Agent
+                  <span className="text-purple-400 font-extrabold">Agent</span>
                 </Typography>
               </div>
 
@@ -601,8 +600,8 @@ export default function App() {
                 >
                   <span
                     className={cn(
-                      "px-5 pt-2.5 pb-1",
-                      "font-mondwest text-display text-xs tracking-[0.12em] text-text-tertiary",
+                      "px-6 pt-3.5 pb-1.5",
+                      "font-mono text-[0.65rem] tracking-widest text-purple-400/40 uppercase font-bold",
                       isDesktopCollapsed && "lg:hidden",
                     )}
                     id="little-sidebar-plugin-nav-heading"
@@ -789,23 +788,20 @@ function SidebarNavLink({
         onBlur={collapsed ? () => setHovered(false) : undefined}
         className={({ isActive }) =>
           cn(
-            "group/nav relative flex items-center gap-3",
-            "px-5 py-2.5",
-            "font-mondwest text-display uppercase text-sm tracking-[0.12em]",
-            "whitespace-nowrap transition-colors cursor-pointer",
-            "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-midground",
+            "group/nav relative flex items-center gap-3.5",
+            "px-4 py-2.5",
+            "font-mono text-xs uppercase tracking-[0.14em]",
+            "whitespace-nowrap transition-all duration-200 cursor-pointer rounded-lg mx-3.5 my-0.5",
+            "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-purple-500/30",
             isActive
-              ? "text-midground"
-              : "text-text-secondary hover:text-midground",
+              ? "text-purple-300 bg-purple-500/10 border border-purple-500/20 shadow-[0_0_12px_rgba(168,85,247,0.12)] font-semibold"
+              : "text-purple-400/60 hover:text-purple-300 hover:bg-purple-500/5 border border-transparent",
           )
         }
-        style={{
-          clipPath: "var(--component-tab-clip-path)",
-        }}
       >
         {({ isActive }) => (
           <>
-            <Icon className="h-3.5 w-3.5 shrink-0" />
+            <Icon className={cn("h-4 w-4 shrink-0 transition-transform duration-200 group-hover/nav:scale-110", isActive ? "text-purple-300" : "text-purple-400/60")} />
 
             <span
               className={cn(
@@ -816,17 +812,8 @@ function SidebarNavLink({
               {navLabel}
             </span>
 
-            <span
-              aria-hidden
-              className="absolute inset-y-0.5 left-1.5 right-1.5 bg-midground opacity-0 pointer-events-none transition-opacity duration-200 group-hover/nav:opacity-5"
-            />
-
-            {isActive && (
-              <span
-                aria-hidden
-                className="absolute left-0 top-0 bottom-0 w-px bg-midground"
-                style={{ mixBlendMode: "plus-lighter" }}
-              />
+            {isActive && !collapsed && (
+              <span className="ml-auto h-1.5 w-1.5 rounded-full bg-purple-500 animate-pulse shadow-[0_0_8px_rgba(168,85,247,0.6)]" />
             )}
           </>
         )}
@@ -884,8 +871,8 @@ function SidebarSystemActions({
     >
       <span
         className={cn(
-          "px-5 pt-0.5 pb-0.5",
-          "font-mondwest text-display text-xs tracking-[0.12em] text-text-tertiary",
+          "px-6 pt-2 pb-1.5",
+          "font-mono text-[0.65rem] tracking-widest text-purple-400/40 uppercase font-bold",
           collapsed && "lg:hidden",
         )}
       >
@@ -946,25 +933,26 @@ function SystemActionButton({
         onBlur={collapsed ? () => setHovered(false) : undefined}
         type="button"
         className={cn(
-          "group/action relative flex w-full items-center gap-3",
-          "px-5 py-2.5",
-          "font-mondwest text-display text-xs tracking-[0.1em]",
-          "whitespace-nowrap transition-colors cursor-pointer",
-          "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-midground",
+          "group/action relative flex w-full items-center gap-3.5",
+          "px-4 py-2.5",
+          "font-mono text-xs uppercase tracking-[0.14em]",
+          "whitespace-nowrap transition-all duration-200 cursor-pointer rounded-lg mx-3.5 my-0.5 border border-transparent",
+          "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-purple-500/30",
           busy
-            ? "text-midground"
-            : "text-text-secondary hover:text-midground",
-          "disabled:text-text-disabled disabled:cursor-not-allowed",
+            ? "text-purple-300 bg-purple-500/10 border-purple-500/20"
+            : "text-purple-400/60 hover:text-purple-300 hover:bg-purple-500/5",
+          "disabled:text-purple-400/20 disabled:cursor-not-allowed disabled:hover:bg-transparent",
         )}
       >
         {isPending ? (
-          <Spinner className="shrink-0 text-[0.875rem]" />
+          <Spinner className="shrink-0 text-[0.875rem] text-purple-400" />
         ) : isActionRunning && spin ? (
-          <Spinner className="shrink-0 text-[0.875rem]" />
+          <Spinner className="shrink-0 text-[0.875rem] text-purple-400" />
         ) : (
           <Icon
             className={cn(
-              "h-3.5 w-3.5 shrink-0",
+              "h-4 w-4 shrink-0 transition-transform duration-200 group-hover/action:scale-110",
+              busy ? "text-purple-300" : "text-purple-400/60",
               isActionRunning && !spin && "animate-pulse",
             )}
           />
@@ -976,19 +964,6 @@ function SystemActionButton({
         )}>
           {displayLabel}
         </span>
-
-        <span
-          aria-hidden
-          className="absolute inset-y-0.5 left-1.5 right-1.5 bg-midground opacity-0 pointer-events-none transition-opacity duration-200 group-hover/action:opacity-5"
-        />
-
-        {busy && (
-          <span
-            aria-hidden
-            className="absolute left-0 top-0 bottom-0 w-px bg-midground"
-            style={{ mixBlendMode: "plus-lighter" }}
-          />
-        )}
       </button>
 
       {collapsed && hovered && liRef.current && (
@@ -1102,9 +1077,9 @@ function SidebarTooltip({ anchor, label, warmRef }: SidebarTooltipProps) {
     <span
       className={cn(
         "fixed z-[100] pointer-events-none",
-        "px-2 py-1",
-        "bg-background-base/95 border border-current/20 backdrop-blur-sm shadow-lg",
-        "font-mondwest text-display text-xs tracking-[0.1em] text-midground uppercase",
+        "px-2.5 py-1.5 rounded-lg",
+        "bg-black/90 border border-purple-500/20 backdrop-blur-md shadow-2xl",
+        "font-mono text-[0.7rem] tracking-wider text-purple-200 uppercase",
       )}
       style={{
         top: rect.top + rect.height / 2,
