@@ -255,7 +255,10 @@ def place_trade(market_id: str, agent_id: str, trade_type: str, shares: float, r
                 (trade_id, market_id, agent_id, trade_type, shares, cost / shares, rationale, now)
             )
             
-        return get_market(market_id)
+        market_res = get_market(market_id)
+        market_res["cost"] = cost
+        market_res["trade_id"] = trade_id
+        return market_res
     finally:
         conn.close()
 

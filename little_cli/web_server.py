@@ -4824,15 +4824,18 @@ app.include_router(_dashboard_auth_router)
 
 
 # ---------------------------------------------------------------------------
-# AI Prediction Market API Routes
+# AI Prediction Market API Routes (Web3 Enabled)
 # ---------------------------------------------------------------------------
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Optional
+from pathlib import Path
 from little_cli import prediction_market_db as pm_db
+from little_cli import web3_sim
 
-# Initialize prediction market database schemas
+# Initialize schemas for DB and Web3 Blockchain simulation
 pm_db.init_db()
+web3_sim.init_web3_db()
 
 pm_router = APIRouter(prefix="/api/prediction-market", tags=["prediction-market"])
 
@@ -4873,11 +4876,11 @@ async def api_create_market(req: MarketCreateRequest):
     try:
         import uuid
         market_id = f"market_{uuid.uuid4().hex[:10]}"
-        return pm_db.create_market(
+        return web3_sim.web3_create_market(
+            agent_id=req.creator_agent_id,
             market_id=market_id,
             title=req.title,
             description=req.description,
-            creator_agent_id=req.creator_agent_id,
             expires_at=req.expires_at,
             category=req.category
         )
@@ -4887,9 +4890,9 @@ async def api_create_market(req: MarketCreateRequest):
 @pm_router.post("/markets/{market_id}/trade")
 async def api_place_trade(market_id: str, req: TradeRequest):
     try:
-        return pm_db.place_trade(
-            market_id=market_id,
+        return web3_sim.web3_place_trade(
             agent_id=req.agent_id,
+            market_id=market_id,
             trade_type=req.trade_type,
             shares=req.shares,
             rationale=req.rationale
@@ -4902,7 +4905,7 @@ async def api_place_trade(market_id: str, req: TradeRequest):
 @pm_router.post("/markets/{market_id}/resolve")
 async def api_resolve_market(market_id: str, req: ResolveRequest):
     try:
-        return pm_db.resolve_market(market_id=market_id, outcome=req.outcome)
+        return web3_sim.web3_resolve_market(market_id=market_id, outcome=req.outcome)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
@@ -4933,6 +4936,54 @@ async def api_get_balance(agent_id: str):
 async def api_get_shares(market_id: str, agent_id: str):
     try:
         return pm_db.get_agent_shares(market_id, agent_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# --- Web3 simulated network explorer routes ---
+
+@pm_router.get("/web3/blocks")
+async def api_web3_get_blocks(limit: Optional[int] = 20):
+    try:
+        return web3_sim.get_blocks(limit)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@pm_router.get("/web3/transactions")
+async def api_web3_get_transactions(market_id: Optional[str] = None, limit: Optional[int] = 30):
+    try:
+        return web3_sim.get_transactions(market_id, limit)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@pm_router.get("/web3/transactions/{tx_hash}")
+async def api_web3_get_transaction_details(tx_hash: str):
+    try:
+        details = web3_sim.get_transaction_details(tx_hash)
+        if not details:
+            raise HTTPException(status_code=404, detail="Transaction not found")
+        return details
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@pm_router.get("/web3/wallets")
+async def api_web3_get_wallets():
+    try:
+        return web3_sim.get_wallets()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@pm_router.get("/web3/contract")
+async def api_web3_get_contract():
+    try:
+        contract_path = Path("/root/agent/little-agent/little_cli/contracts/PredictionMarket.sol")
+        sol_code = ""
+        if contract_path.exists():
+            sol_code = contract_path.read_text()
+        return {
+            "address": web3_sim.CONTRACT_ADDRESS,
+            "abi": web3_sim.CONTRACT_ABI,
+            "solidity_code": sol_code
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
