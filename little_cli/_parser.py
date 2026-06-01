@@ -70,7 +70,7 @@ Examples:
     little logs --since 1h        Lines from the last hour
     little debug share             Upload debug report for support
     little update                 Update to latest version
-    little dashboard              Start web UI dashboard (port 9119)
+    little dashboard              Start web UI dashboard (port 1409)
     little dashboard --stop       Stop running dashboard processes
     little dashboard --status     List running dashboard processes
 

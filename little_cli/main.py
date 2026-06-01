@@ -14053,7 +14053,7 @@ Examples:
         description="Launch the Little Agent web dashboard for managing config, API keys, and sessions",
     )
     dashboard_parser.add_argument(
-        "--port", type=int, default=9119, help="Port (default 9119)"
+        "--port", type=int, default=1409, help="Port (default 1409)"
     )
     dashboard_parser.add_argument(
         "--host", default="127.0.0.1", help="Host (default 127.0.0.1)"

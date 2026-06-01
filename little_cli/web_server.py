@@ -4827,7 +4827,7 @@ mount_spa(app)
 
 def start_server(
     host: str = "127.0.0.1",
-    port: int = 9119,
+    port: int = 1409,
     open_browser: bool = True,
     allow_public: bool = False,
     *,
