@@ -123,10 +123,29 @@ export async function fetchJSON<T>(url: string, init?: RequestInit): Promise<T> 
     // Clear the stale-token reload guard: a successful 2xx proves the
     // current ``window.__LITTLE_SESSION_TOKEN__`` is valid, so the next
     // 401 — if any — should be allowed to trigger its own reload cycle.
-    try {
-      sessionStorage.removeItem("little.tokenReloadAttempted");
-    } catch {
-      /* SSR / privacy mode — ignore */
+    // Only clear on a successful protected (non-public) request, as public
+    // endpoints will succeed even with a missing/invalid session token.
+    // Wrap in a setTimeout to prevent concurrent initial load requests
+    // from racing and causing an infinite reload loop.
+    const isPublic = [
+      "/api/status",
+      "/api/config/defaults",
+      "/api/config/schema",
+      "/api/model/info",
+      "/api/dashboard/themes",
+      "/api/dashboard/plugins",
+    ].some((p) => url.includes(p));
+
+    if (!isPublic) {
+      try {
+        setTimeout(() => {
+          try {
+            sessionStorage.removeItem("little.tokenReloadAttempted");
+          } catch {}
+        }, 2000);
+      } catch {
+        /* SSR / privacy mode — ignore */
+      }
     }
   }
   if (!res.ok) {

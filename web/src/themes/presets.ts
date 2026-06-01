@@ -40,14 +40,14 @@ const DEFAULT_LAYOUT: ThemeLayout = {
 
 export const defaultTheme: DashboardTheme = {
   name: "default",
-  label: "Little Teal",
-  description: "Classic dark teal — the canonical Little look",
+  label: "Little Slate",
+  description: "Modern deep space slate — the canonical Little look",
   palette: {
-    background: { hex: "#041c1c", alpha: 1 },
-    midground: { hex: "#ffe6cb", alpha: 1 },
+    background: { hex: "#090d16", alpha: 1 },
+    midground: { hex: "#e2e8f0", alpha: 1 },
     foreground: { hex: "#ffffff", alpha: 0 },
-    warmGlow: "rgba(255, 189, 56, 0.35)",
-    noiseOpacity: 1,
+    warmGlow: "rgba(99, 102, 241, 0.25)",
+    noiseOpacity: 0.8,
   },
   typography: DEFAULT_TYPOGRAPHY,
   layout: DEFAULT_LAYOUT,
@@ -190,8 +190,8 @@ export const roseTheme: DashboardTheme = {
  */
 export const defaultLargeTheme: DashboardTheme = {
   name: "default-large",
-  label: "Little Teal (Large)",
-  description: "Little Teal with bigger fonts and roomier spacing",
+  label: "Little Slate (Large)",
+  description: "Little Slate with bigger fonts and roomier spacing",
   palette: defaultTheme.palette,
   typography: {
     ...DEFAULT_TYPOGRAPHY,

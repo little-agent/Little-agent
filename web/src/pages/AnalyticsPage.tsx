@@ -148,7 +148,7 @@ function TokenBarChart({ daily }: { daily: AnalyticsDailyEntry[] }) {
         </div>
         <div className="flex items-center gap-4 font-mondwest normal-case text-xs text-muted-foreground">
           <div className="flex items-center gap-1.5">
-            <div className="h-2.5 w-2.5 bg-[#ffe6cb]" />
+            <div className="h-2.5 w-2.5 bg-[var(--midground-base)]" />
             {t.analytics.input}
           </div>
           <div className="flex items-center gap-1.5">
@@ -192,7 +192,7 @@ function TokenBarChart({ daily }: { daily: AnalyticsDailyEntry[] }) {
                 </div>
 
                 <div
-                  className="w-full bg-[#ffe6cb]/70"
+                  className="w-full bg-[var(--midground-base)]/70"
                   style={{ height: Math.max(inputH, total > 0 ? 1 : 0) }}
                 />
 
@@ -261,7 +261,7 @@ function DailyTable({ daily }: { daily: AnalyticsDailyEntry[] }) {
                       {d.sessions}
                     </td>
                   <td className="text-right py-2 px-4">
-                    <span className="text-[#ffe6cb]">
+                    <span className="text-[var(--midground-base)]">
                         {formatTokens(d.input_tokens)}
                       </span>
                   </td>
@@ -319,7 +319,7 @@ function ModelTable({ models }: { models: AnalyticsModelEntry[] }) {
                     {m.sessions}
                   </td>
                   <td className="text-right py-2 pl-4">
-                    <span className="text-[#ffe6cb]">
+                    <span className="text-[var(--midground-base)]">
                       {formatTokens(m.input_tokens)}
                     </span>
                     {" / "}

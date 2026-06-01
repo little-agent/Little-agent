@@ -98,7 +98,7 @@ function TokenBar({
   const segments = [
     { value: cacheRead, color: "bg-blue-400/60", dotColor: "bg-blue-400", label: "Cache Read" },
     { value: reasoning, color: "bg-purple-400/60", dotColor: "bg-purple-400", label: "Reasoning" },
-    { value: input, color: "bg-[#ffe6cb]/70", dotColor: "bg-[#ffe6cb]", label: "Input" },
+    { value: input, color: "bg-[var(--midground-base)]/70", dotColor: "bg-[var(--midground-base)]", label: "Input" },
     { value: output, color: "bg-emerald-500/70", dotColor: "bg-emerald-500", label: "Output" },
   ].filter((s) => s.value > 0);
 
