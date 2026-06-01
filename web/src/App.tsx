@@ -523,7 +523,7 @@ export default function App() {
               "bg-background-base/95 backdrop-blur-sm",
               "transition-[transform] duration-200 ease-out",
               mobileOpen ? "translate-x-0" : "-translate-x-full",
-              "lg:sticky lg:top-4 lg:my-4 lg:ml-4 lg:h-[calc(100vh-2rem)] lg:max-h-[calc(100vh-2rem)] lg:rounded-2xl lg:border lg:border-current/10 lg:shadow-2xl lg:shrink-0 lg:overflow-hidden",
+              "lg:translate-x-0 lg:sticky lg:top-4 lg:my-4 lg:ml-4 lg:h-[calc(100vh-2rem)] lg:max-h-[calc(100vh-2rem)] lg:rounded-2xl lg:border lg:border-current/10 lg:shadow-2xl lg:shrink-0 lg:overflow-hidden",
               "lg:transition-[width] lg:duration-[600ms] lg:ease-[cubic-bezier(0.33,1.35,0.62,1)]",
               collapsed && "lg:w-14",
             )}
