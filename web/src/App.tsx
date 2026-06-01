@@ -42,6 +42,7 @@ import {
   Sparkles,
   Star,
   Terminal,
+  TrendingUp,
   Users,
   Wrench,
   X,
@@ -73,6 +74,7 @@ import ProfilesPage from "@/pages/ProfilesPage";
 import SkillsPage from "@/pages/SkillsPage";
 import PluginsPage from "@/pages/PluginsPage";
 import ChatPage from "@/pages/ChatPage";
+import PredictionMarketPage from "@/pages/PredictionMarketPage";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { useI18n } from "@/i18n";
@@ -116,6 +118,7 @@ const BUILTIN_ROUTES_CORE: Record<string, ComponentType> = {
   "/": RootRedirect,
   "/sessions": SessionsPage,
   "/analytics": AnalyticsPage,
+  "/prediction-market": PredictionMarketPage,
   "/models": ModelsPage,
   "/logs": LogsPage,
   "/cron": CronPage,
@@ -147,6 +150,11 @@ const BUILTIN_NAV_REST: NavItem[] = [
     labelKey: "analytics",
     label: "Analytics",
     icon: BarChart3,
+  },
+  {
+    path: "/prediction-market",
+    label: "Predictions",
+    icon: TrendingUp,
   },
   {
     path: "/models",
@@ -192,6 +200,7 @@ const ICON_MAP: Record<string, ComponentType<{ className?: string }>> = {
   Star,
   Code,
   Eye,
+  TrendingUp,
 };
 
 function resolveIcon(name: string): ComponentType<{ className?: string }> {

@@ -4822,6 +4822,123 @@ _mount_plugin_api_routes()
 from little_cli.dashboard_auth.routes import router as _dashboard_auth_router  # noqa: E402
 app.include_router(_dashboard_auth_router)
 
+
+# ---------------------------------------------------------------------------
+# AI Prediction Market API Routes
+# ---------------------------------------------------------------------------
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
+from typing import Optional
+from little_cli import prediction_market_db as pm_db
+
+# Initialize prediction market database schemas
+pm_db.init_db()
+
+pm_router = APIRouter(prefix="/api/prediction-market", tags=["prediction-market"])
+
+class MarketCreateRequest(BaseModel):
+    title: str
+    description: Optional[str] = None
+    creator_agent_id: str
+    expires_at: int
+    category: Optional[str] = "general"
+
+class TradeRequest(BaseModel):
+    agent_id: str
+    trade_type: str  # BUY_YES or BUY_NO
+    shares: float
+    rationale: Optional[str] = None
+
+class ResolveRequest(BaseModel):
+    outcome: str  # YES or NO
+
+@pm_router.get("/markets")
+async def api_get_markets():
+    try:
+        return pm_db.get_markets()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@pm_router.get("/markets/{market_id}")
+async def api_get_market(market_id: str):
+    try:
+        return pm_db.get_market(market_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@pm_router.post("/markets")
+async def api_create_market(req: MarketCreateRequest):
+    try:
+        import uuid
+        market_id = f"market_{uuid.uuid4().hex[:10]}"
+        return pm_db.create_market(
+            market_id=market_id,
+            title=req.title,
+            description=req.description,
+            creator_agent_id=req.creator_agent_id,
+            expires_at=req.expires_at,
+            category=req.category
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@pm_router.post("/markets/{market_id}/trade")
+async def api_place_trade(market_id: str, req: TradeRequest):
+    try:
+        return pm_db.place_trade(
+            market_id=market_id,
+            agent_id=req.agent_id,
+            trade_type=req.trade_type,
+            shares=req.shares,
+            rationale=req.rationale
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@pm_router.post("/markets/{market_id}/resolve")
+async def api_resolve_market(market_id: str, req: ResolveRequest):
+    try:
+        return pm_db.resolve_market(market_id=market_id, outcome=req.outcome)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@pm_router.get("/trades")
+async def api_get_trades(market_id: Optional[str] = None):
+    try:
+        return pm_db.get_trades(market_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@pm_router.get("/leaderboard")
+async def api_get_leaderboard():
+    try:
+        return pm_db.get_leaderboard()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@pm_router.get("/balances/{agent_id}")
+async def api_get_balance(agent_id: str):
+    try:
+        return {"agent_id": agent_id, "credits": pm_db.get_agent_balance(agent_id)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@pm_router.get("/shares/{market_id}/{agent_id}")
+async def api_get_shares(market_id: str, agent_id: str):
+    try:
+        return pm_db.get_agent_shares(market_id, agent_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+app.include_router(pm_router)
+
+
 mount_spa(app)
 
 
