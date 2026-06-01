@@ -49,7 +49,7 @@ export const defaultTheme: DashboardTheme = {
   label: "Little Obsidian Glow",
   description: "Obsidian space void with sleek amethyst gradients & custom ambient glassmorphism",
   palette: {
-    background: { hex: "#08050c", alpha: 1 },
+    background: { hex: "#060409", alpha: 1 },
     midground: { hex: "#e9e4f5", alpha: 1 },
     foreground: { hex: "#a855f7", alpha: 0 },
     warmGlow: "radial-gradient(circle at 0% 0%, rgba(168, 85, 247, 0.28) 0%, transparent 60%), radial-gradient(circle at 100% 100%, rgba(6, 182, 212, 0.22) 0%, transparent 60%)",
@@ -102,6 +102,18 @@ export const defaultTheme: DashboardTheme = {
       animation: subtle-nebula 20s infinite ease-in-out;
     }
     
+    /* Elegant space cockpit Dot-Matrix telemetry background grid overlay */
+    #root::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background-image: radial-gradient(rgba(168, 85, 247, 0.08) 1.2px, transparent 1.2px);
+      background-size: 28px 28px;
+      opacity: 0.85;
+    }
+    
     /* Make scrollbars thin, rounded, and elegant */
     ::-webkit-scrollbar {
       width: 6.5px;
@@ -118,22 +130,33 @@ export const defaultTheme: DashboardTheme = {
       background: rgba(233, 228, 245, 0.25);
     }
     
-    /* Enhance sidebar headings & active items styling */
+    /* Enhance sidebar headings & active items styling with linear-gradient neon indicator */
     #app-sidebar ul li a.active {
       background: rgba(168, 85, 247, 0.09) !important;
-      border-left: 2px solid #a855f7 !important;
       box-shadow: inset 4px 0 16px rgba(168, 85, 247, 0.08);
       font-weight: 600;
+      position: relative;
+    }
+    #app-sidebar ul li a.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 15%;
+      height: 70%;
+      width: 3px;
+      background: linear-gradient(180deg, #a855f7 0%, #06b6d4 100%);
+      border-radius: 999px;
+      box-shadow: 0 0 8px rgba(168, 85, 247, 0.6);
     }
     
     /* Soft border glows on cards on hover with transform zoom */
     .bg-card {
-      transition: border 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+      transition: border 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease !important;
     }
     .bg-card:hover {
-      border-color: rgba(168, 85, 247, 0.2) !important;
-      box-shadow: 0 12px 40px 0 rgba(168, 85, 247, 0.06), 0 8px 32px 0 rgba(0, 0, 0, 0.4) !important;
-      transform: translateY(-2px);
+      border-color: rgba(168, 85, 247, 0.25) !important;
+      box-shadow: 0 16px 40px 0 rgba(168, 85, 247, 0.06), 0 12px 36px 0 rgba(0, 0, 0, 0.5) !important;
+      transform: translateY(-2.5px);
     }
 
     /* Refined inputs glow */
@@ -162,6 +185,17 @@ export const defaultTheme: DashboardTheme = {
     h1, h2, h3, .text-display {
       letter-spacing: -0.015em !important;
       text-shadow: 0 0 24px rgba(168, 85, 247, 0.08);
+    }
+
+    /* Live pulsing glowing indicators for heartbeats */
+    .bg-success {
+      box-shadow: 0 0 8px rgba(74, 222, 128, 0.5) !important;
+      animation: pulse-green 2s infinite ease-in-out;
+    }
+    @keyframes pulse-green {
+      0% { box-shadow: 0 0 4px rgba(74, 222, 128, 0.3); opacity: 0.85; }
+      50% { box-shadow: 0 0 12px rgba(74, 222, 128, 0.7); opacity: 1; }
+      100% { box-shadow: 0 0 4px rgba(74, 222, 128, 0.3); opacity: 0.85; }
     }
   `,
 };
