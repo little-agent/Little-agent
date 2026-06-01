@@ -514,7 +514,7 @@ export default function App() {
               "bg-background-base/95 backdrop-blur-sm",
               "transition-[transform] duration-200 ease-out",
               mobileOpen ? "translate-x-0" : "-translate-x-full",
-              "lg:sticky lg:top-0 lg:translate-x-0 lg:shrink-0 lg:overflow-hidden",
+              "lg:sticky lg:top-4 lg:my-4 lg:ml-4 lg:h-[calc(100vh-2rem)] lg:max-h-[calc(100vh-2rem)] lg:rounded-2xl lg:border lg:border-current/10 lg:shadow-2xl lg:shrink-0 lg:overflow-hidden",
               "lg:transition-[width] lg:duration-[600ms] lg:ease-[cubic-bezier(0.33,1.35,0.62,1)]",
               collapsed && "lg:w-14",
             )}
@@ -689,7 +689,14 @@ export default function App() {
                   ? "pb-0 pt-1 sm:pt-2 lg:pt-4"
                   : "pt-2 sm:pt-4 lg:pt-6",
                 isDocsRoute && "min-h-0 flex-1",
+                "lg:my-4 lg:ml-4 lg:mr-4 lg:rounded-2xl lg:border lg:border-current/10 lg:bg-card lg:backdrop-blur-md lg:shadow-2xl",
+                isChatRoute ? "lg:overflow-hidden" : "lg:overflow-y-auto",
               )}
+              style={{
+                background: "var(--component-page-background, rgba(15, 11, 23, 0.45))",
+                borderColor: "rgba(233, 228, 245, 0.08)",
+                backdropFilter: "blur(16px)",
+              }}
             >
               <PluginSlot name="pre-main" />
               <div

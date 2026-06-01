@@ -104,8 +104,8 @@ export const defaultTheme: DashboardTheme = {
     
     /* Make scrollbars thin, rounded, and elegant */
     ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
+      width: 6.5px;
+      height: 6.5px;
     }
     ::-webkit-scrollbar-track {
       background: transparent;
@@ -126,13 +126,42 @@ export const defaultTheme: DashboardTheme = {
       font-weight: 600;
     }
     
-    /* Soft border glows on cards on hover */
+    /* Soft border glows on cards on hover with transform zoom */
     .bg-card {
-      transition: border 0.2s ease, box-shadow 0.2s ease;
+      transition: border 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
     }
     .bg-card:hover {
       border-color: rgba(168, 85, 247, 0.2) !important;
       box-shadow: 0 12px 40px 0 rgba(168, 85, 247, 0.06), 0 8px 32px 0 rgba(0, 0, 0, 0.4) !important;
+      transform: translateY(-2px);
+    }
+
+    /* Refined inputs glow */
+    input:focus, textarea:focus, select:focus {
+      outline: none !important;
+      border-color: rgba(168, 85, 247, 0.35) !important;
+      box-shadow: 0 0 12px rgba(168, 85, 247, 0.15) !important;
+    }
+    
+    /* Custom primary buttons premium styling */
+    button.bg-primary {
+      background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%) !important;
+      border: none !important;
+      box-shadow: 0 4px 14px rgba(168, 85, 247, 0.25) !important;
+      transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+    }
+    button.bg-primary:hover {
+      transform: translateY(-1px) !important;
+      box-shadow: 0 6px 18px rgba(168, 85, 247, 0.4) !important;
+    }
+    button.bg-primary:active {
+      transform: translateY(0) !important;
+    }
+    
+    /* Elegant typography glows */
+    h1, h2, h3, .text-display {
+      letter-spacing: -0.015em !important;
+      text-shadow: 0 0 24px rgba(168, 85, 247, 0.08);
     }
   `,
 };
