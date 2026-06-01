@@ -2,7 +2,6 @@ import { AlertTriangle, Radio, Wifi, WifiOff } from "lucide-react";
 import type { PlatformStatus } from "@/lib/api";
 import { isoTimeAgo } from "@/lib/utils";
 import { Badge } from "@nous-research/ui/ui/components/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useI18n } from "@/i18n";
 
 export function PlatformsCard({ platforms }: PlatformsCardProps) {
@@ -17,17 +16,22 @@ export function PlatformsCard({ platforms }: PlatformsCardProps) {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center gap-2">
-          <Radio className="h-5 w-5 text-muted-foreground" />
-          <CardTitle className="text-base">
+    <div className="relative overflow-hidden rounded-xl border border-current/10 bg-card p-5 backdrop-blur-md shadow-2xl">
+      <div className="flex items-center justify-between border-b border-current/10 pb-4 mb-4">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <Radio className="h-4.5 w-4.5 animate-pulse" />
+          </div>
+          <h3 className="font-semibold text-[0.95rem] tracking-wide text-midground">
             {t.status.connectedPlatforms}
-          </CardTitle>
+          </h3>
         </div>
-      </CardHeader>
+        <span className="text-[0.7rem] uppercase tracking-wider text-text-tertiary font-mono">
+          Swarm Status: Active
+        </span>
+      </div>
 
-      <CardContent className="grid gap-3">
+      <div className="grid gap-3">
         {platforms.map(([name, info]) => {
           const display = platformStateBadge[info.state] ?? {
             tone: "outline" as const,
@@ -43,52 +47,50 @@ export function PlatformsCard({ platforms }: PlatformsCardProps) {
           return (
             <div
               key={name}
-              className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border border-border p-3 w-full"
+              className="group/item relative flex items-center justify-between gap-4 rounded-lg border border-current/5 bg-background-base/20 p-3.5 transition-all hover:bg-background-base/40 hover:border-current/15"
             >
-              <div className="flex items-center gap-3 min-w-0 w-full">
-                <IconComponent
-                  className={`h-4 w-4 shrink-0 ${
-                    info.state === "connected"
-                      ? "text-success"
-                      : info.state === "fatal"
-                        ? "text-destructive"
-                        : "text-warning"
-                  }`}
-                />
+              <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                <div className={`flex h-8 w-8 items-center justify-center rounded-md ${
+                  info.state === "connected"
+                    ? "bg-success/10 text-success"
+                    : info.state === "fatal"
+                      ? "bg-destructive/10 text-destructive"
+                      : "bg-warning/10 text-warning"
+                }`}>
+                  <IconComponent className="h-4.5 w-4.5 shrink-0" />
+                </div>
 
                 <div className="flex flex-col gap-0.5 min-w-0">
-                  <span className="font-mondwest normal-case text-sm font-medium capitalize truncate">
+                  <span className="text-sm font-semibold capitalize text-midground">
                     {name}
                   </span>
 
-                  {info.error_message && (
-                    <span className="font-mondwest normal-case text-xs text-destructive">
+                  {info.error_message ? (
+                    <span className="text-xs text-destructive truncate">
                       {info.error_message}
                     </span>
-                  )}
-
-                  {info.updated_at && (
-                    <span className="font-mondwest normal-case text-xs text-muted-foreground">
+                  ) : info.updated_at ? (
+                    <span className="text-[0.72rem] text-text-tertiary">
                       {t.status.lastUpdate}: {isoTimeAgo(info.updated_at)}
                     </span>
-                  )}
+                  ) : null}
                 </div>
               </div>
 
               <Badge
                 tone={display.tone}
-                className="shrink-0 self-start sm:self-center"
+                className="shrink-0 font-medium tracking-wide py-0.5 px-2 rounded text-[0.72rem]"
               >
                 {display.tone === "success" && (
-                  <span className="mr-1 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-current" />
+                  <span className="mr-1.5 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-current" />
                 )}
                 {display.label}
               </Badge>
             </div>
           );
         })}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
 

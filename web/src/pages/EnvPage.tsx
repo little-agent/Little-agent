@@ -38,15 +38,8 @@ import { useI18n } from "@/i18n";
 import { usePageHeader } from "@/contexts/usePageHeader";
 import { PluginSlot } from "@/plugins";
 
-/* ------------------------------------------------------------------ */
-/*  Provider grouping                                                  */
-/* ------------------------------------------------------------------ */
-
-/** Map env-var key prefixes to a human-friendly provider name + ordering. */
 const PROVIDER_GROUPS: { prefix: string; name: string; priority: number }[] = [
-  // Little Portal first
   { prefix: "NOUS_", name: "Little Portal", priority: 0 },
-  // Then alphabetical by display name
   { prefix: "ANTHROPIC_", name: "Anthropic", priority: 1 },
   { prefix: "DASHSCOPE_", name: "DashScope (Qwen)", priority: 2 },
   { prefix: "LITTLE_QWEN_", name: "DashScope (Qwen)", priority: 2 },
@@ -92,10 +85,6 @@ const CATEGORY_META_ICONS: Record<string, typeof KeyRound> = {
   setting: Settings,
 };
 
-/* ------------------------------------------------------------------ */
-/*  EnvVarRow — single key edit row                                    */
-/* ------------------------------------------------------------------ */
-
 function EnvVarRow({
   varKey,
   info,
@@ -130,25 +119,24 @@ function EnvVarRow({
     ? revealed[varKey]
     : (info.redacted_value ?? "---");
 
-  // Compact inline row for unset, non-editing keys (used inside provider groups)
   if (compact && !info.is_set && !isEditing) {
     return (
-      <div className="flex items-center justify-between gap-3 py-1.5 min-w-0 overflow-hidden text-text-secondary hover:text-foreground transition-colors">
-        <div className="flex items-center gap-2 min-w-0">
-          <span className="font-mono-ui text-xs">
+      <div className="flex items-center justify-between gap-3 py-2 border-b border-purple-500/5 first:pt-0 last:border-b-0 min-w-0 overflow-hidden text-purple-300/70 hover:text-purple-200 transition-colors">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <span className="font-mono text-xs font-semibold tracking-wide text-purple-300">
             {varKey}
           </span>
-          <span className="text-xs text-text-tertiary truncate hidden sm:block">
+          <span className="text-[0.7rem] text-purple-400/40 truncate hidden sm:block font-mono">
             {info.description}
           </span>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-2.5 shrink-0">
           {info.url && (
             <a
               href={info.url}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+              className="inline-flex items-center gap-1 text-[0.7rem] text-purple-400 hover:text-purple-200 transition-colors font-mono"
             >
               {t.env.getKey} <ExternalLink className="h-2.5 w-2.5" />
             </a>
@@ -156,35 +144,35 @@ function EnvVarRow({
           <Button
             size="sm"
             outlined
-            prefix={<Pencil />}
+            className="font-mono text-[0.7rem] cursor-pointer hover:bg-purple-500/10"
+            prefix={<Pencil className="h-3 w-3" />}
             onClick={() => setEdits((prev) => ({ ...prev, [varKey]: "" }))}
           >
-            {t.common.set}
+            {t.common.set.toUpperCase()}
           </Button>
         </div>
       </div>
     );
   }
 
-  // Non-compact unset row
   if (!info.is_set && !isEditing) {
     return (
-      <div className="flex items-center justify-between gap-3 border border-border/50 px-4 py-2.5 min-w-0 overflow-hidden text-text-secondary hover:text-foreground transition-colors">
+      <div className="flex items-center justify-between gap-3 border border-purple-500/10 bg-purple-950/[0.01] rounded-xl px-4 py-3 min-w-0 overflow-hidden text-purple-300/70 hover:text-purple-200 hover:border-purple-500/20 transition-all shadow-sm">
         <div className="flex items-center gap-3 min-w-0">
-          <Label className="font-mono-ui text-xs">
+          <Label className="font-mono text-xs font-bold text-purple-300 cursor-default">
             {varKey}
           </Label>
-          <span className="text-xs text-text-tertiary truncate hidden sm:block">
+          <span className="text-[0.72rem] text-purple-400/40 truncate hidden sm:block font-mono">
             {info.description}
           </span>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-2.5 shrink-0">
           {info.url && (
             <a
               href={info.url}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+              className="inline-flex items-center gap-1 text-[0.72rem] text-purple-400 hover:text-purple-200 transition-colors font-mono"
             >
               {t.env.getKey} <ExternalLink className="h-2.5 w-2.5" />
             </a>
@@ -192,24 +180,24 @@ function EnvVarRow({
           <Button
             size="sm"
             outlined
-            prefix={<Pencil />}
+            className="font-mono text-[0.72rem] cursor-pointer hover:bg-purple-500/10"
+            prefix={<Pencil className="h-3.5 w-3.5" />}
             onClick={() => setEdits((prev) => ({ ...prev, [varKey]: "" }))}
           >
-            {t.common.set}
+            {t.common.set.toUpperCase()}
           </Button>
         </div>
       </div>
     );
   }
 
-  // Full expanded row for set keys or keys being edited
   return (
-    <div className="grid gap-2 border border-border p-4 min-w-0 overflow-hidden">
-      <div className="flex items-center justify-between gap-2 flex-wrap">
+    <div className="grid gap-3 border border-purple-500/15 bg-purple-950/[0.02] p-4.5 rounded-xl min-w-0 overflow-hidden shadow-md">
+      <div className="flex items-center justify-between gap-2.5 flex-wrap">
         <div className="flex items-center gap-2">
-          <Label className="font-mono-ui text-xs">{varKey}</Label>
-          <Badge tone={info.is_set ? "success" : "outline"}>
-            {info.is_set ? t.common.set : t.env.notSet}
+          <Label className="font-mono text-xs font-bold text-purple-200 cursor-default">{varKey}</Label>
+          <Badge tone={info.is_set ? "success" : "outline"} className="text-[0.68rem] tracking-wide font-mono px-1.5 py-0">
+            {info.is_set ? t.common.set.toUpperCase() : t.env.notSet.toUpperCase()}
           </Badge>
         </div>
         {info.url && (
@@ -217,22 +205,22 @@ function EnvVarRow({
             href={info.url}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+            className="inline-flex items-center gap-1 text-[0.72rem] text-purple-400 hover:text-purple-200 transition-colors font-mono"
           >
             {t.env.getKey} <ExternalLink className="h-2.5 w-2.5" />
           </a>
         )}
       </div>
 
-      <p className="text-xs text-muted-foreground">{info.description}</p>
+      <p className="text-[0.72rem] text-purple-400/60 font-mono leading-relaxed">{info.description}</p>
 
       {info.tools.length > 0 && (
-        <div className="flex flex-wrap gap-1">
+        <div className="flex flex-wrap gap-1 mb-1">
           {info.tools.map((tool) => (
             <Badge
               key={tool}
               tone="secondary"
-              className="text-xs py-0 px-1.5"
+              className="text-[0.65rem] py-0 px-2 font-mono bg-purple-500/10 border-purple-500/20 text-purple-300"
             >
               {tool}
             </Badge>
@@ -241,55 +229,60 @@ function EnvVarRow({
       )}
 
       {!isEditing && (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
           <div
-            className={`flex-1 border border-border px-3 py-2 font-mono-ui text-xs ${
+            className={`flex-1 border border-purple-500/10 px-3 py-2 font-mono text-xs rounded-lg select-all leading-none ${
               isRevealed
-                ? "bg-background text-foreground select-all"
-                : "bg-muted/30 text-muted-foreground"
+                ? "bg-black/60 text-purple-200 shadow-[0_0_12px_rgba(168,85,247,0.15)]"
+                : "bg-purple-950/20 text-purple-400/50"
             }`}
           >
             {info.is_set ? displayValue : "---"}
           </div>
 
-          {info.is_set && (
-            <Button
-              ghost
-              size="icon"
-              onClick={() => onReveal(varKey)}
-              title={isRevealed ? t.env.hideValue : t.env.showValue}
-              aria-label={isRevealed ? `Hide ${varKey}` : `Reveal ${varKey}`}
-            >
-              {isRevealed ? <EyeOff /> : <Eye />}
-            </Button>
-          )}
+          <div className="flex items-center gap-1.5 ml-auto sm:ml-0 shrink-0">
+            {info.is_set && (
+              <Button
+                ghost
+                size="icon"
+                className="text-purple-300 hover:text-purple-100 hover:bg-purple-500/10 rounded-md cursor-pointer"
+                onClick={() => onReveal(varKey)}
+                title={isRevealed ? t.env.hideValue : t.env.showValue}
+                aria-label={isRevealed ? `Hide ${varKey}` : `Reveal ${varKey}`}
+              >
+                {isRevealed ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </Button>
+            )}
 
-          <Button
-            size="sm"
-            outlined
-            prefix={<Pencil />}
-            onClick={() => setEdits((prev) => ({ ...prev, [varKey]: "" }))}
-          >
-            {info.is_set ? t.common.replace : t.common.set}
-          </Button>
-
-          {info.is_set && (
             <Button
               size="sm"
               outlined
-              destructive
-              prefix={<Trash2 />}
-              onClick={() => onClear(varKey)}
-              disabled={saving === varKey || clearDialogOpen}
+              className="font-mono text-[0.72rem] cursor-pointer hover:bg-purple-500/10"
+              prefix={<Pencil className="h-3.5 w-3.5" />}
+              onClick={() => setEdits((prev) => ({ ...prev, [varKey]: "" }))}
             >
-              {saving === varKey ? "..." : t.common.clear}
+              {info.is_set ? t.common.replace.toUpperCase() : t.common.set.toUpperCase()}
             </Button>
-          )}
+
+            {info.is_set && (
+              <Button
+                size="sm"
+                outlined
+                destructive
+                className="font-mono text-[0.72rem] cursor-pointer hover:bg-rose-500/10 border-rose-500/10 text-rose-300"
+                prefix={<Trash2 className="h-3.5 w-3.5" />}
+                onClick={() => onClear(varKey)}
+                disabled={saving === varKey || clearDialogOpen}
+              >
+                {saving === varKey ? "..." : t.common.clear.toUpperCase()}
+              </Button>
+            )}
+          </div>
         </div>
       )}
 
       {isEditing && (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full">
           <Input
             autoFocus
             type="text"
@@ -305,33 +298,31 @@ function EnvVarRow({
                   )
                 : t.env.enterValue
             }
-            className="flex-1 font-mono-ui text-xs"
+            className="flex-1 font-mono text-xs h-9 bg-black/40 border border-purple-500/10 rounded-lg text-purple-200 placeholder:text-purple-400/25 focus:border-purple-500/40 focus:ring-1 focus:ring-purple-500/20"
           />
           <Button
             size="sm"
+            className="font-mono text-[0.72rem] cursor-pointer bg-primary text-white"
             onClick={() => onSave(varKey)}
-            prefix={<Save />}
+            prefix={<Save className="h-3.5 w-3.5" />}
             disabled={saving === varKey || !edits[varKey]}
           >
-            {saving === varKey ? "..." : t.common.save}
+            {saving === varKey ? "..." : t.common.save.toUpperCase()}
           </Button>
           <Button
             size="sm"
             outlined
-            prefix={<X />}
+            className="font-mono text-[0.72rem] cursor-pointer hover:bg-purple-500/10 text-purple-300"
+            prefix={<X className="h-3.5 w-3.5" />}
             onClick={() => onCancelEdit(varKey)}
           >
-            {t.common.cancel}
+            {t.common.cancel.toUpperCase()}
           </Button>
         </div>
       )}
     </div>
   );
 }
-
-/* ------------------------------------------------------------------ */
-/*  ProviderGroupCard — groups API key + base URL per provider         */
-/* ------------------------------------------------------------------ */
 
 function ProviderGroupCard({
   group,
@@ -359,7 +350,6 @@ function ProviderGroupCard({
   const [expanded, setExpanded] = useState(false);
   const { t } = useI18n();
 
-  // Separate API keys from base URLs and other settings
   const apiKeys = group.entries.filter(
     ([k]) => k.endsWith("_API_KEY") || k.endsWith("_TOKEN"),
   );
@@ -375,45 +365,45 @@ function ProviderGroupCard({
     ([, info]) => info.is_set,
   ).length;
 
-  // Get a representative URL for "Get key" link
   const keyUrl = apiKeys.find(([, info]) => info.url)?.[1]?.url ?? null;
 
   return (
-    <div className="border border-border">
-      {/* Header — always visible */}
+    <div className="border-b border-purple-500/5 last:border-b-0">
       <ListItem
         onClick={() => setExpanded(!expanded)}
         aria-expanded={expanded}
-        className="justify-between gap-3 px-4 py-3 hover:bg-primary/5"
+        className={`justify-between gap-3 px-4 py-3 cursor-pointer transition-all ${
+          expanded ? "bg-purple-500/[0.04]" : "hover:bg-purple-500/[0.02]"
+        }`}
       >
         <div className="flex items-center gap-3 min-w-0">
           {expanded ? (
-            <ChevronDown className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+            <ChevronDown className="h-4 w-4 text-purple-400 shrink-0" />
           ) : (
-            <ChevronRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+            <ChevronRight className="h-4 w-4 text-purple-400 shrink-0" />
           )}
-          <span className="font-semibold text-sm tracking-wide">
+          <span className="font-semibold text-xs tracking-wider uppercase text-purple-100 font-mono">
             {group.name === "Other" ? t.common.other : group.name}
           </span>
           {hasAnyConfigured && (
-            <Badge tone="success" className="text-xs">
-              {configuredCount} {t.common.set.toLowerCase()}
+            <Badge tone="success" className="text-[0.65rem] tracking-wide font-mono px-2 py-0">
+              {configuredCount} {t.common.set.toUpperCase()}
             </Badge>
           )}
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-3.5 shrink-0 font-mono text-[0.7rem] text-purple-400/60">
           {keyUrl && (
             <a
               href={keyUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+              className="inline-flex items-center gap-1 text-[0.72rem] text-purple-400 hover:text-purple-200 transition-colors font-semibold"
               onClick={(e) => e.stopPropagation()}
             >
               {t.env.getKey} <ExternalLink className="h-2.5 w-2.5" />
             </a>
           )}
-          <span className="text-xs text-text-tertiary">
+          <span className="hidden sm:block">
             {t.env.keysCount
               .replace("{count}", String(group.entries.length))
               .replace("{s}", group.entries.length !== 1 ? "s" : "")}
@@ -422,7 +412,7 @@ function ProviderGroupCard({
       </ListItem>
 
       {expanded && (
-        <div className="border-t border-border px-4 py-3 grid gap-2">
+        <div className="border-t border-purple-500/5 px-4.5 py-4.5 bg-black/10 grid gap-3">
           {apiKeys.map(([key, info]) => (
             <EnvVarRow
               key={key}
@@ -482,16 +472,12 @@ function ProviderGroupCard({
   );
 }
 
-/* ------------------------------------------------------------------ */
-/*  Main page                                                          */
-/* ------------------------------------------------------------------ */
-
 export default function EnvPage() {
   const [vars, setVars] = useState<Record<string, EnvVarInfo> | null>(null);
   const [edits, setEdits] = useState<Record<string, string>>({});
   const [revealed, setRevealed] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState<string | null>(null);
-  const [showAdvanced, setShowAdvanced] = useState(true); // Show all providers by default
+  const [showAdvanced, setShowAdvanced] = useState(true);
   const { toast, showToast } = useToast();
   const { t } = useI18n();
   const { setAfterTitle } = usePageHeader();
@@ -503,18 +489,17 @@ export default function EnvPage() {
       .catch(() => {});
   }, []);
 
-  // Scroll-to sub-nav in the page header
   const sections = useMemo(() => {
     const items: { id: string; label: string }[] = [
-      { id: "section-oauth", label: "OAuth" },
-      { id: "section-providers", label: "Providers" },
+      { id: "section-oauth", label: "OAUTH" },
+      { id: "section-providers", label: "PROVIDERS" },
     ];
     if (vars) {
       const categories = ["tool", "messaging", "setting"];
       const CATEGORY_LABELS: Record<string, string> = {
-        tool: "Tools",
-        messaging: "Messaging",
-        setting: "Settings",
+        tool: "TOOLS",
+        messaging: "MESSAGING",
+        setting: "SETTINGS",
       };
       for (const cat of categories) {
         const hasEntries = Object.values(vars).some(
@@ -538,7 +523,7 @@ export default function EnvPage() {
     };
     setAfterTitle(
       <nav
-        className="flex shrink-0 flex-nowrap items-center gap-1"
+        className="flex shrink-0 flex-nowrap items-center gap-1.5 bg-black/40 border border-purple-500/10 p-0.5 rounded-lg font-mono text-[0.7rem]"
         aria-label="Jump to section"
       >
         {sections.map((s) => (
@@ -546,7 +531,7 @@ export default function EnvPage() {
             key={s.id}
             type="button"
             onClick={() => scrollTo(s.id)}
-            className="shrink-0 cursor-pointer px-2 py-0.5 font-mondwest text-display text-xs tracking-wider text-text-secondary hover:text-foreground border border-border/50 hover:border-foreground/30 transition-colors"
+            className="shrink-0 cursor-pointer px-2.5 py-1.5 font-semibold text-purple-400/50 hover:text-purple-300 rounded border border-transparent hover:bg-purple-500/5 transition-all"
           >
             {s.label}
           </button>
@@ -655,7 +640,6 @@ export default function EnvPage() {
     });
   };
 
-  /* ---- Build provider groups ---- */
   const { providerGroups, nonProviderGrouped } = useMemo(() => {
     if (!vars) return { providerGroups: [], nonProviderGrouped: [] };
 
@@ -664,7 +648,6 @@ export default function EnvPage() {
         info.category === "provider" && (showAdvanced || !info.advanced),
     );
 
-    // Group by provider
     const groupMap = new Map<string, [string, EnvVarInfo][]>();
     for (const entry of providerEntries) {
       const groupName = getProviderGroup(entry[0]);
@@ -681,7 +664,6 @@ export default function EnvPage() {
       }))
       .sort((a, b) => a.priority - b.priority);
 
-    // Non-provider categories — use translated labels
     const CATEGORY_META_LABELS: Record<string, string> = {
       tool: t.app.nav.keys,
       messaging: t.common.messaging,
@@ -710,7 +692,7 @@ export default function EnvPage() {
   if (!vars) {
     return (
       <div className="flex items-center justify-center py-24">
-        <Spinner className="text-2xl text-primary" />
+        <Spinner className="text-2xl text-purple-400" />
       </div>
     );
   }
@@ -723,7 +705,7 @@ export default function EnvPage() {
     pendingClearKey && vars ? vars[pendingClearKey]?.description : undefined;
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-5">
       <PluginSlot name="env:top" />
       <Toast toast={toast} />
 
@@ -740,21 +722,22 @@ export default function EnvPage() {
         loading={keyClear.isDeleting}
       />
 
-      <div className="flex items-center justify-between">
-        <div className="flex flex-col gap-1">
-          <p className="text-sm text-muted-foreground">
-            {t.env.description} <code>~/.little/.env</code>
+      <div className="flex items-center justify-between bg-purple-950/[0.02] border border-purple-500/10 p-3 rounded-xl shadow-md backdrop-blur-sm">
+        <div className="flex flex-col gap-0.5">
+          <p className="text-[0.72rem] text-purple-300/80 font-mono">
+            {t.env.description} <code className="bg-black/40 px-1 py-0.5 rounded border border-purple-500/10 text-purple-200">~/.little/.env</code>
           </p>
-          <p className="text-xs text-text-tertiary">
+          <p className="text-[0.65rem] text-purple-400/40 font-mono">
             {t.env.changesNote}
           </p>
         </div>
         <Button
           size="sm"
           outlined
+          className="font-mono text-xs cursor-pointer hover:bg-purple-500/10"
           onClick={() => setShowAdvanced(!showAdvanced)}
         >
-          {showAdvanced ? t.env.hideAdvanced : t.env.showAdvanced}
+          {showAdvanced ? t.env.hideAdvanced.toUpperCase() : t.env.showAdvanced.toUpperCase()}
         </Button>
       </div>
 
@@ -765,20 +748,24 @@ export default function EnvPage() {
         />
       </div>
 
-      <Card id="section-providers">
-        <CardHeader className="border-b border-border bg-card">
-          <div className="flex items-center gap-2">
-            <Zap className="h-5 w-5 text-muted-foreground" />
-            <CardTitle className="text-base">{t.env.llmProviders}</CardTitle>
+      <Card id="section-providers" className="border border-purple-500/10 bg-card p-5 backdrop-blur-md shadow-2xl rounded-2xl">
+        <CardHeader className="px-0 pt-0 pb-3 mb-3 border-b border-purple-500/10">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/10 text-purple-400">
+              <Zap className="h-4.5 w-4.5" />
+            </div>
+            <CardTitle className="text-sm font-semibold tracking-wide text-midground">
+              {t.env.llmProviders.toUpperCase()}
+            </CardTitle>
           </div>
-          <CardDescription>
+          <CardDescription className="text-xs text-purple-400/60 font-mono mt-1">
             {t.env.providersConfigured
               .replace("{configured}", String(configuredProviders))
               .replace("{total}", String(totalProviders))}
           </CardDescription>
         </CardHeader>
 
-        <CardContent className="grid gap-0 p-0">
+        <CardContent className="grid gap-0 p-0 overflow-hidden bg-black/10 rounded-xl border border-purple-500/5">
           {providerGroups.map((group) => (
             <ProviderGroupCard
               key={group.name}
@@ -820,10 +807,6 @@ export default function EnvPage() {
     </div>
   );
 }
-
-/* ------------------------------------------------------------------ */
-/*  EnvCategoryCard — keys / messaging / settings sections             */
-/* ------------------------------------------------------------------ */
 
 function EnvCategoryCard({
   section,
@@ -873,14 +856,16 @@ function EnvCategoryCard({
   };
 
   return (
-    <Card id={`section-${section.category}`}>
+    <Card id={`section-${section.category}`} className="border border-purple-500/10 bg-card p-5 backdrop-blur-md shadow-2xl rounded-2xl">
       <CardHeader
-        className={`bg-card${hasContent ? " border-b border-border" : ""}`}
+        className="px-0 pt-0 pb-3 mb-3 border-b border-purple-500/10"
       >
         <div className="flex items-center justify-between gap-3">
-          <div className="flex min-w-0 items-center gap-2">
-            <Icon className="h-5 w-5 shrink-0 text-muted-foreground" />
-            <CardTitle className="text-base">{section.label}</CardTitle>
+          <div className="flex min-w-0 items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/10 text-purple-400">
+              <Icon className="h-4.5 w-4.5" />
+            </div>
+            <CardTitle className="text-sm font-semibold tracking-wide text-midground">{section.label.toUpperCase()}</CardTitle>
           </div>
 
           {section.unsetEntries.length > 0 && (
@@ -888,21 +873,21 @@ function EnvCategoryCard({
               type="button"
               onClick={() => setShowAll((open) => !open)}
               aria-expanded={showAll}
-              className="shrink-0 cursor-pointer border-0 bg-transparent p-0 font-mondwest text-xs tracking-[0.08em] text-text-secondary transition-colors hover:text-foreground"
+              className="shrink-0 cursor-pointer border-0 bg-transparent p-0 font-mono text-[0.68rem] tracking-wider text-purple-400 hover:text-purple-200 transition-colors uppercase font-bold"
             >
-              {showAll ? t.env.showLess : t.env.showMore}
+              {showAll ? t.env.showLess.toUpperCase() : t.env.showMore.toUpperCase()}
             </button>
           )}
         </div>
 
-        <CardDescription>
+        <CardDescription className="text-xs text-purple-400/60 font-mono mt-1">
           {section.setEntries.length} {t.common.of} {section.totalEntries}{" "}
           {t.common.configured}
         </CardDescription>
       </CardHeader>
 
       {hasContent && (
-        <CardContent className="grid gap-3 overflow-hidden pt-4">
+        <CardContent className="grid gap-3 overflow-hidden px-0 pb-0 pt-1">
           {section.setEntries.map(([key, info]) => (
             <EnvVarRow key={key} varKey={key} info={info} {...rowProps} />
           ))}

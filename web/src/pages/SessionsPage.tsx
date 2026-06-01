@@ -23,6 +23,8 @@ import {
   Hash,
   X,
   Play,
+  Radio,
+  Brain,
 } from "lucide-react";
 import { api } from "@/lib/api";
 import type {
@@ -53,16 +55,14 @@ import { isDashboardEmbeddedChatEnabled } from "@/lib/dashboard-flags";
 
 const SOURCE_CONFIG: Record<string, { icon: typeof Terminal; color: string }> =
   {
-    cli: { icon: Terminal, color: "text-primary" },
-    telegram: { icon: MessageCircle, color: "text-[oklch(0.65_0.15_250)]" },
-    discord: { icon: Hash, color: "text-[oklch(0.65_0.15_280)]" },
-    slack: { icon: MessageSquare, color: "text-[oklch(0.7_0.15_155)]" },
-    whatsapp: { icon: Globe, color: "text-success" },
-    cron: { icon: Clock, color: "text-warning" },
+    cli: { icon: Terminal, color: "text-purple-400" },
+    telegram: { icon: MessageCircle, color: "text-sky-400" },
+    discord: { icon: Hash, color: "text-indigo-400" },
+    slack: { icon: MessageSquare, color: "text-pink-400" },
+    whatsapp: { icon: Globe, color: "text-emerald-400" },
+    cron: { icon: Clock, color: "text-amber-400" },
   };
 
-/** Render an FTS5 snippet with highlighted matches.
- *  The backend wraps matches in >>> and <<< delimiters. */
 function SnippetHighlight({ snippet }: { snippet: string }) {
   const parts: React.ReactNode[] = [];
   const regex = />>>(.*?)<<</g;
@@ -74,7 +74,7 @@ function SnippetHighlight({ snippet }: { snippet: string }) {
       parts.push(snippet.slice(last, match.index));
     }
     parts.push(
-      <mark key={i++} className="bg-warning/30 text-warning px-0.5">
+      <mark key={i++} className="bg-amber-500/20 text-amber-300 px-1 rounded-sm border border-amber-500/20">
         {match[1]}
       </mark>,
     );
@@ -84,7 +84,7 @@ function SnippetHighlight({ snippet }: { snippet: string }) {
     parts.push(snippet.slice(last));
   }
   return (
-    <p className="font-mondwest normal-case mt-0.5 min-w-0 max-w-full truncate text-xs text-text-secondary">
+    <p className="normal-case mt-1.5 min-w-0 max-w-full truncate text-xs text-purple-200/60 leading-relaxed font-mono">
       {parts}
     </p>
   );
@@ -106,25 +106,27 @@ function ToolCallBlock({
   }
 
   return (
-    <div className="mt-2 border border-warning/20 bg-warning/5">
+    <div className="mt-2 border border-purple-500/20 bg-purple-950/20 rounded-lg overflow-hidden transition-all duration-200">
       <ListItem
         onClick={() => setOpen(!open)}
         aria-label={`${open ? t.common.collapse : t.common.expand} tool call ${toolCall.function.name}`}
         aria-expanded={open}
-        className="px-3 py-2 text-xs text-warning hover:bg-warning/10 hover:text-warning"
+        className="px-3.5 py-2.5 text-xs text-purple-300 hover:bg-purple-500/10 hover:text-purple-200 cursor-pointer flex items-center justify-between"
       >
-        {open ? (
-          <ChevronDown className="h-3 w-3" />
-        ) : (
-          <ChevronRight className="h-3 w-3" />
-        )}
-        <span className="font-mono-ui font-medium">
-          {toolCall.function.name}
-        </span>
-        <span className="text-warning/50 ml-auto">{toolCall.id}</span>
+        <div className="flex items-center gap-2">
+          {open ? (
+            <ChevronDown className="h-3.5 w-3.5 text-purple-400" />
+          ) : (
+            <ChevronRight className="h-3.5 w-3.5 text-purple-400" />
+          )}
+          <span className="font-mono font-semibold tracking-wide">
+            {toolCall.function.name}
+          </span>
+        </div>
+        <span className="text-purple-400/50 font-mono text-[0.7rem]">{toolCall.id}</span>
       </ListItem>
       {open && (
-        <pre className="border-t border-warning/20 px-3 py-2 text-xs text-warning/80 overflow-x-auto whitespace-pre-wrap font-mono">
+        <pre className="border-t border-purple-500/15 px-3.5 py-3 text-xs text-purple-200/80 overflow-x-auto whitespace-pre-wrap font-mono bg-black/40">
           {args}
         </pre>
       )}
@@ -143,26 +145,30 @@ function MessageBubble({
 
   const ROLE_STYLES: Record<
     string,
-    { bg: string; text: string; label: string }
+    { bg: string; text: string; label: string; border: string }
   > = {
     user: {
-      bg: "bg-primary/10",
-      text: "text-primary",
+      bg: "bg-purple-500/5",
+      text: "text-purple-300",
+      border: "border-purple-500/10",
       label: t.sessions.roles.user,
     },
     assistant: {
-      bg: "bg-success/10",
-      text: "text-success",
+      bg: "bg-emerald-500/5",
+      text: "text-emerald-300",
+      border: "border-emerald-500/10",
       label: t.sessions.roles.assistant,
     },
     system: {
-      bg: "bg-muted",
-      text: "text-muted-foreground",
+      bg: "bg-purple-950/10",
+      text: "text-purple-400",
+      border: "border-purple-500/5",
       label: t.sessions.roles.system,
     },
     tool: {
-      bg: "bg-warning/10",
-      text: "text-warning",
+      bg: "bg-amber-500/5",
+      text: "text-amber-300",
+      border: "border-amber-500/10",
       label: t.sessions.roles.tool,
     },
   };
@@ -186,32 +192,36 @@ function MessageBubble({
 
   return (
     <div
-      className={`${style.bg} p-3 ${isHit ? "ring-1 ring-warning/40" : ""}`}
+      className={`p-4 rounded-xl border ${style.border} ${style.bg} transition-all duration-200 ${
+        isHit ? "ring-2 ring-amber-500/40 border-amber-500/30" : ""
+      }`}
       data-search-hit={isHit || undefined}
     >
-      <div className="flex items-center gap-2 mb-1">
-        <span className={`text-xs font-semibold ${style.text}`}>{label}</span>
+      <div className="flex items-center gap-2.5 mb-2">
+        <span className={`text-xs font-semibold uppercase tracking-wider ${style.text}`}>
+          {label}
+        </span>
         {isHit && (
-          <Badge tone="warning" className="text-xs py-0 px-1.5">
+          <Badge tone="warning" className="text-[0.68rem] py-0 px-2 font-mono">
             {t.common.match}
           </Badge>
         )}
         {msg.timestamp && (
-          <span className="text-xs text-text-tertiary">
+          <span className="text-[0.72rem] text-text-tertiary font-mono ml-auto">
             {timeAgo(msg.timestamp)}
           </span>
         )}
       </div>
       {msg.content &&
         (msg.role === "system" ? (
-          <div className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
+          <div className="text-xs text-purple-200/80 font-mono whitespace-pre-wrap leading-relaxed">
             {msg.content}
           </div>
         ) : (
           <Markdown content={msg.content} highlightTerms={highlightTerms} />
         ))}
       {msg.tool_calls && msg.tool_calls.length > 0 && (
-        <div className="mt-1">
+        <div className="mt-2.5">
           {msg.tool_calls.map((tc) => (
             <ToolCallBlock key={tc.id} toolCall={tc} />
           ))}
@@ -221,7 +231,6 @@ function MessageBubble({
   );
 }
 
-/** Message list with auto-scroll to first search hit. */
 function MessageList({
   messages,
   highlight,
@@ -233,7 +242,6 @@ function MessageList({
 
   useEffect(() => {
     if (!highlight || !containerRef.current) return;
-    // Scroll to first hit after render
     const timer = setTimeout(() => {
       const hit = containerRef.current?.querySelector("[data-search-hit]");
       if (hit) {
@@ -246,7 +254,7 @@ function MessageList({
   return (
     <div
       ref={containerRef}
-      className="flex flex-col gap-3 max-h-[600px] overflow-y-auto pr-2"
+      className="flex flex-col gap-3.5 max-h-[600px] overflow-y-auto pr-2 scrollbar-none"
     >
       {messages.map((msg, i) => (
         <MessageBubble key={i} msg={msg} highlight={highlight} />
@@ -291,13 +299,13 @@ function SessionRow({
 
   const sourceInfo = (session.source
     ? SOURCE_CONFIG[session.source]
-    : null) ?? { icon: Globe, color: "text-muted-foreground" };
+    : null) ?? { icon: Globe, color: "text-purple-300" };
   const SourceIcon = sourceInfo.icon;
   const hasTitle = session.title && session.title !== "Untitled";
 
   const actionButtons = (
-    <>
-      <Badge tone="outline" className="text-xs">
+    <div className="flex items-center gap-1.5">
+      <Badge tone="outline" className="text-[0.72rem] tracking-wide py-0.5 px-2 bg-purple-950/20 border-purple-500/20 text-purple-300">
         {session.source ?? "local"}
       </Badge>
 
@@ -305,7 +313,7 @@ function SessionRow({
         <Button
           ghost
           size="icon"
-          className="text-muted-foreground hover:text-success"
+          className="text-purple-300 hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors"
           aria-label={t.sessions.resumeInChat}
           title={t.sessions.resumeInChat}
           onClick={(e) => {
@@ -313,7 +321,7 @@ function SessionRow({
             navigate(`/chat?resume=${encodeURIComponent(session.id)}`);
           }}
         >
-          <Play />
+          <Play className="h-4 w-4" />
         </Button>
       )}
 
@@ -321,38 +329,41 @@ function SessionRow({
         ghost
         destructive
         size="icon"
+        className="text-purple-300 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
         aria-label={t.sessions.deleteSession}
         onClick={(e) => {
           e.stopPropagation();
           onDelete();
         }}
       >
-        <Trash2 />
+        <Trash2 className="h-4 w-4" />
       </Button>
-    </>
+    </div>
   );
 
   return (
     <div
-      className={`max-w-full min-w-0 overflow-hidden border transition-colors ${
+      className={`max-w-full min-w-0 overflow-hidden rounded-xl border transition-all duration-300 hover:scale-[1.002] ${
         session.is_active
-          ? "border-success/30 bg-success/[0.03]"
-          : "border-border"
+          ? "border-emerald-500/30 bg-emerald-500/[0.02] shadow-[0_0_15px_rgba(16,185,129,0.03)]"
+          : "border-purple-500/10 bg-purple-950/[0.04] hover:border-purple-500/25"
       }`}
     >
       <div
-        className="flex cursor-pointer items-start gap-3 p-3 transition-colors hover:bg-secondary/30"
+        className="flex cursor-pointer items-start gap-4 p-4 transition-colors"
         onClick={onToggle}
       >
-        <div className={`shrink-0 pt-0.5 ${sourceInfo.color}`}>
-          <SourceIcon className="h-4 w-4" />
+        <div className={`shrink-0 p-2 rounded-lg bg-purple-950/40 border border-purple-500/10 ${sourceInfo.color}`}>
+          <SourceIcon className="h-4.5 w-4.5" />
         </div>
-        <div className="flex min-w-0 flex-1 flex-col gap-2">
-          <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
-            <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-              <div className="flex min-w-0 items-center gap-2">
+        <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+          <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+            <div className="flex min-w-0 flex-1 flex-col gap-1">
+              <div className="flex min-w-0 items-center gap-2.5">
                 <span
-                  className={`font-mondwest normal-case min-w-0 flex-1 truncate text-sm ${hasTitle ? "font-medium" : "text-muted-foreground italic"}`}
+                  className={`normal-case min-w-0 flex-1 truncate text-sm font-semibold tracking-wide ${
+                    hasTitle ? "text-purple-100" : "text-purple-400/60 italic font-normal"
+                  }`}
                 >
                   {hasTitle
                     ? session.title
@@ -361,29 +372,29 @@ function SessionRow({
                       : t.sessions.untitledSession}
                 </span>
                 {session.is_active && (
-                  <Badge tone="success" className="shrink-0 text-xs">
-                    <span className="mr-1 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-current" />
+                  <Badge tone="success" className="shrink-0 text-[0.72rem] font-semibold py-0.5 px-2">
+                    <span className="mr-1.5 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-current" />
                     {t.common.live}
                   </Badge>
                 )}
               </div>
-              <div className="flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-0.5 text-xs text-muted-foreground">
-                <span className="max-w-[min(100%,12rem)] truncate sm:max-w-[180px]">
+              <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-purple-300/50 font-mono">
+                <span className="max-w-[min(100%,12rem)] truncate sm:max-w-[180px] font-semibold text-purple-300/70">
                   {(session.model ?? t.common.unknown).split("/").pop()}
                 </span>
-                <span className="text-border">&#183;</span>
+                <span className="text-purple-500/30">&#183;</span>
                 <span className="shrink-0">
                   {session.message_count} {t.common.msgs}
                 </span>
                 {session.tool_call_count > 0 && (
                   <>
-                    <span className="text-border">&#183;</span>
-                    <span className="shrink-0">
+                    <span className="text-purple-500/30">&#183;</span>
+                    <span className="shrink-0 text-amber-400/80">
                       {session.tool_call_count} {t.common.tools}
                     </span>
                   </>
                 )}
-                <span className="text-border">&#183;</span>
+                <span className="text-purple-500/30">&#183;</span>
                 <span className="shrink-0">{timeAgo(session.last_active)}</span>
               </div>
               {snippet && <SnippetHighlight snippet={snippet} />}
@@ -401,17 +412,17 @@ function SessionRow({
       </div>
 
       {isExpanded && (
-        <div className="min-w-0 border-t border-border bg-background/50 p-4">
+        <div className="min-w-0 border-t border-purple-500/10 bg-black/35 p-4">
           {loading && (
             <div className="flex items-center justify-center py-8">
-              <Spinner className="text-xl text-primary" />
+              <Spinner className="text-xl text-purple-400" />
             </div>
           )}
           {error && (
-            <p className="text-sm text-destructive py-4 text-center">{error}</p>
+            <p className="text-sm text-rose-400 py-4 text-center">{error}</p>
           )}
           {messages && messages.length === 0 && (
-            <p className="text-sm text-muted-foreground py-4 text-center">
+            <p className="text-sm text-purple-400/60 py-4 text-center">
               {t.sessions.noMessages}
             </p>
           )}
@@ -440,36 +451,40 @@ function SessionsPagination({
 
   return (
     <div
-      className={`flex items-center ${compact ? "gap-1" : "justify-between pt-2"}${className ? ` ${className}` : ""}`}
+      className={`flex items-center ${compact ? "gap-1.5" : "justify-between pt-4"}${
+        className ? ` ${className}` : ""
+      }`}
     >
       {!compact && (
-        <span className="text-xs text-muted-foreground">
+        <span className="text-xs text-purple-400/60 font-mono">
           {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, total)}{" "}
           {t.common.of} {total}
         </span>
       )}
 
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1.5">
         <Button
           outlined
           size="icon"
+          className="hover:border-purple-500/30 hover:bg-purple-500/5 transition-all text-purple-300 cursor-pointer"
           disabled={page === 0}
           onClick={() => onPageChange(page - 1)}
           aria-label={t.sessions.previousPage}
         >
-          <ChevronLeft />
+          <ChevronLeft className="h-4 w-4" />
         </Button>
-        <span className="px-2 text-xs text-muted-foreground">
+        <span className="px-2 text-xs text-purple-300 font-mono">
           {t.common.page} {page + 1} {t.common.of} {pageCount}
         </span>
         <Button
           outlined
           size="icon"
+          className="hover:border-purple-500/30 hover:bg-purple-500/5 transition-all text-purple-300 cursor-pointer"
           disabled={(page + 1) * PAGE_SIZE >= total}
           onClick={() => onPageChange(page + 1)}
           aria-label={t.sessions.nextPage}
         >
-          <ChevronRight />
+          <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
     </div>
@@ -498,13 +513,24 @@ export default function SessionsPage() {
   const { activeAction, actionStatus, dismissLog } = useSystemActions();
   const resumeInChatEnabled = isDashboardEmbeddedChatEnabled();
 
+  const gatewayAddress = (() => {
+    if (status?.gateway_health_url) {
+      try {
+        return new URL(status.gateway_health_url).host;
+      } catch {
+        // Keep fallback
+      }
+    }
+    return window.location.host || "127.0.0.1:1409";
+  })();
+
   useLayoutEffect(() => {
     if (loading) {
       setAfterTitle(null);
       return;
     }
     setAfterTitle(
-      <Badge tone="secondary" className="text-xs tabular-nums">
+      <Badge tone="secondary" className="text-xs font-mono tabular-nums bg-purple-500/10 text-purple-300 border border-purple-500/20">
         {total}
       </Badge>,
     );
@@ -658,13 +684,13 @@ export default function SessionsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <Spinner className="text-2xl text-primary" />
+        <Spinner className="text-2xl text-purple-400" />
       </div>
     );
   }
 
   return (
-    <div className="flex min-w-0 w-full max-w-full flex-col gap-4">
+    <div className="flex min-w-0 w-full max-w-full flex-col gap-5">
       <PluginSlot name="sessions:top" />
       <Toast toast={toast} />
 
@@ -682,17 +708,17 @@ export default function SessionsPage() {
       />
 
       {alerts.length > 0 && (
-        <div className="border border-destructive/30 bg-destructive/[0.06] p-4">
+        <div className="border border-rose-500/25 bg-rose-500/[0.04] p-4.5 rounded-xl shadow-lg">
           <div className="flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
-            <div className="flex flex-col gap-2 min-w-0">
+            <AlertTriangle className="h-5 w-5 text-rose-400 shrink-0 mt-0.5" />
+            <div className="flex flex-col gap-2.5 min-w-0">
               {alerts.map((alert, i) => (
                 <div key={i}>
-                  <p className="text-sm font-medium text-destructive">
+                  <p className="text-sm font-semibold text-rose-300">
                     {alert.message}
                   </p>
                   {alert.detail && (
-                    <p className="text-xs text-destructive/70 mt-0.5">
+                    <p className="text-xs text-rose-400/70 font-mono mt-0.5 leading-relaxed">
                       {alert.detail}
                     </p>
                   )}
@@ -704,20 +730,20 @@ export default function SessionsPage() {
       )}
 
       {activeAction && (
-        <div className="border border-border bg-background-base/50">
-          <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2">
-            <div className="flex items-center gap-2 min-w-0">
+        <div className="border border-purple-500/20 bg-purple-950/10 rounded-xl overflow-hidden shadow-lg backdrop-blur-sm">
+          <div className="flex items-center justify-between gap-3 border-b border-purple-500/10 px-4 py-3 bg-purple-950/20">
+            <div className="flex items-center gap-2.5 min-w-0">
               {actionStatus?.running ? (
-                <Spinner className="shrink-0 text-[0.875rem] text-warning" />
+                <Spinner className="shrink-0 text-[0.875rem] text-amber-400" />
               ) : actionStatus?.exit_code === 0 ? (
-                <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-success" />
+                <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
               ) : actionStatus !== null ? (
-                <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-destructive" />
+                <AlertTriangle className="h-4 w-4 shrink-0 text-rose-400" />
               ) : (
-                <Spinner className="shrink-0 text-[0.875rem] text-muted-foreground" />
+                <Spinner className="shrink-0 text-[0.875rem] text-purple-400/50" />
               )}
 
-              <span className="text-xs font-mondwest tracking-[0.12em] truncate">
+              <span className="text-xs font-semibold text-purple-300 uppercase tracking-wider truncate font-mono">
                 {activeAction === "restart"
                   ? t.status.restartGateway
                   : t.status.updateLittle}
@@ -733,7 +759,7 @@ export default function SessionsPage() {
                         ? "destructive"
                         : "outline"
                 }
-                className="text-xs shrink-0"
+                className="text-[0.72rem] tracking-wide font-mono px-2 py-0.5 shrink-0"
               >
                 {actionStatus?.running
                   ? t.status.running
@@ -749,16 +775,16 @@ export default function SessionsPage() {
               ghost
               size="icon"
               onClick={dismissLog}
-              className="shrink-0 text-text-secondary hover:text-foreground"
+              className="shrink-0 text-purple-300 hover:text-purple-100 hover:bg-purple-500/10"
               aria-label={t.common.close}
             >
-              <X />
+              <X className="h-4 w-4" />
             </Button>
           </div>
 
           <pre
             ref={logScrollRef}
-            className="max-h-72 overflow-auto px-3 py-2 font-mono-ui text-xs leading-relaxed whitespace-pre-wrap break-all"
+            className="max-h-72 overflow-auto px-4 py-3.5 font-mono text-[0.78rem] leading-relaxed whitespace-pre-wrap break-all text-purple-200/80 bg-black/30"
           >
             {actionStatus?.lines && actionStatus.lines.length > 0
               ? actionStatus.lines.join("\n")
@@ -767,44 +793,104 @@ export default function SessionsPage() {
         </div>
       )}
 
+      {/* Cockpit Swarm Topology Canvas Overlay - Active by default in overview */}
+      {!isSearching && view === "overview" && (
+        <div className="relative w-full h-[260px] rounded-2xl border border-purple-500/15 bg-purple-950/[0.03] overflow-hidden shadow-2xl flex items-center justify-center p-6 backdrop-blur-md">
+          {/* Spatial Grid Dot Matrix Overlay */}
+          <div className="absolute inset-0 pointer-events-none opacity-40 bg-[radial-gradient(rgba(168,85,247,0.18)_1.5px,transparent_1.5px)] bg-[size:24px_24px]" />
+          {/* Organic Pulsing Ambient Backdrop Nebula */}
+          <div className="absolute inset-0 pointer-events-none bg-gradient-to-tr from-purple-500/5 via-cyan-500/5 to-transparent blur-3xl animate-[pulse_6s_infinite_ease-in-out]" />
+          
+          <div className="relative w-full h-full flex items-center justify-between gap-6 max-w-3xl z-10">
+            {/* Gateway Node */}
+            <div className="flex flex-col items-center gap-2 group cursor-default">
+              <div className="relative flex h-14 w-14 items-center justify-center rounded-xl border border-cyan-400 bg-black/60 shadow-[0_0_20px_rgba(6,182,212,0.25)] transition-all duration-300 group-hover:scale-105 group-hover:border-cyan-300">
+                <div className="absolute inset-0 rounded-xl bg-cyan-400/5 animate-ping opacity-60" />
+                <Radio className="h-6 w-6 text-cyan-400 animate-pulse" />
+              </div>
+              <span className="text-[0.68rem] font-bold text-cyan-400 tracking-widest font-mono uppercase">Gateway Core</span>
+              <Badge tone={status?.gateway_state === "running" ? "success" : "secondary"} className="text-[0.62rem] px-1.5 py-0 font-mono">
+                {status?.gateway_state === "running" ? "ACTIVE" : "SHUTDOWN"}
+              </Badge>
+            </div>
+
+            {/* Glowing Laser Stream Vector Connectors */}
+            <div className="flex-1 relative h-full flex flex-col items-center justify-center gap-2">
+              <svg className="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="laserGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.8" />
+                    <stop offset="50%" stopColor="#a855f7" stopOpacity="0.8" />
+                    <stop offset="100%" stopColor="#ec4899" stopOpacity="0.8" />
+                  </linearGradient>
+                </defs>
+                {/* Wave stream 1 */}
+                <path d="M 10,100 Q 120,30 240,100 T 470,100" fill="none" stroke="url(#laserGrad)" strokeWidth="1.5" strokeDasharray="5,6" className="animate-[subtle-nebula_20s_infinite_ease-in-out]" />
+                {/* Wave stream 2 */}
+                <path d="M 10,100 Q 120,170 240,100 T 470,100" fill="none" stroke="url(#laserGrad)" strokeWidth="1" strokeOpacity="0.5" strokeDasharray="3,8" />
+              </svg>
+              <div className="z-10 text-center bg-black/75 border border-purple-500/15 rounded-full px-4 py-1.5 backdrop-blur-md shadow-2xl text-[0.68rem] font-mono tracking-widest text-purple-300 font-semibold uppercase flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-purple-500 animate-ping" />
+                Live Swarm Telemetry
+              </div>
+              <span className="z-10 text-[0.62rem] font-mono text-purple-300/40 tracking-wider">
+                {gatewayAddress}
+              </span>
+            </div>
+
+            {/* Cognitive Swarm Cluster Node */}
+            <div className="flex flex-col items-center gap-2 group cursor-default">
+              <div className="relative flex h-14 w-14 items-center justify-center rounded-xl border border-purple-500 bg-black/60 shadow-[0_0_20px_rgba(168,85,247,0.25)] transition-all duration-300 group-hover:scale-105 group-hover:border-purple-400">
+                <div className="absolute inset-0 rounded-xl bg-purple-500/5 animate-pulse" />
+                <Brain className="h-6 w-6 text-purple-400" />
+              </div>
+              <span className="text-[0.68rem] font-bold text-purple-400 tracking-widest font-mono uppercase">Swarm Cluster</span>
+              <Badge tone="secondary" className="text-[0.62rem] px-1.5 py-0 font-mono bg-purple-500/10 border-purple-500/20 text-purple-300">
+                {sessions.filter(s => s.is_active).length} COGNITIVE ENTITIES
+              </Badge>
+            </div>
+          </div>
+        </div>
+      )}
+
       {(showOverviewTab && !isSearching) || showList ? (
-        <div className="flex w-full min-w-0 flex-wrap items-center gap-2 sm:gap-3">
-          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 sm:gap-3">
+        <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-3 bg-purple-950/[0.02] border border-purple-500/10 p-3 rounded-xl backdrop-blur-sm shadow-md">
+          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-3">
             {showOverviewTab && !isSearching && (
               <Segmented
-                className="w-fit shrink-0"
+                className="w-fit shrink-0 font-mono tracking-wider text-xs border border-purple-500/10 p-0.5 rounded-lg bg-black/40"
                 size="md"
                 value={view}
                 onChange={setView}
                 options={[
-                  { value: "overview", label: t.sessions.overview },
-                  { value: "list", label: t.sessions.history },
+                  { value: "overview", label: t.sessions.overview.toUpperCase() },
+                  { value: "list", label: t.sessions.history.toUpperCase() },
                 ]}
               />
             )}
 
             {showList && (
-              <div className="relative min-w-0 w-full sm:w-auto sm:min-w-[12rem] sm:max-w-md sm:flex-1">
+              <div className="relative min-w-0 w-full sm:w-auto sm:min-w-[15rem] sm:max-w-md sm:flex-1">
                 {searching ? (
-                  <Spinner className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[0.875rem] text-primary" />
+                  <Spinner className="absolute left-3 top-1/2 -translate-y-1/2 text-[0.875rem] text-purple-400" />
                 ) : (
-                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-purple-400/50" />
                 )}
                 <Input
                   placeholder={t.sessions.searchPlaceholder}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="h-8 py-0 pr-7 pl-8 text-xs leading-none"
+                  className="h-9 py-0 pr-8 pl-9 text-xs leading-none bg-black/40 border border-purple-500/10 rounded-lg text-purple-200 placeholder:text-purple-400/30 font-mono focus:border-purple-500/40 focus:ring-1 focus:ring-purple-500/20"
                 />
                 {search && (
                   <Button
                     ghost
                     size="xs"
-                    className="absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-purple-400/60 hover:text-purple-100 p-1 hover:bg-purple-500/10 rounded-md cursor-pointer"
                     onClick={() => setSearch("")}
                     aria-label={t.common.clear}
                   >
-                    <X />
+                    <X className="h-3.5 w-3.5" />
                   </Button>
                 )}
               </div>
@@ -825,20 +911,20 @@ export default function SessionsPage() {
 
       {showList ? (
         filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-            <Clock className="h-8 w-8 mb-3 opacity-40" />
-            <p className="text-sm font-medium">
+          <div className="flex flex-col items-center justify-center py-20 text-purple-400/40 bg-purple-950/[0.02] border border-purple-500/10 rounded-2xl shadow-inner">
+            <Clock className="h-10 w-10 mb-4 opacity-30 text-purple-400" />
+            <p className="text-sm font-semibold tracking-wide uppercase font-mono">
               {search ? t.sessions.noMatch : t.sessions.noSessions}
             </p>
             {!search && (
-              <p className="text-xs mt-1 text-text-tertiary">
+              <p className="text-xs mt-1.5 text-purple-400/50 font-mono">
                 {t.sessions.startConversation}
               </p>
             )}
           </div>
         ) : (
-          <>
-            <div className="flex min-w-0 flex-col gap-1.5">
+          <div className="flex min-w-0 flex-col gap-2.5">
+            <div className="flex min-w-0 flex-col gap-2.5">
               {filtered.map((s) => (
                 <SessionRow
                   key={s.id}
@@ -862,38 +948,40 @@ export default function SessionsPage() {
                 onPageChange={setPage}
               />
             )}
-          </>
+          </div>
         )
       ) : (
-        <div className="flex min-w-0 flex-col gap-4">
+        <div className="flex min-w-0 flex-col gap-5">
           {platformEntries.length > 0 && status && (
             <PlatformsCard platforms={platformEntries} />
           )}
 
           {recentSessions.length > 0 && (
-            <Card className="min-w-0 max-w-full overflow-hidden">
-              <CardHeader className="min-w-0">
-                <div className="flex min-w-0 items-center gap-2">
-                  <Clock className="h-5 w-5 shrink-0 text-muted-foreground" />
-                  <CardTitle className="min-w-0 truncate text-base">
-                    {t.status.recentSessions}
+            <Card className="min-w-0 max-w-full overflow-hidden border border-purple-500/10 bg-card p-5 backdrop-blur-md shadow-2xl rounded-2xl">
+              <CardHeader className="min-w-0 px-0 pt-0 pb-4 mb-4 border-b border-purple-500/10">
+                <div className="flex min-w-0 items-center gap-2.5">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/10 text-purple-400">
+                    <Clock className="h-4.5 w-4.5" />
+                  </div>
+                  <CardTitle className="min-w-0 truncate text-sm font-semibold tracking-wide text-midground">
+                    {t.status.recentSessions.toUpperCase()}
                   </CardTitle>
                 </div>
               </CardHeader>
 
-              <CardContent className="grid min-w-0 gap-3">
+              <CardContent className="grid min-w-0 gap-3 px-0 pb-0">
                 {recentSessions.map((s) => (
                   <div
                     key={s.id}
-                    className="flex min-w-0 max-w-full flex-col gap-2 border border-border p-3 sm:flex-row sm:items-center sm:justify-between"
+                    className="flex min-w-0 max-w-full flex-col gap-3 rounded-xl border border-purple-500/5 bg-background-base/20 p-4 transition-all hover:bg-background-base/40 hover:border-purple-500/15 sm:flex-row sm:items-center sm:justify-between"
                   >
                     <div className="flex min-w-0 flex-1 flex-col gap-1">
-                      <span className="font-mondwest normal-case min-w-0 truncate text-sm font-medium">
+                      <span className="normal-case min-w-0 truncate text-sm font-semibold tracking-wide text-purple-100">
                         {s.title ?? t.common.untitled}
                       </span>
 
-                      <span className="min-w-0 break-words text-xs text-muted-foreground">
-                        <span className="font-mono-ui">
+                      <span className="min-w-0 break-words text-xs text-purple-400/50 font-mono">
+                        <span className="font-semibold text-purple-300/70">
                           {(s.model ?? t.common.unknown).split("/").pop()}
                         </span>{" "}
                         · {s.message_count} {t.common.msgs} ·{" "}
@@ -901,7 +989,7 @@ export default function SessionsPage() {
                       </span>
 
                       {s.preview && (
-                        <p className="font-mondwest normal-case min-w-0 max-w-full text-xs leading-snug text-text-tertiary [overflow-wrap:anywhere]">
+                        <p className="normal-case mt-1 min-w-0 max-w-full text-xs leading-relaxed text-purple-400/60 [overflow-wrap:anywhere] font-mono border-l border-purple-500/10 pl-2">
                           {s.preview}
                         </p>
                       )}
@@ -909,9 +997,9 @@ export default function SessionsPage() {
 
                     <Badge
                       tone="outline"
-                      className="shrink-0 self-start text-xs sm:self-center"
+                      className="shrink-0 self-start text-[0.72rem] tracking-wide font-mono py-0.5 px-2 bg-purple-950/20 border-purple-500/10 text-purple-300 sm:self-center"
                     >
-                      <Database className="mr-1 h-3 w-3" />
+                      <Database className="mr-1.5 h-3 w-3" />
                       {s.source ?? "local"}
                     </Badge>
                   </div>

@@ -52,10 +52,6 @@ import { useI18n } from "@/i18n";
 import { usePageHeader } from "@/contexts/usePageHeader";
 import { PluginSlot } from "@/plugins";
 
-/* ------------------------------------------------------------------ */
-/*  Helpers                                                            */
-/* ------------------------------------------------------------------ */
-
 const CATEGORY_ICONS: Record<
   string,
   React.ComponentType<{ className?: string }>
@@ -97,10 +93,6 @@ function CategoryIcon({
   return <Icon className={className ?? "h-4 w-4"} />;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Component                                                          */
-/* ------------------------------------------------------------------ */
-
 export default function ConfigPage() {
   const [config, setConfig] = useState<Record<string, unknown> | null>(null);
   const [schema, setSchema] = useState<Record<
@@ -132,9 +124,9 @@ export default function ConfigPage() {
     }
     setEnd(
       <div className="relative w-full min-w-0 sm:max-w-xs">
-        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-purple-400/40" />
         <Input
-          className="h-8 pl-8 pr-7 text-xs"
+          className="h-8.5 pl-9 pr-8 text-xs font-mono bg-black/40 border border-purple-500/10 rounded-lg text-purple-200 placeholder:text-purple-400/30 focus:border-purple-500/40 focus:ring-1 focus:ring-purple-500/20"
           placeholder={t.common.search}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
@@ -143,11 +135,11 @@ export default function ConfigPage() {
           <Button
             ghost
             size="xs"
-            className="absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            className="absolute right-1.5 top-1/2 -translate-y-1/2 text-purple-400/60 hover:text-purple-100 hover:bg-purple-500/10 p-1 rounded cursor-pointer"
             onClick={() => setSearchQuery("")}
             aria-label={t.common.clear}
           >
-            <X />
+            <X className="h-3.5 w-3.5" />
           </Button>
         )}
       </div>,
@@ -288,12 +280,6 @@ export default function ConfigPage() {
 
   const handleReset = () => {
     if (!defaults || !config) return;
-    // Scope the reset to what the user is currently looking at:
-    //   - search mode → the matched fields
-    //   - form mode   → the active category's fields
-    // Resetting the whole config here was a footgun (issue reported by @ykmfb001):
-    // the button sits next to the category tabs and users reasonably assumed
-    // "reset this tab", not "wipe my entire config.yaml".
     const scopedFields = isSearching ? searchMatchedFields : activeFields;
     if (scopedFields.length === 0) return;
     setConfirmReset(true);
@@ -347,16 +333,14 @@ export default function ConfigPage() {
     reader.readAsText(file);
   };
 
-  /* ---- Loading ---- */
   if (!config || !schema) {
     return (
       <div className="flex items-center justify-center py-24">
-        <Spinner className="text-2xl text-primary" />
+        <Spinner className="text-2xl text-purple-400" />
       </div>
     );
   }
 
-  /* ---- Render field list (shared between search & normal) ---- */
   const renderFields = (
     fields: [string, Record<string, unknown>][],
     showCategory = false,
@@ -377,28 +361,27 @@ export default function ConfigPage() {
       lastCat = cat;
 
       return (
-        <div key={key}>
+        <div key={key} className="relative group/field border border-purple-500/5 bg-purple-950/[0.01] rounded-xl p-4.5 transition-all hover:bg-purple-950/[0.03] hover:border-purple-500/10 shadow-sm flex flex-col gap-3">
           {showCatBadge && (
-            <div className="flex items-center gap-2 pt-4 pb-2 first:pt-0">
+            <div className="flex items-center gap-2.5 pb-2 mb-2 border-b border-purple-500/10">
               <CategoryIcon
                 category={cat}
-                className="h-4 w-4 text-muted-foreground"
+                className="h-4 w-4 text-purple-400"
               />
-              <span className="font-mondwest text-display text-xs font-semibold tracking-wider text-muted-foreground">
-                {prettyCategoryName(cat)}
+              <span className="text-[0.7rem] uppercase font-bold tracking-wider text-purple-300 font-mono">
+                {prettyCategoryName(cat).toUpperCase()}
               </span>
-              <div className="flex-1 border-t border-border" />
             </div>
           )}
           {showSection && (
-            <div className="flex items-center gap-2 pt-4 pb-2 first:pt-0">
-              <span className="font-mondwest text-display text-xs font-semibold tracking-wider text-muted-foreground">
-                {section.replace(/_/g, " ")}
+            <div className="flex items-center gap-2.5 pb-2 mb-2 border-b border-purple-500/10">
+              <span className="text-[0.7rem] uppercase font-bold tracking-wider text-purple-300 font-mono">
+                {section.replace(/_/g, " ").toUpperCase()}
               </span>
-              <div className="flex-1 border-t border-border" />
             </div>
           )}
-          <div className="py-1">
+
+          <div className="flex flex-col gap-1.5">
             <AutoField
               schemaKey={key}
               schema={s}
@@ -412,35 +395,40 @@ export default function ConfigPage() {
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-5">
       <PluginSlot name="config:top" />
       <Toast toast={toast} />
 
-      <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-        <div className="flex min-w-0 items-center gap-2 sm:flex-1">
-          <Settings2 className="h-4 w-4 shrink-0 text-muted-foreground" />
-          <code className="min-w-0 flex-1 break-words text-xs text-muted-foreground bg-muted/50 px-2 py-0.5">
+      {/* Floating titanium header control panel */}
+      <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 bg-purple-950/[0.02] border border-purple-500/10 p-3 rounded-xl shadow-md backdrop-blur-sm">
+        <div className="flex min-w-0 items-center gap-2.5 sm:flex-1">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/10 text-purple-400">
+            <Settings2 className="h-4.5 w-4.5" />
+          </div>
+          <code className="min-w-0 flex-1 break-words text-[0.72rem] text-purple-300 font-mono bg-black/40 border border-purple-500/10 px-2.5 py-1 rounded">
             {configPath ?? t.config.configPath}
           </code>
         </div>
-        <div className="flex flex-wrap items-center gap-1.5 sm:shrink-0">
+        <div className="flex flex-wrap items-center gap-2 sm:shrink-0">
           <Button
             ghost
             size="icon"
+            className="text-purple-300 hover:text-purple-100 hover:bg-purple-500/10 rounded-md cursor-pointer"
             onClick={handleExport}
             title={t.config.exportConfig}
             aria-label={t.config.exportConfig}
           >
-            <Download />
+            <Download className="h-4 w-4" />
           </Button>
           <Button
             ghost
             size="icon"
+            className="text-purple-300 hover:text-purple-100 hover:bg-purple-500/10 rounded-md cursor-pointer"
             onClick={() => fileInputRef.current?.click()}
             title={t.config.importConfig}
             aria-label={t.config.importConfig}
           >
-            <Upload />
+            <Upload className="h-4 w-4" />
           </Button>
           <input
             ref={fileInputRef}
@@ -462,22 +450,24 @@ export default function ConfigPage() {
                 <Button
                   ghost
                   size="icon"
+                  className="text-purple-300 hover:text-rose-400 hover:bg-rose-500/10 rounded-md cursor-pointer"
                   onClick={handleReset}
                   title={resetTitle}
                   aria-label={resetTitle}
                 >
-                  <RotateCcw />
+                  <RotateCcw className="h-4 w-4" />
                 </Button>
               );
             })()}
 
-          <div className="w-px h-5 bg-border mx-1" />
+          <div className="w-px h-5 bg-purple-500/20 mx-1" />
 
           <Button
             size="sm"
             outlined={!yamlMode}
+            className="font-mono text-xs cursor-pointer hover:bg-purple-500/10 transition-colors"
             onClick={() => setYamlMode(!yamlMode)}
-            prefix={yamlMode ? <FormInput /> : <Code />}
+            prefix={yamlMode ? <FormInput className="h-3.5 w-3.5" /> : <Code className="h-3.5 w-3.5" />}
           >
             {yamlMode ? t.common.form : "YAML"}
           </Button>
@@ -485,7 +475,7 @@ export default function ConfigPage() {
           {yamlMode ? (
             <Button
               size="sm"
-              className="uppercase"
+              className="uppercase font-mono text-xs cursor-pointer bg-primary text-white"
               onClick={handleYamlSave}
               disabled={yamlSaving}
             >
@@ -494,7 +484,7 @@ export default function ConfigPage() {
           ) : (
             <Button
               size="sm"
-              className="uppercase"
+              className="uppercase font-mono text-xs cursor-pointer bg-primary text-white"
               onClick={handleSave}
               disabled={saving}
             >
@@ -505,21 +495,21 @@ export default function ConfigPage() {
       </div>
 
       {yamlMode ? (
-        <Card>
-          <CardHeader className="py-3 px-4">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <FileText className="h-4 w-4" />
-              {t.config.rawYaml}
+        <Card className="border border-purple-500/10 bg-card p-5 backdrop-blur-md shadow-2xl rounded-2xl">
+          <CardHeader className="px-0 pt-0 pb-3 mb-3 border-b border-purple-500/10">
+            <CardTitle className="text-sm font-semibold tracking-wide text-midground flex items-center gap-2">
+              <FileText className="h-4.5 w-4.5 text-purple-400" />
+              {t.config.rawYaml.toUpperCase()}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             {yamlLoading ? (
               <div className="flex items-center justify-center py-12">
-                <Spinner className="text-xl text-primary" />
+                <Spinner className="text-xl text-purple-400" />
               </div>
             ) : (
               <textarea
-                className="flex min-h-[600px] w-full bg-transparent px-4 py-3 text-sm font-mono leading-relaxed placeholder:text-muted-foreground focus-visible:outline-none border-t border-border"
+                className="flex min-h-[600px] w-full bg-black/30 border border-purple-500/10 rounded-xl px-4 py-3.5 text-xs font-mono leading-relaxed text-purple-200 placeholder:text-purple-400/25 focus-visible:outline-none focus:border-purple-500/35 focus:ring-1 focus:ring-purple-500/15"
                 value={yamlText}
                 onChange={(e) => setYamlText(e.target.value)}
                 spellCheck={false}
@@ -528,22 +518,19 @@ export default function ConfigPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="flex flex-col sm:flex-row gap-4">
-          <aside aria-label={t.config.filters} className="sm:w-56 sm:shrink-0">
+        <div className="flex flex-col sm:flex-row gap-5">
+          {/* Glassmorphic Category Left filter lists */}
+          <aside aria-label={t.config.filters} className="sm:w-56 sm:shrink-0 bg-purple-950/[0.02] border border-purple-500/10 p-3 rounded-2xl backdrop-blur-sm h-fit">
             <div className="sm:sticky sm:top-4">
-              <div className="flex flex-col border border-border bg-muted/20">
-                <div className="hidden sm:flex items-center gap-2 px-3 py-2 border-b border-border">
-                  <Filter className="h-3 w-3 text-text-tertiary" />
-                  <span className="font-mondwest text-display text-xs tracking-[0.12em] text-text-secondary">
+              <div className="flex flex-col gap-1">
+                <div className="hidden sm:flex items-center gap-2 px-2 pb-2.5 mb-2 border-b border-purple-500/10 text-purple-400">
+                  <Filter className="h-4 w-4 text-purple-400" />
+                  <span className="text-[0.72rem] tracking-wider uppercase font-bold font-mono">
                     {t.config.filters}
                   </span>
                 </div>
 
-                <div className="hidden sm:block px-3 pt-2 pb-1 font-mondwest text-display text-xs tracking-[0.12em] text-text-tertiary">
-                  {t.config.sections}
-                </div>
-
-                <div className="flex sm:flex-col gap-1 sm:gap-px p-2 sm:pt-1 overflow-x-auto sm:overflow-x-visible scrollbar-none sm:max-h-[calc(100vh-260px)] sm:overflow-y-auto">
+                <div className="flex sm:flex-col gap-1 sm:gap-px overflow-x-auto sm:overflow-x-visible scrollbar-none sm:max-h-[calc(100vh-280px)] sm:overflow-y-auto font-mono text-xs">
                   {categories.map((cat) => {
                     const isActive = !isSearching && activeCategory === cat;
 
@@ -555,20 +542,26 @@ export default function ConfigPage() {
                           setSearchQuery("");
                           setActiveCategory(cat);
                         }}
-                        className="rounded-none whitespace-nowrap px-2 py-1 text-xs"
+                        className={`rounded-lg whitespace-nowrap px-3 py-2 cursor-pointer transition-all border flex items-center justify-between gap-2.5 ${
+                          isActive
+                            ? "bg-purple-500/15 border-purple-500/25 text-purple-300 shadow-[0_0_10px_rgba(168,85,247,0.1)]"
+                            : "border-transparent text-purple-400 hover:text-purple-300 hover:bg-purple-500/5"
+                        }`}
                       >
-                        <CategoryIcon
-                          category={cat}
-                          className="h-3.5 w-3.5 shrink-0"
-                        />
-                        <span className="flex-1 truncate">
-                          {prettyCategoryName(cat)}
-                        </span>
+                        <div className="flex items-center gap-2 min-w-0">
+                          <CategoryIcon
+                            category={cat}
+                            className={`h-4 w-4 shrink-0 ${isActive ? "text-purple-300" : "text-purple-400/60"}`}
+                          />
+                          <span className="truncate font-semibold uppercase tracking-wide text-[0.7rem]">
+                            {prettyCategoryName(cat)}
+                          </span>
+                        </div>
                         <span
-                          className={`text-xs tabular-nums ${
+                          className={`text-[0.72rem] tabular-nums font-semibold ${
                             isActive
-                              ? "text-text-secondary"
-                              : "text-text-tertiary"
+                              ? "text-purple-200"
+                              : "text-purple-400/40"
                           }`}
                         >
                           {categoryCounts[cat] || 0}
@@ -581,27 +574,28 @@ export default function ConfigPage() {
             </div>
           </aside>
 
+          {/* Configuration Forms View */}
           <div className="flex-1 min-w-0">
             {isSearching ? (
-              <Card>
-                <CardHeader className="py-3 px-4">
+              <Card className="border border-purple-500/10 bg-card p-5 backdrop-blur-md shadow-2xl rounded-2xl">
+                <CardHeader className="px-0 pt-0 pb-3 mb-3 border-b border-purple-500/10">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-sm flex items-center gap-2">
-                      <Search className="h-4 w-4" />
-                      {t.config.searchResults}
+                    <CardTitle className="text-sm font-semibold tracking-wide text-midground flex items-center gap-2">
+                      <Search className="h-4.5 w-4.5 text-purple-400" />
+                      {t.config.searchResults.toUpperCase()}
                     </CardTitle>
-                    <Badge tone="secondary" className="text-xs">
+                    <Badge tone="secondary" className="text-xs font-mono bg-purple-500/10 border-purple-500/20 text-purple-300 px-2 py-0.5">
                       {searchMatchedFields.length}{" "}
                       {t.config.fields.replace(
                         "{s}",
                         searchMatchedFields.length !== 1 ? "s" : "",
-                      )}
+                      ).toUpperCase()}
                     </Badge>
                   </div>
                 </CardHeader>
-                <CardContent className="grid gap-2 px-4 pb-4">
+                <CardContent className="grid gap-3.5 px-0 pb-0">
                   {searchMatchedFields.length === 0 ? (
-                    <p className="text-sm text-muted-foreground text-center py-8">
+                    <p className="text-sm text-purple-400/50 font-mono text-center py-12">
                       {t.config.noFieldsMatch.replace("{query}", searchQuery)}
                     </p>
                   ) : (
@@ -610,27 +604,27 @@ export default function ConfigPage() {
                 </CardContent>
               </Card>
             ) : (
-              /* Active category */
-              <Card>
-                <CardHeader className="py-3 px-4">
+              /* Active category fields view */
+              <Card className="border border-purple-500/10 bg-card p-5 backdrop-blur-md shadow-2xl rounded-2xl">
+                <CardHeader className="px-0 pt-0 pb-3 mb-3 border-b border-purple-500/10">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-sm flex items-center gap-2">
+                    <CardTitle className="text-sm font-semibold tracking-wide text-midground flex items-center gap-2">
                       <CategoryIcon
                         category={activeCategory}
-                        className="h-4 w-4"
+                        className="h-4.5 w-4.5 text-purple-400"
                       />
-                      {prettyCategoryName(activeCategory)}
+                      {prettyCategoryName(activeCategory).toUpperCase()}
                     </CardTitle>
-                    <Badge tone="secondary" className="text-xs">
+                    <Badge tone="secondary" className="text-xs font-mono bg-purple-500/10 border-purple-500/20 text-purple-300 px-2 py-0.5">
                       {activeFields.length}{" "}
                       {t.config.fields.replace(
                         "{s}",
                         activeFields.length !== 1 ? "s" : "",
-                      )}
+                      ).toUpperCase()}
                     </Badge>
                   </div>
                 </CardHeader>
-                <CardContent className="grid gap-2 px-4 pb-4">
+                <CardContent className="grid gap-3.5 px-0 pb-0">
                   {renderFields(activeFields)}
                 </CardContent>
               </Card>
