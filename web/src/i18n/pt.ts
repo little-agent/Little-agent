@@ -51,7 +51,7 @@ export const pt: Translations = {
 
   app: {
     brand: "Little Agent",
-    brandShort: "HA",
+    brandShort: "LA",
     closeNavigation: "Fechar navegação",
     closeModelTools: "Fechar modelo e ferramentas",
     footer: {

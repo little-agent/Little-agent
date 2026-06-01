@@ -51,7 +51,7 @@ export const uk: Translations = {
 
   app: {
     brand: "Little Agent",
-    brandShort: "HA",
+    brandShort: "LA",
     closeNavigation: "Закрити навігацію",
     closeModelTools: "Закрити модель та інструменти",
     footer: {

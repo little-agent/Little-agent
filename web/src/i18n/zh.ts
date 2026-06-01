@@ -50,7 +50,7 @@ export const zh: Translations = {
 
   app: {
     brand: "Little Agent",
-    brandShort: "HA",
+    brandShort: "LA",
     closeNavigation: "关闭导航",
     closeModelTools: "关闭模型与工具",
     footer: {
