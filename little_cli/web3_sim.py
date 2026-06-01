@@ -85,7 +85,22 @@ def init_web3_db() -> None:
     conn = pm_db.connect()
     try:
         with conn:
-            # 1. Blocks Table
+            # 1. System Config Table
+            conn.execute("""
+            CREATE TABLE IF NOT EXISTS pm_system_config (
+                key TEXT PRIMARY KEY,
+                value TEXT NOT NULL
+            )""")
+
+            # Ensure a unique system_salt exists for globally secure wallet generation
+            cursor = conn.execute("SELECT value FROM pm_system_config WHERE key = 'system_salt'")
+            row = cursor.fetchone()
+            if not row:
+                system_salt = os.urandom(16).hex()
+                conn.execute("INSERT INTO pm_system_config (key, value) VALUES ('system_salt', ?)", (system_salt,))
+                _log.info(f"System salt generated for secure wallet hashing: {system_salt}")
+
+            # 2. Blocks Table
             conn.execute("""
             CREATE TABLE IF NOT EXISTS pm_blocks (
                 number INTEGER PRIMARY KEY,
@@ -97,7 +112,7 @@ def init_web3_db() -> None:
                 miner TEXT NOT NULL
             )""")
 
-            # 2. Transactions Table
+            # 3. Transactions Table
             conn.execute("""
             CREATE TABLE IF NOT EXISTS pm_transactions (
                 hash TEXT PRIMARY KEY,
@@ -112,7 +127,7 @@ def init_web3_db() -> None:
                 event_logs TEXT
             )""")
 
-            # 3. Wallets Table
+            # 4. Wallets Table
             conn.execute("""
             CREATE TABLE IF NOT EXISTS pm_wallets (
                 agent_id TEXT PRIMARY KEY,
@@ -146,8 +161,13 @@ def generate_wallet(agent_id: str) -> Dict[str, str]:
         if row:
             return {"address": row["address"], "private_key": row["private_key"]}
 
-        # Create wallet deterministic from agent_id hash
-        hash_seed = agent_id.encode('utf-8')
+        # Retrieve the system salt for secure, collision-proof hashing
+        cursor_salt = conn.execute("SELECT value FROM pm_system_config WHERE key = 'system_salt'")
+        row_salt = cursor_salt.fetchone()
+        system_salt = row_salt["value"] if row_salt else "default_salt_fallback"
+
+        # Create wallet deterministic from agent_id combined with system_salt hash
+        hash_seed = f"{agent_id}:{system_salt}".encode('utf-8')
         addr_hash = hashlib.sha256(hash_seed + b"_address").hexdigest()[:40]
         pk_hash = hashlib.sha256(hash_seed + b"_privatekey").hexdigest()
         
