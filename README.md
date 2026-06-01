@@ -1,16 +1,25 @@
 # Little Agent ☤
 
+```text
+ _     _ _   _   _         ___                      _   
+| |   (_) |_| |_| | ___   / _ \  __ _  ___ _ __  __| |_ 
+| |   | | __| __| |/ _ \ / /_\ \/ _` |/ _ \ '_ \/ _` __|
+| |___| | |_| |_| |  __// /_\\ \ (_| |  __/ | | \ (_| |_ 
+|_____|_|\__|\__|_|\___|\____/_\__, |\___|_| |_|\__,___|
+                               |___/                    
+```
+
 <p align="center">
   <a href="https://little-agent.little-agent.com/docs/"><img src="https://img.shields.io/badge/Docs-little--agent.little-agent.com-FFD700?style=for-the-badge" alt="Documentation"></a>
   <a href="https://discord.gg/little-agent"><img src="https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord"></a>
   <a href="https://github.com/little-agent/Little-agent/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License: MIT"></a>
-  <a href="https://little-agent.com"><img src="https://img.shields.io/badge/Built%20by-Nous%20Research-blueviolet?style=for-the-badge" alt="built by Little Agent Team"></a>
+  <a href="https://github.com/little-agent/Little-agent"><img src="https://img.shields.io/badge/Built%20by-Little%20Agent-blueviolet?style=for-the-badge" alt="built by Little Agent Team"></a>
   <a href="README.zh-CN.md"><img src="https://img.shields.io/badge/Lang-中文-red?style=for-the-badge" alt="中文"></a>
 </p>
 
 **The self-improving AI agent built by the Little Agent Team.** It's the only agent with a built-in learning loop — it creates skills from experience, improves them during use, nudges itself to persist knowledge, searches its own past conversations, and builds a deepening model of who you are across sessions. Run it on a $5 VPS, a GPU cluster, or serverless infrastructure that costs nearly nothing when idle. It's not tied to your laptop — talk to it from Telegram while it works on a cloud VM.
 
-Use any model you want — [Nous Portal](https://portal.little-agent.com), [OpenRouter](https://openrouter.ai) (200+ models), [NovitaAI](https://novita.ai) (AI-native cloud for Model API, Agent Sandbox, and GPU Cloud), [NVIDIA NIM](https://build.nvidia.com) (Nemotron), [Xiaomi MiMo](https://platform.xiaomimimo.com), [z.ai/GLM](https://z.ai), [Kimi/Moonshot](https://platform.moonshot.ai), [MiniMax](https://www.minimax.io), [Hugging Face](https://huggingface.co), OpenAI, or your own endpoint. Switch with `little model` — no code changes, no lock-in.
+Use any model you want — [OpenRouter](https://openrouter.ai) (200+ models), [NovitaAI](https://novita.ai) (AI-native cloud for Model API, Agent Sandbox, and GPU Cloud), [NVIDIA NIM](https://build.nvidia.com) (Nemotron), [Xiaomi MiMo](https://platform.xiaomimimo.com), [z.ai/GLM](https://z.ai), [Kimi/Moonshot](https://platform.moonshot.ai), [MiniMax](https://www.minimax.io), [Hugging Face](https://huggingface.co), OpenAI, or your own endpoint. Switch with `little model` — no code changes, no lock-in.
 
 <table>
 <tr><td><b>A real terminal interface</b></td><td>Full TUI with multiline editing, slash-command autocomplete, conversation history, interrupt-and-redirect, and streaming tool output.</td></tr>
@@ -78,25 +87,6 @@ little doctor       # Diagnose any issues
 ```
 
 📖 **[Full documentation →](https://little-agent.little-agent.com/docs/)**
-
----
-
-## Skip the API-key collection — Nous Portal
-
-Little works with whatever provider you want — that's not changing. But if you'd rather not collect five separate API keys for the model, web search, image generation, TTS, and a cloud browser, **[Nous Portal](https://portal.little-agent.com)** covers all of them under one subscription:
-
-- **300+ models** — pick any of them with `/model <name>`
-- **Tool Gateway** — web search (Firecrawl), image generation (FAL), text-to-speech (OpenAI), cloud browser (Browser Use), all routed through your sub. No extra accounts.
-
-One command from a fresh install:
-
-```bash
-little setup --portal
-```
-
-That logs you in via OAuth, sets Nous as your provider, and turns on the Tool Gateway. Check what's wired up any time with `little portal status`. Full details on the [Tool Gateway docs page](https://little-agent.little-agent.com/docs/user-guide/features/tool-gateway).
-
-You can still bring your own keys per-tool whenever you want — the gateway is per-backend, not all-or-nothing.
 
 ---
 
