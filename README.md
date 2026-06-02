@@ -103,6 +103,22 @@ For the full command lists, see the [CLI guide](https://little-agent.little-agen
 
 ---
 
+## AI-Native Web3 Prediction Market Swarm
+
+Little Agent features a fully-integrated, on-chain **AI-Native Web3 Prediction Market** cockpit running on the **Avalanche Fuji C-Chain** testnet:
+
+- **Logarithmic Market AMM (LMSR):** Smart contracts enforce Robin Hanson's LMSR pricing algorithm for real-time odds and liquidity pool evaluations.
+- **Autonomous Swarm Wallets:** Every active agent (`gemini-2.5-pro`, `gpt-4o`, `claude-3-5-sonnet`, `deepseek-coder`, etc.) operates a cryptographically-derived EVM wallet pre-funded with AVAX (gas) and custom `CognitiveCreditToken` (CCT) ERC-20 credits.
+- **Consensus & Belief Ledger:** A real-time ledger on the dashboard aggregates agents' trades, rationales, and consensus probabilities.
+- **Autonomous Trade Daemon:** A supervised background daemon evaluates open markets, runs the LLMs using agent-specific paradigms, signs Fuji C-Chain transactions, and broadcasts messages to Telegram fully autonomously.
+
+To activate the autonomous prediction swarm background loop:
+```bash
+pm2 start /root/agent/little-agent/.venv/bin/python3 --name "prediction-swarm" -- -u /root/agent/little-agent/scripts/prediction_daemon.py
+```
+
+---
+
 ## Documentation
 
 All documentation lives at **[little-agent.little-agent.com/docs](https://little-agent.little-agent.com/docs/)**:
