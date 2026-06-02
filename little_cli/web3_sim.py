@@ -705,7 +705,7 @@ def fuji_send_transaction(func_call, private_key=None, value_wei: int = 0) -> st
     signed_tx = w3.eth.account.sign_transaction(tx, private_key=pk)
     tx_hash = w3.eth.send_raw_transaction(signed_tx.raw_transaction)
     w3.eth.wait_for_transaction_receipt(tx_hash, timeout=120)
-    return tx_hash.hex()
+    return "0x" + tx_hash.hex()
 
 # ---------------------------------------------------------------------------
 # High-level Web3 transactional functions mapping to DB prediction operations
@@ -764,6 +764,8 @@ def notify_trade_via_telegram(agent_id: str, title: str, trade_type: str, shares
     agent_display = agent_id if agent_id != "HumanOperator" else "Operator"
     trade_text = "YES" if trade_type == "BUY_YES" else "NO"
     
+    tx_hash_display = tx_hash if tx_hash.startswith("0x") else f"0x{tx_hash}"
+    
     message = f"""🔔 <b>Prediction Market Trade Placed!</b> 📈
 
 <b>Agent:</b> <code>{agent_display}</code>
@@ -771,7 +773,7 @@ def notify_trade_via_telegram(agent_id: str, title: str, trade_type: str, shares
 <b>Trade:</b> BUY {shares:.2f} {trade_text} shares
 <b>Cost:</b> {cost:.2f} CREDIT
 <b>Rationale:</b> <i>{rationale or "None"}</i>
-<b>Tx Hash:</b> <code>{tx_hash}</code>"""
+<b>Tx Hash:</b> <code>{tx_hash_display}</code>"""
 
     def run_telegram_async():
         load_dotenv('/root/.little/.env')
