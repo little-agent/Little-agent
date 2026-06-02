@@ -62,6 +62,43 @@ echo -e "  ${GREEN}•${NC} SQLite support configured"
 echo ""
 
 # ============================================================================
+# Auto-install System Prerequisites
+# ============================================================================
+echo -e "${CYAN}→${NC} Verifying system prerequisites..."
+
+if command -v apt-get &> /dev/null; then
+    # Check if sqlite3 is installed
+    if ! command -v sqlite3 &> /dev/null; then
+        echo -e "${CYAN}→${NC} sqlite3 not found. Auto-installing sqlite3 and libsqlite3-dev..."
+        export DEBIAN_FRONTEND=noninteractive
+        apt-get update -y && apt-get install -y sqlite3 libsqlite3-dev
+        echo -e "${GREEN}✓${NC} sqlite3 successfully installed"
+    else
+        echo -e "${GREEN}✓${NC} sqlite3 already installed"
+    fi
+
+    # Check if Node.js is installed
+    if ! command -v node &> /dev/null; then
+        echo -e "${CYAN}→${NC} Node.js not found. Auto-installing Node.js and npm..."
+        export DEBIAN_FRONTEND=noninteractive
+        apt-get update -y && apt-get install -y nodejs npm
+        echo -e "${GREEN}✓${NC} Node.js successfully installed"
+    else
+        NODE_VER=$(node -v)
+        echo -e "${GREEN}✓${NC} Node.js found ($NODE_VER)"
+    fi
+else
+    # Fallback/warning for non-apt systems or termux
+    if ! command -v sqlite3 &> /dev/null; then
+        echo -e "${YELLOW}⚠${NC} sqlite3 not found. Please install it manually for database support."
+    fi
+    if ! command -v node &> /dev/null; then
+        echo -e "${YELLOW}⚠${NC} Node.js not found. Please install Node.js 18+ manually if compiling the Web UI."
+    fi
+fi
+echo ""
+
+# ============================================================================
 # Install / locate uv
 # ============================================================================
 
