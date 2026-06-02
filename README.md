@@ -187,6 +187,7 @@ We welcome contributions! See the [Contributing Guide](https://little-agent.litt
 Quick start for contributors — clone and go with `setup-little.sh`:
 
 ```bash
+# Prerequisites: Python 3.10+ & Node.js 18+, SQLite support configured
 git clone https://github.com/little-agent/Little-agent.git
 cd little-agent
 ./setup-little.sh     # installs uv, creates venv, installs .[all], symlinks ~/.local/bin/little

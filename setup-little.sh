@@ -57,6 +57,8 @@ get_command_link_display_dir() {
 
 echo ""
 echo -e "${CYAN}⚕ Little Agent Setup${NC}"
+echo -e "  ${GREEN}•${NC} Python 3.10+ & Node.js 18+"
+echo -e "  ${GREEN}•${NC} SQLite support configured"
 echo ""
 
 # ============================================================================
