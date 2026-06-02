@@ -33,6 +33,8 @@ function App() {
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState(false)
   const [showWhitepaper, setShowWhitepaper] = useState(false)
+  const [showDocs, setShowDocs] = useState(false)
+  const [activeDocsTab, setActiveDocsTab] = useState<'quickstart' | 'tokenomics' | 'swarm'>('quickstart')
   const [refreshKey, setRefreshKey] = useState(0)
 
   // Fetch live prediction market pools from our new public endpoint
@@ -86,7 +88,7 @@ function App() {
         </div>
         <div className="nav-links">
           <span className="nav-link" onClick={() => setShowWhitepaper(true)}>Whitepaper</span>
-          <a href="https://github.com/little-agent/Little-agent/tree/main/docs" className="nav-link" target="_blank" rel="noopener noreferrer">Docs</a>
+          <span className="nav-link" onClick={() => { setShowDocs(true); setActiveDocsTab('quickstart'); }}>Docs</span>
           <a href="https://github.com/little-agent/Little-agent" className="nav-link" target="_blank" rel="noopener noreferrer">GitHub</a>
         </div>
       </header>
@@ -313,7 +315,7 @@ function App() {
       <footer className="footer">
         <div className="footer-links">
           <span className="footer-link" style={{ cursor: 'pointer' }} onClick={() => setShowWhitepaper(true)}>Whitepaper</span>
-          <a href="https://github.com/little-agent/Little-agent/tree/main/docs" className="footer-link" target="_blank" rel="noopener noreferrer">Docs</a>
+          <span className="footer-link" style={{ cursor: 'pointer' }} onClick={() => { setShowDocs(true); setActiveDocsTab('quickstart'); }}>Docs</span>
           <a href="https://github.com/little-agent/Little-agent" className="footer-link" target="_blank" rel="noopener noreferrer">GitHub</a>
         </div>
         <p>© 2026 Little Agent. All rights reserved. Open-source under MIT License.</p>
@@ -478,6 +480,158 @@ function App() {
               <p>
                 By combining the mathematical precision of Hanson's LMSR with autonomous, cryptographically-derived AI agents, this protocol demonstrates a robust method for collecting decentralized, machine-native intelligence. The resulting network eliminates human bias, performs real-time metric evaluation, and settles outcomes trustlessly on the blockchain.
               </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Documentation Modal Overlay */}
+      {showDocs && (
+        <div className="modal-overlay" onClick={() => setShowDocs(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <header className="modal-header" style={{ paddingBottom: '0' }}>
+              <span className="modal-title" style={{ fontSize: '1.4rem' }}>Little Agent Documentation</span>
+              <button className="modal-close-btn" onClick={() => setShowDocs(false)}>
+                <X size={20} />
+              </button>
+            </header>
+            
+            {/* Tabs Navigation */}
+            <div className="docs-tabs">
+              <button 
+                className={`docs-tab ${activeDocsTab === 'quickstart' ? 'active' : ''}`}
+                onClick={() => setActiveDocsTab('quickstart')}
+              >
+                CLI Installation
+              </button>
+              <button 
+                className={`docs-tab ${activeDocsTab === 'tokenomics' ? 'active' : ''}`}
+                onClick={() => setActiveDocsTab('tokenomics')}
+              >
+                LCT Tokenomics
+              </button>
+              <button 
+                className={`docs-tab ${activeDocsTab === 'swarm' ? 'active' : ''}`}
+                onClick={() => setActiveDocsTab('swarm')}
+              >
+                Autonomous Swarm
+              </button>
+            </div>
+
+            <div className="modal-body wp-container">
+              {activeDocsTab === 'quickstart' && (
+                <div>
+                  <h2>Quickstart & CLI Installation</h2>
+                  <p>
+                    Little Agent features an interactive, developer-first Command Line Interface (CLI) designed to easily bootstrap, configure, and orchestrate autonomous AI agent nodes.
+                  </p>
+                  
+                  <h3>1. Clone and Install Dependencies</h3>
+                  <p>Clone the repository and run the quick installer shell script to bootstrap the Python virtual environment and system dependencies:</p>
+                  <pre style={{ background: '#090610', padding: '1rem', borderRadius: '0.5rem', border: '1px solid rgba(168, 85, 247, 0.15)', overflowX: 'auto', fontFamily: 'var(--font-mono)', fontSize: '0.85rem', color: '#c084fc', marginBottom: '1.5rem' }}>
+{`git clone https://github.com/little-agent/Little-agent.git
+cd Little-agent
+./setup-little.sh`}
+                  </pre>
+
+                  <h3>2. Configuration (Environment Setup)</h3>
+                  <p>
+                    Copy the template environment file and populate your respective API keys for Large Language Models and blockchain RPC connections:
+                  </p>
+                  <pre style={{ background: '#090610', padding: '1rem', borderRadius: '0.5rem', border: '1px solid rgba(168, 85, 247, 0.15)', overflowX: 'auto', fontFamily: 'var(--font-mono)', fontSize: '0.85rem', color: '#c084fc', marginBottom: '1.5rem' }}>
+{`cp .env.example .env
+nano .env`}
+                  </pre>
+                  <p><strong>Required Configuration Parameters:</strong></p>
+                  <ul>
+                    <li><code>GEMINI_API_KEY</code>: Access key for Google Gemini model paradigms.</li>
+                    <li><code>CLAUDE_API_KEY</code>: Access key for Anthropic Claude model architectures.</li>
+                    <li><code>OPENAI_API_KEY</code>: Access key for OpenAI GPT macro trend analysis.</li>
+                    <li><code>FUJI_RPC_URL</code>: Blockchain gateway provider for the Avalanche Fuji C-Chain testnet.</li>
+                  </ul>
+
+                  <h3>3. Initializing EVM Wallets</h3>
+                  <p>
+                    Initialize the agent swarm EVM wallets. This derives public/private keys cryptographically based on your unique model IDs and the system salt:
+                  </p>
+                  <pre style={{ background: '#090610', padding: '1rem', borderRadius: '0.5rem', border: '1px solid rgba(168, 85, 247, 0.15)', overflowX: 'auto', fontFamily: 'var(--font-mono)', fontSize: '0.85rem', color: '#c084fc', marginBottom: '1.5rem' }}>
+{`python cli.py wallet init`}
+                  </pre>
+
+                  <h3>4. Running Autonomous Swarm Loop</h3>
+                  <p>
+                    Start the autonomous trade background loop supervising open prediction markets, signing block transactions, and committing consensus beliefs on-chain:
+                  </p>
+                  <pre style={{ background: '#090610', padding: '1rem', borderRadius: '0.5rem', border: '1px solid rgba(168, 85, 247, 0.15)', overflowX: 'auto', fontFamily: 'var(--font-mono)', fontSize: '0.85rem', color: '#c084fc', marginBottom: '1.5rem' }}>
+{`pm2 start /root/agent/little-agent/.venv/bin/python3 --name "prediction-swarm" -- -u /root/agent/little-agent/scripts/prediction_daemon.py`}
+                  </pre>
+                </div>
+              )}
+
+              {activeDocsTab === 'tokenomics' && (
+                <div>
+                  <h2>LCT Tokenomics & Smart Contracts</h2>
+                  <p>
+                    The consensus and believe ledger is fully driven on-chain on the <strong>Avalanche Fuji C-Chain</strong>, using standard ERC-20 utility credits denominated as <strong>LittleCreditToken (LCT)</strong>.
+                  </p>
+
+                  <h3>1. Token Specification</h3>
+                  <ul>
+                    <li><strong>Token Name:</strong> LittleCreditToken</li>
+                    <li><strong>Token Symbol:</strong> LCT</li>
+                    <li><strong>Decimals:</strong> 18</li>
+                    <li><strong>Network:</strong> Avalanche Fuji Testnet</li>
+                    <li><strong>Smart Contract Address:</strong> <code>0x543Bf28Ead3c9842F7B01452DAd94CcBEaFd803C</code></li>
+                  </ul>
+
+                  <h3>2. Hanson's Logarithmic Market Scoring Rule (LMSR)</h3>
+                  <p>
+                    The prediction market pools use a logarithmic automated market maker (AMM) designed to ensure constant liquidity. The marginal prices of outcomes (YES vs NO) are mathematically calculated via the cost function:
+                  </p>
+                  <blockquote style={{ background: 'rgba(168, 85, 247, 0.05)', borderLeft: '3px solid #a855f7', padding: '0.75rem 1.25rem', margin: '1rem 0', borderRadius: '0.25rem' }}>
+                    <strong>C(q) = b * ln( e^(q_yes / b) + e^(q_no / b) )</strong>
+                  </blockquote>
+                  <p>
+                    Where <code>b</code> represents the liquidity parameter determining pricing slippage. As agents place trades, outcome prices dynamically shift representing the real-time probability of the outcome.
+                  </p>
+
+                  <h3>3. Pre-funding and Gas Distribution</h3>
+                  <p>
+                    To ensure smooth autonomous transactions, every newly registered agent receives a cryptographic wallet pre-funded with:
+                  </p>
+                  <ul>
+                    <li><strong>AVAX (Fuji native):</strong> Allocated for transaction gas fees, managed autonomously.</li>
+                    <li><strong>LCT (ERC-20):</strong> Transferred to the agent's EVM wallet to place prediction bets and represent trade confidence.</li>
+                  </ul>
+                </div>
+              )}
+
+              {activeDocsTab === 'swarm' && (
+                <div>
+                  <h2>Autonomous Swarm & Belief Ledger</h2>
+                  <p>
+                    A swarm of heterogeneous Large Language Models forms the cognitive backbone of the Prediction Market engine.
+                  </p>
+
+                  <h3>1. Cognitive Models & Paradigms</h3>
+                  <p>
+                    Each model operates under a unique analytical personality to avoid monolithic biases:
+                  </p>
+                  <ul>
+                    <li><strong>gemini-2.5-pro:</strong> Analyzes system logs, statistical patterns, and strict empirical data.</li>
+                    <li><strong>claude-3-5-sonnet:</strong> Examines code quality, lint rates, and system scalability.</li>
+                    <li><strong>gpt-4o:</strong> Follows macro trends and project sentiment indicators.</li>
+                    <li><strong>swarm-moderator:</strong> Implements contrarian strategies, risk hedging, and balances extreme odds.</li>
+                  </ul>
+
+                  <h3>2. Decentralized Oracle & Settlement</h3>
+                  <p>
+                    1. <strong>Evaluation:</strong> Swarm agents query open prediction markets periodically.<br />
+                    2. <strong>Trading:</strong> Based on the outcome evaluations, wallets sign buying/selling of shares using <code>LCT</code> credits.<br />
+                    3. <strong>Oracle Resolution:</strong> A trusted oracle address resolves the market outcome based on external indexers, triggering payout settlements. Winning share holders claim standard rewards at exactly 1.0 LCT per winning share directly from the pool contract.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>

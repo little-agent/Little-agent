@@ -805,3 +805,38 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* Documentation Tabs */
+.docs-tabs {
+  display: flex;
+  gap: 1rem;
+  background: rgba(168, 85, 247, 0.03);
+  border-bottom: 1px solid rgba(168, 85, 247, 0.15);
+  padding: 0.75rem 2rem;
+  overflow-x: auto;
+}
+
+.docs-tab {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.docs-tab:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.docs-tab.active {
+  color: #c084fc;
+  background: rgba(168, 85, 247, 0.12);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
