@@ -922,13 +922,28 @@ clone_repo() {
                 local stash_name
                 stash_name="little-install-autostash-$(date -u +%Y%m%d-%H%M%S)"
                 log_info "Local changes detected, stashing before update..."
-                git stash push --include-untracked -m "$stash_name"
+                if ! git stash push --include-untracked -m "$stash_name" >/dev/null 2>&1; then
+                    log_warn "Failed to stash local changes. Update may fail if there are conflicts."
+                fi
                 autostash_ref="stash@{0}"
             fi
 
-            git fetch origin
-            git checkout "$BRANCH"
-            git pull --ff-only origin "$BRANCH"
+            log_info "Fetching latest updates..."
+            if ! git fetch origin >/dev/null 2>&1; then
+                log_warn "Failed to fetch updates from remote repository."
+            fi
+
+            log_info "Checking out branch $BRANCH..."
+            if ! git checkout "$BRANCH" >/dev/null 2>&1; then
+                log_error "Failed to checkout branch $BRANCH."
+                exit 1
+            fi
+
+            log_info "Applying updates..."
+            if ! git pull --ff-only origin "$BRANCH" >/dev/null 2>&1; then
+                log_error "Failed to fast-forward pull from origin/$BRANCH."
+                exit 1
+            fi
 
             if [ -n "$autostash_ref" ]; then
                 local restore_now="yes"
@@ -946,8 +961,8 @@ clone_repo() {
 
                 if [ "$restore_now" = "yes" ]; then
                     log_info "Restoring local changes..."
-                    if git stash apply "$autostash_ref"; then
-                        git stash drop "$autostash_ref" >/dev/null
+                    if git stash apply "$autostash_ref" >/dev/null 2>&1; then
+                        git stash drop "$autostash_ref" >/dev/null 2>&1
                         log_warn "Local changes were restored on top of the updated codebase."
                         log_warn "Review git diff / git status if Little behaves unexpectedly."
                     else
@@ -1018,7 +1033,10 @@ setup_venv() {
     fi
 
     # uv creates the venv and pins the Python version in one step
-    $UV_CMD venv venv --python "$PYTHON_VERSION"
+    if ! $UV_CMD venv venv --python "$PYTHON_VERSION" >/dev/null 2>&1; then
+        log_error "Failed to create virtual environment"
+        exit 1
+    fi
 
     log_success "Virtual environment ready (Python $PYTHON_VERSION)"
 }
@@ -1127,36 +1145,31 @@ install_deps() {
     # lockfile is stale, missing, or out-of-sync with the current
     # extras spec, NOT because they're equivalent in posture.
     if [ -f "uv.lock" ]; then
-        log_info "Trying tier: hash-verified (uv.lock) ..."
-        log_info "(this resolves + downloads the curated [all] set — first run on a"
-        log_info " fresh venv can take 1-5 minutes; uv prints progress below)"
-        # Stream uv's progress directly to the user instead of swallowing
-        # it with `2>"$(mktemp)"`.  Two reasons:
-        #   1. `--extra all --locked` against a fresh venv has to pull
-        #      every transitive — silencing stderr makes the install
-        #      look frozen for minutes on slow networks. Users see
-        #      "Trying tier: hash-verified ..." and assume it's hung.
-        #   2. The previous `2>"$(mktemp)"` substituted the path at
-        #      command-build time but never saved it, so on failure the
-        #      uv error message was unreachable — the user just got the
-        #      generic "lockfile may be stale" warning.
-        #
-        # Critical flag choice: `--extra all`, NOT `--all-extras`.
-        #   --all-extras = every [project.optional-dependencies] key.
-        #                  This bypasses the curated `[all]` extra
-        #                  entirely and pulls e.g. [matrix] (which
-        #                  needs python-olm + make on Windows) and
-        #                  [rl] (git+https deps that fail offline).
-        #   --extra all  = install just the `[all]` extra's contents.
-        #                  This respects the curation in pyproject.toml.
-        # uv's own progress UI handles TTY detection and downgrades
-        # gracefully when stdout/stderr aren't terminals.
-        if UV_PROJECT_ENVIRONMENT="$INSTALL_DIR/venv" $UV_CMD sync --extra all --locked; then
+        log_info "Installing dependencies (hash-verified via uv.lock) — this may take 1-3 minutes..."
+        
+        local sync_log
+        sync_log=$(mktemp)
+        # Run uv sync in background and print a dot every 2 seconds for a clean progress UI
+        UV_PROJECT_ENVIRONMENT="$INSTALL_DIR/venv" $UV_CMD sync --extra all --locked --quiet >"$sync_log" 2>&1 &
+        local pid=$!
+        while kill -0 $pid 2>/dev/null; do
+            printf "."
+            sleep 2
+        done
+        wait $pid
+        local sync_status=$?
+        echo "" # new line after dots
+
+        if [ $sync_status -eq 0 ]; then
+            rm -f "$sync_log"
             log_success "Main package installed (hash-verified via uv.lock)"
             log_success "All dependencies installed"
             return 0
         fi
-        log_warn "uv.lock sync failed (see uv output above), falling back to PyPI resolve..."
+        log_warn "uv.lock sync failed. Error log details:"
+        cat "$sync_log" | sed 's/^/    /' >&2
+        rm -f "$sync_log"
+        log_warn "Falling back to PyPI resolve..."
     else
         log_info "uv.lock not found — falling back to PyPI resolve (no hash verification)"
     fi
@@ -1231,15 +1244,26 @@ PY
 
     install_tier() {
         local name="$1"; local spec="$2"
-        log_info "Trying tier: $name ..."
-        if $UV_CMD pip install -e "$spec" 2>"$ALL_INSTALL_LOG"; then
+        log_info "Installing dependency tier: $name (this may take a few minutes)..."
+        
+        $UV_CMD pip install -q -e "$spec" >"$ALL_INSTALL_LOG" 2>&1 &
+        local pid=$!
+        while kill -0 $pid 2>/dev/null; do
+            printf "."
+            sleep 2
+        done
+        wait $pid
+        local install_status=$?
+        echo "" # new line after dots
+
+        if [ $install_status -eq 0 ]; then
             log_success "Main package installed ($name)"
             _installed=true
             _tier_name="$name"
             return 0
         fi
-        log_warn "Tier '$name' failed. Top of pip output:"
-        head -5 "$ALL_INSTALL_LOG" | sed 's/^/    /' >&2
+        log_warn "Tier '$name' failed. Error details:"
+        cat "$ALL_INSTALL_LOG" | sed 's/^/    /' >&2
         return 1
     }
 
@@ -1547,6 +1571,21 @@ run_browser_install_with_timeout() {
     fi
 }
 
+run_quiet_browser_install() {
+    local timeout_seconds="$1"
+    shift
+    run_browser_install_with_timeout "$timeout_seconds" "$@" >/dev/null 2>&1 &
+    local pid=$!
+    while kill -0 $pid 2>/dev/null; do
+        printf "."
+        sleep 2
+    done
+    wait $pid
+    local status=$?
+    echo ""
+    return $status
+}
+
 configure_browser_env_from_system_browser() {
     local env_file="$LITTLE_HOME/.env"
     local browser_path="${DETECTED_BROWSER_EXECUTABLE:-}"
@@ -1626,7 +1665,7 @@ install_node_deps() {
                     # exact command the admin needs to run separately.
                     if [ "$(id -u)" -eq 0 ] || (command -v sudo >/dev/null 2>&1 && sudo -n true 2>/dev/null); then
                         log_info "Installing Playwright Chromium with system dependencies..."
-                        cd "$INSTALL_DIR" && run_browser_install_with_timeout 600 npx playwright install --with-deps chromium 2>/dev/null || {
+                        cd "$INSTALL_DIR" && run_quiet_browser_install 600 npx playwright install --with-deps chromium || {
                             log_warn "Playwright browser installation failed — browser tools will not work."
                             log_warn "Try running manually: cd $INSTALL_DIR && npx playwright install --with-deps chromium"
                         }
@@ -1636,7 +1675,7 @@ install_node_deps() {
                         log_info "  sudo npx playwright install-deps chromium"
                         log_info "  (from $INSTALL_DIR, after Node.js deps are installed)"
                         log_info "Installing Chromium binary into this user's Playwright cache..."
-                        cd "$INSTALL_DIR" && run_browser_install_with_timeout 600 npx playwright install chromium 2>/dev/null || {
+                        cd "$INSTALL_DIR" && run_quiet_browser_install 600 npx playwright install chromium || {
                             log_warn "Playwright browser installation failed — browser tools will not work."
                             log_warn "Try running manually: cd $INSTALL_DIR && npx playwright install chromium"
                         }
@@ -1656,7 +1695,7 @@ install_node_deps() {
                             log_warn "  sudo pacman -S nss atk at-spi2-core cups libdrm libxkbcommon mesa pango cairo alsa-lib"
                         fi
                     fi
-                    cd "$INSTALL_DIR" && run_browser_install_with_timeout 600 npx playwright install chromium 2>/dev/null || {
+                    cd "$INSTALL_DIR" && run_quiet_browser_install 600 npx playwright install chromium || {
                         log_warn "Playwright browser installation failed — browser tools will not work."
                     }
                     ;;
@@ -1664,7 +1703,7 @@ install_node_deps() {
                     log_warn "Playwright does not support automatic dependency installation on RPM-based systems."
                     log_info "Install Chromium system dependencies manually before using browser tools:"
                     log_info "  sudo dnf install nss atk at-spi2-core cups-libs libdrm libxkbcommon mesa-libgbm pango cairo alsa-lib"
-                    cd "$INSTALL_DIR" && run_browser_install_with_timeout 600 npx playwright install chromium 2>/dev/null || {
+                    cd "$INSTALL_DIR" && run_quiet_browser_install 600 npx playwright install chromium || {
                         log_warn "Playwright browser installation failed — install dependencies above and retry."
                     }
                     ;;
@@ -1672,7 +1711,7 @@ install_node_deps() {
                     log_warn "Playwright does not support automatic dependency installation on zypper-based systems."
                     log_info "Install Chromium system dependencies manually before using browser tools:"
                     log_info "  sudo zypper install mozilla-nss libatk-1_0-0 at-spi2-core cups-libs libdrm2 libxkbcommon0 Mesa-libgbm1 pango cairo libasound2"
-                    cd "$INSTALL_DIR" && run_browser_install_with_timeout 600 npx playwright install chromium 2>/dev/null || {
+                    cd "$INSTALL_DIR" && run_quiet_browser_install 600 npx playwright install chromium || {
                         log_warn "Playwright browser installation failed — install dependencies above and retry."
                     }
                     ;;
@@ -1681,7 +1720,7 @@ install_node_deps() {
                     log_info "Install Chromium/browser system dependencies for your distribution, then run:"
                     log_info "  cd $INSTALL_DIR && npx playwright install chromium"
                     log_info "Browser tools will not work until dependencies are installed."
-                    cd "$INSTALL_DIR" && run_browser_install_with_timeout 600 npx playwright install chromium 2>/dev/null || true
+                    cd "$INSTALL_DIR" && run_quiet_browser_install 600 npx playwright install chromium || true
                     ;;
             esac
         fi

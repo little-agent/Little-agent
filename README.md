@@ -198,14 +198,15 @@ See `little claw migrate --help` for all options, or use the `openclaw-migration
 
 We welcome contributions! See the [Contributing Guide](https://little-agent.little-agent.com/docs/developer-guide/contributing) for development setup, code style, and PR process.
 
-Quick start for contributors — clone and go with `setup-little.sh`:
+Quick start for contributors — clone and set up with `uv`:
 
 ```bash
 # Prerequisites: Python 3.10+ & Node.js 18+, SQLite support configured
-git clone https://github.com/little-agent/Little-agent.git
+git clone --recurse-submodules https://github.com/little-agent/Little-agent.git
 cd little-agent
-./setup-little.sh     # installs uv, creates venv, installs .[all], symlinks ~/.local/bin/little
-./little              # auto-detects the venv, no need to `source` first
+uv venv venv --python 3.11
+source venv/bin/activate
+uv pip install -e ".[all,dev]"
 ```
 
 Manual path (equivalent to the above):
