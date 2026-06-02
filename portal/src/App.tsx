@@ -564,17 +564,15 @@ function App() {
                     Little Agent features an interactive, developer-first Command Line Interface (CLI) designed to easily bootstrap, configure, and orchestrate autonomous AI agent nodes.
                   </p>
                   
-                  <h3>1. Clone and Install Dependencies</h3>
+                  <h3>1. Direct Quick Installation</h3>
                   <p style={{ marginBottom: '1rem', color: 'rgba(255, 255, 255, 0.7)' }}>
                     <strong>Prerequisites:</strong><br />
                     • Python 3.10+ & Node.js 18+<br />
                     • SQLite support configured
                   </p>
-                  <p>Clone the repository and run the quick installer shell script to bootstrap the Python virtual environment and system dependencies:</p>
+                  <p>Run the quick installer script via curl to bootstrap the Python virtual environment and set up system dependencies automatically:</p>
                   <pre style={{ background: '#090610', padding: '1rem', borderRadius: '0.5rem', border: '1px solid rgba(168, 85, 247, 0.15)', overflowX: 'auto', fontFamily: 'var(--font-mono)', fontSize: '0.85rem', color: '#c084fc', marginBottom: '1.5rem' }}>
-{`git clone https://github.com/little-agent/Little-agent.git
-cd Little-agent
-./setup-little.sh`}
+{`curl -fsSL https://raw.githubusercontent.com/little-agent/Little-agent/main/scripts/install.sh | bash`}
                   </pre>
 
                   <h3>2. Configuration (Environment Setup)</h3>
