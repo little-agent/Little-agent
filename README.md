@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/github_banner.png" alt="Little Agent Banner" width="100%">
+  <img src="portal/public/logo.png" alt="Little Agent Logo" width="120">
 </p>
 
 <p align="center">
