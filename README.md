@@ -1,4 +1,9 @@
+<p align="center">
+  <img src="assets/github_banner.png" alt="Little Agent Banner" width="100%">
+</p>
+
 # Little Agent ☤
+
 
 ```text
  _     _ _   _   _         ___                      _   
