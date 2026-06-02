@@ -82,11 +82,15 @@ from tools.xai_http import little_xai_user_agent
 # crashing in headless environments (SSH, Docker, WSL, no PortAudio).
 # ---------------------------------------------------------------------------
 
-def _import_edge_tts():
+def _import_edge_tts(install: bool = True):
     """Lazy import edge_tts. Returns the module or raises ImportError."""
     try:
-        from tools.lazy_deps import ensure as _lazy_ensure
-        _lazy_ensure("tts.edge", prompt=False)
+        from tools.lazy_deps import ensure as _lazy_ensure, is_available as _lazy_is_available
+        if install:
+            _lazy_ensure("tts.edge", prompt=False)
+        else:
+            if not _lazy_is_available("tts.edge"):
+                raise ImportError("edge-tts not installed")
     except ImportError:
         pass
     except Exception as e:
@@ -94,7 +98,7 @@ def _import_edge_tts():
     import edge_tts
     return edge_tts
 
-def _import_elevenlabs():
+def _import_elevenlabs(install: bool = True):
     """Lazy import ElevenLabs client. Returns the class or raises ImportError.
 
     Calls :func:`tools.lazy_deps.ensure` first so the SDK gets installed on
@@ -104,8 +108,12 @@ def _import_elevenlabs():
     error-handling paths keep working.
     """
     try:
-        from tools.lazy_deps import FeatureUnavailable, ensure
-        ensure("tts.elevenlabs", prompt=False)
+        from tools.lazy_deps import FeatureUnavailable, ensure, is_available
+        if install:
+            ensure("tts.elevenlabs", prompt=False)
+        else:
+            if not is_available("tts.elevenlabs"):
+                raise ImportError("elevenlabs not installed")
     except ImportError:
         # lazy_deps module itself missing — fall through to the raw import
         # so older code paths still get a clean ImportError.
@@ -2156,12 +2164,12 @@ def check_tts_requirements() -> bool:
     if _has_any_command_tts_provider():
         return True
     try:
-        _import_edge_tts()
+        _import_edge_tts(install=False)
         return True
     except ImportError:
         pass
     try:
-        _import_elevenlabs()
+        _import_elevenlabs(install=False)
         if get_env_value("ELEVENLABS_API_KEY"):
             return True
     except ImportError:
