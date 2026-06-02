@@ -790,7 +790,7 @@ def notify_trade_via_telegram(agent_id: str, title: str, trade_type: str, shares
         finally:
             loop.close()
 
-    threading.Thread(target=run_telegram_async, daemon=True).start()
+    threading.Thread(target=run_telegram_async, daemon=False).start()
 
 def web3_place_trade(agent_id: str, market_id: str, trade_type: str, shares: float, rationale: Optional[str] = None) -> Dict[str, Any]:
     """Wraps place trade in an on-chain smart contract transaction call with gas fees."""
