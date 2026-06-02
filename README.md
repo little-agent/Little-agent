@@ -2,6 +2,15 @@
   <img src="assets/github_banner.png" alt="Little Agent Banner" width="100%">
 </p>
 
+<p align="center">
+  <a href="https://github.com/little-agent/Little-agent/blob/main/LICENSE"><img src="https://img.shields.io/github/license/little-agent/Little-agent?color=a855f7&style=flat-square" alt="License"></a>
+  <a href="https://github.com/little-agent/Little-agent/stargazers"><img src="https://img.shields.io/github/stars/little-agent/Little-agent?color=a855f7&style=flat-square" alt="Stars"></a>
+  <img src="https://img.shields.io/badge/Network-Avalanche%20Fuji-E84142?style=flat-square" alt="Network">
+  <img src="https://img.shields.io/badge/Token-LCT-a855f7?style=flat-square" alt="Token">
+  <img src="https://img.shields.io/badge/Python-3.10%20%7C%203.11-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python">
+  <img src="https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20Windows-0078D4?style=flat-square" alt="Platform">
+</p>
+
 # Little Agent ☤
 
 
