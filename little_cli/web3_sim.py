@@ -100,6 +100,12 @@ def init_web3_db() -> None:
                 conn.execute("INSERT INTO pm_system_config (key, value) VALUES ('system_salt', ?)", (system_salt,))
                 _log.info(f"System salt generated for secure wallet hashing: {system_salt}")
 
+            # Ensure last_indexed_block exists
+            cursor_idx = conn.execute("SELECT value FROM pm_system_config WHERE key = 'last_indexed_block'")
+            row_idx = cursor_idx.fetchone()
+            if not row_idx:
+                conn.execute("INSERT INTO pm_system_config (key, value) VALUES ('last_indexed_block', '-1')")
+
             # 2. Blocks Table
             conn.execute("""
             CREATE TABLE IF NOT EXISTS pm_blocks (
@@ -251,6 +257,157 @@ def mine_block(from_address: str, to_address: str, value: float, gas_used: float
         conn.close()
 
 # ---------------------------------------------------------------------------
+# Simulated Web3 Block Indexer / Event Sync Loop
+# ---------------------------------------------------------------------------
+
+def sync_blockchain_events() -> None:
+    """
+    Simulated Web3 Block Indexer.
+    Pulls unindexed on-chain transactions, parses their emitted event logs,
+    and updates local SQLite read-cache tables to index the blockchain state.
+    """
+    conn = pm_db.connect()
+    try:
+        # Get last indexed block
+        cursor = conn.execute("SELECT value FROM pm_system_config WHERE key = 'last_indexed_block'")
+        row = cursor.fetchone()
+        last_indexed = int(row["value"]) if row else -1
+        
+        # Get all transactions from blocks higher than last_indexed
+        cursor_txs = conn.execute("""
+            SELECT t.*, b.timestamp FROM pm_transactions t
+            JOIN pm_blocks b ON t.block_number = b.number
+            WHERE b.number > ?
+            ORDER BY b.number ASC
+        """, (last_indexed,))
+        
+        txs = cursor_txs.fetchall()
+        if not txs:
+            return
+            
+        max_block = last_indexed
+        
+        with conn:
+            for tx in txs:
+                block_num = tx["block_number"]
+                if block_num > max_block:
+                    max_block = block_num
+                    
+                status = tx["status"]
+                if status == 0:
+                    # Transaction reverted on-chain
+                    continue
+                    
+                event_logs_str = tx["event_logs"]
+                if not event_logs_str:
+                    continue
+                    
+                events = json.loads(event_logs_str)
+                for ev in events:
+                    event_name = ev.get("event")
+                    args = ev.get("args", {})
+                    
+                    if event_name == "MarketCreated":
+                        market_id = args["marketId"]
+                        title = args["title"]
+                        creator_address = args["creator"]
+                        expires_at = args["expiresAt"]
+                        
+                        # Resolve creator_agent_id from address
+                        cursor_agent = conn.execute("SELECT agent_id FROM pm_wallets WHERE address = ?", (creator_address,))
+                        row_agent = cursor_agent.fetchone()
+                        creator_agent_id = row_agent["agent_id"] if row_agent else "Unknown"
+                        
+                        # Index creation to local table
+                        conn.execute("""
+                            INSERT OR IGNORE INTO pm_markets (id, title, creator_agent_id, status, outcome, created_at, expires_at, yes_shares, no_shares, liquidity_pool)
+                            VALUES (?, ?, ?, 'OPEN', 'NULL', ?, ?, 0.0, 0.0, 0.0)
+                        """, (market_id, title, creator_agent_id, tx["timestamp"], expires_at))
+                        
+                    elif event_name == "TradePlaced":
+                        market_id = args["marketId"]
+                        trader_address = args["trader"]
+                        trade_type = args["tradeType"]
+                        shares = float(args["shares"])
+                        cost = float(args["cost"])
+                        rationale = args.get("rationale")
+                        
+                        # Resolve agent_id from address
+                        cursor_agent = conn.execute("SELECT agent_id FROM pm_wallets WHERE address = ?", (trader_address,))
+                        row_agent = cursor_agent.fetchone()
+                        agent_id = row_agent["agent_id"] if row_agent else "Unknown"
+                        
+                        # 1. Update balances
+                        conn.execute("UPDATE pm_agent_balances SET credits = credits - ? WHERE agent_id = ?", (cost, agent_id))
+                        conn.execute("UPDATE pm_wallets SET balance = balance - ? WHERE address = ?", (cost, trader_address))
+                        
+                        # 2. Update market share pools
+                        cursor_mkt = conn.execute("SELECT yes_shares, no_shares FROM pm_markets WHERE id = ?", (market_id,))
+                        mkt = cursor_mkt.fetchone()
+                        if mkt:
+                            current_y = mkt["yes_shares"]
+                            current_n = mkt["no_shares"]
+                            if trade_type == "BUY_YES":
+                                new_y = current_y + shares
+                                new_n = current_n
+                            else:
+                                new_y = current_y
+                                new_n = current_n + shares
+                                
+                            conn.execute("""
+                                UPDATE pm_markets 
+                                SET yes_shares = ?, no_shares = ?, liquidity_pool = liquidity_pool + ? 
+                                WHERE id = ?
+                            """, (new_y, new_n, cost, market_id))
+                            
+                        # 3. Update agent shares holdings
+                        conn.execute("""
+                            INSERT INTO pm_agent_shares (market_id, agent_id, yes_shares, no_shares)
+                            VALUES (?, ?, ?, ?)
+                            ON CONFLICT(market_id, agent_id) DO UPDATE SET
+                                yes_shares = yes_shares + excluded.yes_shares,
+                                no_shares = no_shares + excluded.no_shares
+                        """, (
+                            market_id,
+                            agent_id,
+                            shares if trade_type == "BUY_YES" else 0.0,
+                            shares if trade_type == "BUY_NO" else 0.0
+                        ))
+                        
+                        # 4. Insert trade log
+                        trade_id = f"trade_{tx['hash'][:10]}_{int(shares)}"
+                        conn.execute("""
+                            INSERT OR IGNORE INTO pm_trades (id, market_id, agent_id, trade_type, shares, price, rationale, timestamp)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                        """, (trade_id, market_id, agent_id, trade_type, shares, cost / shares, rationale, tx["timestamp"]))
+                        
+                    elif event_name == "MarketResolved":
+                        market_id = args["marketId"]
+                        outcome = args["outcome"]
+                        
+                        # Update market status in local DB
+                        conn.execute("UPDATE pm_markets SET status = 'RESOLVED', outcome = ? WHERE id = ?", (outcome, market_id))
+                        
+                        # Distribute credits to winners (1.0 credit per winning share)
+                        cursor_shares = conn.execute("SELECT agent_id, yes_shares, no_shares FROM pm_agent_shares WHERE market_id = ?", (market_id,))
+                        for row_sh in cursor_shares.fetchall():
+                            agent_id = row_sh["agent_id"]
+                            winning_shares = row_sh["yes_shares"] if outcome == "YES" else row_sh["no_shares"]
+                            if winning_shares > 0:
+                                conn.execute("UPDATE pm_agent_balances SET credits = credits + ? WHERE agent_id = ?", (winning_shares, agent_id))
+                                conn.execute("UPDATE pm_wallets SET balance = balance + ? WHERE agent_id = ?", (winning_shares, agent_id))
+                                
+            # Update last indexed block configuration
+            conn.execute("INSERT OR REPLACE INTO pm_system_config (key, value) VALUES ('last_indexed_block', ?)", (str(max_block),))
+            
+        _log.info(f"Block Indexer successfully synchronized up to Block #{max_block}.")
+    except Exception as e:
+        _log.error(f"Event indexing failed: {e}")
+        raise e
+    finally:
+        conn.close()
+
+# ---------------------------------------------------------------------------
 # High-level Web3 transactional functions mapping to DB prediction operations
 # ---------------------------------------------------------------------------
 
@@ -258,16 +415,6 @@ def web3_create_market(agent_id: str, market_id: str, title: str, description: O
     """Wraps market creation in an on-chain smart contract transaction call."""
     wallet = generate_wallet(agent_id)
     
-    # Place in standard market DB
-    res = pm_db.create_market(
-        market_id=market_id,
-        title=title,
-        description=description,
-        creator_agent_id=agent_id,
-        expires_at=expires_at,
-        category=category
-    )
-
     # Mine on-chain
     gas = 68000.0
     input_data = f"createMarket('{market_id}', '{title}', '{category}', {expires_at})"
@@ -291,6 +438,10 @@ def web3_create_market(agent_id: str, market_id: str, title: str, description: O
         event_logs=events
     )
 
+    # Trigger Indexer to sync block events to local DB
+    sync_blockchain_events()
+
+    res = pm_db.get_market(market_id)
     res["tx_hash"] = tx_hash
     res["block_address"] = CONTRACT_ADDRESS
     return res
@@ -299,17 +450,25 @@ def web3_place_trade(agent_id: str, market_id: str, trade_type: str, shares: flo
     """Wraps place trade in an on-chain smart contract transaction call with gas fees."""
     wallet = generate_wallet(agent_id)
     
-    # Calculate price change and process in regular DB
-    res = pm_db.place_trade(
-        market_id=market_id,
-        agent_id=agent_id,
-        trade_type=trade_type,
-        shares=shares,
-        rationale=rationale
-    )
+    # Fetch current market state from SQLite index tables
+    conn = pm_db.connect()
+    try:
+        cursor = conn.execute("SELECT yes_shares, no_shares FROM pm_markets WHERE id = ?", (market_id,))
+        m = cursor.fetchone()
+        if not m:
+            raise ValueError("Market not found")
+        current_y = m["yes_shares"]
+        current_n = m["no_shares"]
+    finally:
+        conn.close()
 
-    # Cost in credit tokens
-    trade_cost = res.get("cost", 0.0)
+    # Calculate cost using standard AMM LMSR formula
+    trade_cost = pm_db.get_trade_cost(current_y, current_n, trade_type, shares, pm_db.B)
+    
+    # Check agent balance
+    agent_bal = pm_db.get_agent_balance(agent_id)
+    if agent_bal < trade_cost:
+        raise ValueError(f"Insufficient credits: Trade costs {trade_cost:.2f} cr, but agent only has {agent_bal:.2f} cr.")
 
     # Mine on-chain
     gas = 45000.0 + (shares * 10)
@@ -337,15 +496,17 @@ def web3_place_trade(agent_id: str, market_id: str, trade_type: str, shares: flo
         event_logs=events
     )
 
+    # Trigger Indexer to sync block events to local DB
+    sync_blockchain_events()
+
+    res = pm_db.get_market(market_id)
     res["tx_hash"] = tx_hash
     res["block_address"] = CONTRACT_ADDRESS
+    res["cost"] = trade_cost
     return res
 
 def web3_resolve_market(market_id: str, outcome: str) -> Dict[str, Any]:
     """Wraps resolve market in an on-chain smart contract transaction call."""
-    res = pm_db.resolve_market(market_id=market_id, outcome=outcome)
-    
-    # We resolve from Swarm Moderator wallet
     wallet = generate_wallet("swarm-moderator")
 
     # Mine on-chain
@@ -356,8 +517,7 @@ def web3_resolve_market(market_id: str, outcome: str) -> Dict[str, Any]:
         "event": "MarketResolved",
         "args": {
             "marketId": market_id,
-            "outcome": outcome,
-            "totalPayout": res.get("liquidity_pool", 0.0)
+            "outcome": outcome
         }
     }]
     
@@ -371,6 +531,10 @@ def web3_resolve_market(market_id: str, outcome: str) -> Dict[str, Any]:
         event_logs=events
     )
 
+    # Trigger Indexer to sync block events to local DB
+    sync_blockchain_events()
+
+    res = pm_db.get_market(market_id)
     res["tx_hash"] = tx_hash
     res["block_address"] = CONTRACT_ADDRESS
     return res

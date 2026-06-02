@@ -4836,6 +4836,7 @@ from little_cli import web3_sim
 # Initialize schemas for DB and Web3 Blockchain simulation
 pm_db.init_db()
 web3_sim.init_web3_db()
+web3_sim.sync_blockchain_events()
 
 pm_router = APIRouter(prefix="/api/prediction-market", tags=["prediction-market"])
 
