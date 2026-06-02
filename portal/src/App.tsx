@@ -3,7 +3,6 @@ import {
   Terminal as TerminalIcon, 
   Copy, 
   Check, 
-  Cpu, 
   BookOpen, 
   TrendingUp, 
   ArrowUpRight, 
@@ -80,10 +79,8 @@ function App() {
     <div className="container">
       {/* Top Header / Navigation */}
       <header className="header-nav">
-        <div className="logo-container" onClick={() => window.location.reload()}>
-          <div className="logo-icon">
-            <Cpu size={20} className="text-white" />
-          </div>
+        <div className="logo-container" onClick={() => window.location.reload()} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <img src="/logo.png" alt="Little Agent Logo" style={{ height: '36px', width: '36px', borderRadius: '50%', border: '1px solid rgba(168, 85, 247, 0.3)' }} />
           <span className="logo-text">Little Agent</span>
         </div>
         <div className="nav-links">
