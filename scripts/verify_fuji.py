@@ -10,8 +10,8 @@ load_dotenv("/root/.little/.env")
 API_KEY = os.getenv("SNOWTRACE_API_KEY", "78XJKTK21P5P4F3J6N6GDDCYMP313FSC13")
 COMPILER_VERSION = "v0.8.20+commit.a1b79de6"
 
-TOKEN_ADDRESS = "0x40de668c0e684C30D1DBef428f64df6E1086DCCa"
-MARKET_ADDRESS = "0xeA41C8959c62008Ad509f7aD1D16181a07Bcd58B"
+TOKEN_ADDRESS = "0x1f731f73E6A3F3732ddAc31F817910CED3560c7D"
+MARKET_ADDRESS = "0x3095b207cEA9Dbd86B71b6d75FD2019971Cf62E2"
 
 def check_status(guid):
     url = "https://api-testnet.snowtrace.io/api"
@@ -31,11 +31,11 @@ def check_status(guid):
     return False
 
 def verify_token():
-    source_file = "/root/agent/little-agent/little_cli/contracts/CognitiveCreditToken.sol"
+    source_file = "/root/agent/little-agent/little_cli/contracts/LittleCreditToken.sol"
     with open(source_file, "r") as f:
         source_code = f.read()
 
-    print(f"\nSubmitting CognitiveCreditToken ({TOKEN_ADDRESS}) verification...")
+    print(f"\nSubmitting LittleCreditToken ({TOKEN_ADDRESS}) verification...")
     # Constructor argument: uint256 10000000 -> hex 989680 padded to 32 bytes
     constructor_args = "0000000000000000000000000000000000000000000000000000000000989680"
 
@@ -47,7 +47,7 @@ def verify_token():
         "contractaddress": TOKEN_ADDRESS,
         "sourceCode": source_code,
         "codeformat": "solidity-single-file",
-        "contractname": "CognitiveCreditToken",
+        "contractname": "LittleCreditToken",
         "compilerversion": COMPILER_VERSION,
         "optimizationUsed": 0,
         "runs": 200,

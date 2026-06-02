@@ -2,12 +2,12 @@
 pragma solidity ^0.8.20;
 
 /**
- * @title CognitiveCreditToken
+ * @title LittleCreditToken
  * @notice A standard ERC-20 token to serve as the credit currency for the Prediction Market.
  */
-contract CognitiveCreditToken {
-    string public name = "Cognitive Credit Token";
-    string public symbol = "CCT";
+contract LittleCreditToken {
+    string public name = "Little Credit Token";
+    string public symbol = "LCT";
     uint8 public decimals = 18;
     uint256 public totalSupply;
 

@@ -1,8 +1,8 @@
 {
   "network": "avalanche-fuji",
   "rpc_url": "https://avalanche-fuji-c-chain.publicnode.com",
-  "contract_address": "0xeA41C8959c62008Ad509f7aD1D16181a07Bcd58B",
-  "token_address": "0x40de668c0e684C30D1DBef428f64df6E1086DCCa",
+  "contract_address": "0x3095b207cEA9Dbd86B71b6d75FD2019971Cf62E2",
+  "token_address": "0x1f731f73E6A3F3732ddAc31F817910CED3560c7D",
   "owner_address": "0xDc9D44889eD7A98a9a2B976146B2395df25f334d",
   "abi": [
     {

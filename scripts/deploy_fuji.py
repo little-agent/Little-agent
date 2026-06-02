@@ -59,15 +59,15 @@ def deploy():
     print("\nCompiling contracts...")
     compiled = solcx.compile_files(
         [
-            "little_cli/contracts/CognitiveCreditToken.sol",
+            "little_cli/contracts/LittleCreditToken.sol",
             "little_cli/contracts/PredictionMarket.sol"
         ],
         solc_version="0.8.20"
     )
     
-    # 1. Deploy CognitiveCreditToken
-    print("\nDeploying CognitiveCreditToken...")
-    token_key = "little_cli/contracts/CognitiveCreditToken.sol:CognitiveCreditToken"
+    # 1. Deploy LittleCreditToken
+    print("\nDeploying LittleCreditToken...")
+    token_key = "little_cli/contracts/LittleCreditToken.sol:LittleCreditToken"
     token_interface = compiled[token_key]
     token_abi = token_interface['abi']
     token_bytecode = token_interface['bin']
@@ -117,7 +117,7 @@ def deploy():
     print(f"[SUCCESS] PredictionMarket deployed at: {market_address}")
 
     # 3. Transfer ERC-20 Credit Tokens to Agents
-    print("\nDistributing ERC-20 Cognitive Credit Tokens to agents...")
+    print("\nDistributing ERC-20 Little Credit Tokens to agents...")
     token_inst = w3.eth.contract(address=token_address, abi=token_abi)
     salt = get_system_salt()
     agents = ["gemini-2.5-pro", "gemini-2.5-flash", "claude-3-5-sonnet", "gpt-4o", "deepseek-coder", "swarm-moderator"]
@@ -129,7 +129,7 @@ def deploy():
         agent_addr = get_agent_address(agent, salt)
         nonce = w3.eth.get_transaction_count(SENDER_ADDRESS)
         
-        print(f"Sending 50,000 CCT tokens to agent {agent} ({agent_addr})...")
+        print(f"Sending 50,000 LCT tokens to agent {agent} ({agent_addr})...")
         tx_transfer = token_inst.functions.transfer(agent_addr, transfer_amount).build_transaction({
             'chainId': 43113,
             'gas': 100000,
