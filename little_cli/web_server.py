@@ -4980,10 +4980,28 @@ async def api_web3_get_contract():
         sol_code = ""
         if contract_path.exists():
             sol_code = contract_path.read_text()
+        
+        fuji_config = web3_sim.load_fuji_config()
+        if fuji_config:
+            return {
+                "address": fuji_config["contract_address"],
+                "abi": fuji_config["abi"],
+                "solidity_code": sol_code,
+                "network": "avalanche-fuji",
+                "network_name": "Avalanche Fuji C-Chain",
+                "chain_id": 43113,
+                "rpc_url": fuji_config["rpc_url"],
+                "explorer_url": "https://testnet.snowtrace.io",
+            }
         return {
             "address": web3_sim.CONTRACT_ADDRESS,
             "abi": web3_sim.CONTRACT_ABI,
-            "solidity_code": sol_code
+            "solidity_code": sol_code,
+            "network": "local",
+            "network_name": "Local EVM",
+            "chain_id": 1337,
+            "rpc_url": "",
+            "explorer_url": "",
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

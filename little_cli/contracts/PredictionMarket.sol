@@ -55,9 +55,9 @@ contract PredictionMarket {
     uint256 public constant B = 100 * 1e18; // scaled to 18 decimals
 
     // Events
-    event MarketCreated(string indexed marketId, string title, address indexed creator, uint256 expiresAt);
-    event TradePlaced(string indexed marketId, address indexed trader, TradeType indexed tradeType, uint256 shares, uint256 cost, string rationale);
-    event MarketResolved(string indexed marketId, Outcome outcome, uint256 totalPayout);
+    event MarketCreated(string marketId, string title, address indexed creator, uint256 expiresAt);
+    event TradePlaced(string marketId, address indexed trader, TradeType indexed tradeType, uint256 shares, uint256 cost, string rationale);
+    event MarketResolved(string marketId, Outcome outcome, uint256 totalPayout);
     event BalanceUpdated(address indexed agent, uint256 newBalance);
 
     modifier onlyOpen(string memory _marketId) {
@@ -183,40 +183,77 @@ contract PredictionMarket {
      * @notice Mathematical calculation of LMSR cost curve
      */
     function calculateLmsrCost(uint256 _yesShares, uint256 _noShares) public pure returns (uint256) {
-        // Simulated high-precision fixed point natural exponential calculation
-        // cost = B * ln(e^(y/B) + e^(n/B))
-        // For simplicity and exact gas execution, we simulate with standard precision.
-        uint256 y = _yesShares / 1e18;
-        uint256 n = _noShares / 1e18;
-        uint256 b = B / 1e18;
+        uint256 maxVal = _yesShares > _noShares ? _yesShares : _noShares;
         
-        // To prevent overflow: stable_log_sum_exp
-        uint256 maxVal = y > n ? y : n;
+        uint256 expY = expNegDivB(maxVal - _yesShares);
+        uint256 expN = expNegDivB(maxVal - _noShares);
         
-        // Approximation of e^(x-max)
-        uint256 expY = expApprox(y - maxVal);
-        uint256 expN = expApprox(n - maxVal);
+        uint256 sumExp = expY + expN; // scale: 1e18, range [1e18, 2e18]
+        uint256 lnSum = lnScaled(sumExp); // scale: 1e18
         
-        uint256 sumExp = expY + expN;
-        uint256 lnSum = lnApprox(sumExp);
-        
-        return (maxVal + lnSum) * B;
+        return maxVal + lnSum;
     }
 
-    // Helper functions for simple fixed-point Taylor approximation
-    function expApprox(uint256 _val) internal pure returns (uint256) {
-        // e^x = 1 + x + x^2/2 + x^3/6
-        // Scale factor: 1e4
-        uint256 scale = 10000;
-        if (_val == 0) return scale;
-        return scale + (_val * scale) + ((_val * _val * scale) / 2) + ((_val * _val * _val * scale) / 6);
+    function expNegDivB(uint256 _diff) internal pure returns (uint256) {
+        uint256 idx = _diff / 10000000000000000000; 
+        if (idx >= 100) return 0;
+        uint256 rem = _diff % 10000000000000000000;
+        
+        uint256[101] memory table = [
+            uint256(1000000000000000000), uint256(904837418035959552), uint256(818730753077981824), uint256(740818220681717888), uint256(670320046035639296),
+            uint256(606530659712633472), uint256(548811636094026368), uint256(496585303791409536), uint256(449328964117221568), uint256(406569659740599104),
+            uint256(367879441171442304), uint256(332871083698079552), uint256(301194211912202112), uint256(272531793034012608), uint256(246596963941606496),
+            uint256(223130160148429824), uint256(201896517994655392), uint256(182683524052734656), uint256(165298888221586528), uint256(149568619222635072),
+            uint256(135335283236612704), uint256(122456428252981904), uint256(110803158362333872), uint256(100258843722803744), uint256(90717953289412512),
+            uint256(82084998623898800), uint256(74273578214333872), uint256(67205512739749760), uint256(60810062625217976), uint256(55023220056407232),
+            uint256(49787068367863944), uint256(45049202393557800), uint256(40762203978366208), uint256(36883167401240016), uint256(33373269960326080),
+            uint256(30197383422318500), uint256(27323722447292560), uint256(24723526470339388), uint256(22370771856165600), uint256(20241911445804392),
+            uint256(18315638888734180), uint256(16572675401761254), uint256(14995576820477704), uint256(13568559012200934), uint256(12277339903068436),
+            uint256(11108996538242306), uint256(10051835744633586), uint256(9095277101695816), uint256(8229747049020030), uint256(7446583070924338),
+            uint256(6737946999085467), uint256(6096746565515638), uint256(5516564420760772), uint256(4991593906910217), uint256(4516580942612666),
+            uint256(4086771438464066), uint256(3697863716482932), uint256(3345965457471272), uint256(3027554745375815), uint256(2739444818768368),
+            uint256(2478752176666358), uint256(2242867719485803), uint256(2029430636295734), uint256(1836304777028907), uint256(1661557273173934),
+            uint256(1503439192977572), uint256(1360368037547893), uint256(1230911902673481), uint256(1113775147844803), uint256(1007785429048510),
+            uint256(911881965554516), uint256(825104923265904), uint256(746585808376679), uint256(675538775193844), uint256(611252761129572),
+            uint256(553084370147833), uint256(500451433440610), uint256(452827182886796), uint256(409734978979786), uint256(370743540459088),
+            uint256(335462627902511), uint256(303539138078866), uint256(274653569972142), uint256(248516827107951), uint256(224867324178848),
+            uint256(203468369010644), uint256(184105793667579), uint256(166585810987633), uint256(150733075095476), uint256(136388926482011),
+            uint256(123409804086679), uint256(111665808490114), uint256(101039401837093), uint256(91424231478173), uint256(82724065556632),
+            uint256(74851829887700), uint256(67728736490853), uint256(61283495053222), uint256(55451599432176), uint256(50174682056175),
+            uint256(45399929762484)
+        ];
+        
+        uint256 y0 = table[idx];
+        uint256 y1 = table[idx + 1];
+        
+        return y0 - ((y0 - y1) * rem) / 10000000000000000000;
     }
 
-    function lnApprox(uint256 _val) internal pure returns (uint256) {
-        // Simple linear logarithmic approximation
-        if (_val <= 10000) return 0;
-        if (_val < 30000) return 1;
-        if (_val < 80000) return 2;
-        return 3;
+    function lnScaled(uint256 _sumExp) internal pure returns (uint256) {
+        if (_sumExp <= 1e18) return 0;
+        if (_sumExp >= 2e18) return 693147180559945309; // ln(2) * 1e18
+        uint256 z = _sumExp - 1e18;
+        
+        uint256[11] memory table = [
+            uint256(0),
+            95310179804324900,
+            182321556793954600,
+            262364264467491060,
+            336472236621212900,
+            405465108108164400,
+            470003629245735500,
+            530628251062141800,
+            587786664902119000,
+            641853886172394800,
+            693147180559945300
+        ];
+        
+        uint256 idx = z / 100000000000000000; // 0 to 9
+        uint256 rem = z % 100000000000000000;
+        
+        uint256 y0 = table[idx];
+        uint256 y1 = table[idx + 1];
+        
+        return y0 + ((y1 - y0) * rem) / 100000000000000000;
     }
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import {
   TrendingUp,
   MessageSquare,
@@ -96,6 +96,11 @@ interface ContractInfo {
   address: string;
   abi: any[];
   solidity_code: string;
+  network?: string;
+  network_name?: string;
+  chain_id?: number;
+  rpc_url?: string;
+  explorer_url?: string;
 }
 
 export default function PredictionMarketPage() {
@@ -139,6 +144,14 @@ export default function PredictionMarketPage() {
 
   const { toast, showToast } = useToast();
 
+  // Use refs for mutable state to avoid recreating loadData on every state change
+  const activeMarketRef = useRef(activeMarket);
+  activeMarketRef.current = activeMarket;
+  const selectedWalletRef = useRef(selectedWallet);
+  selectedWalletRef.current = selectedWallet;
+  const contractInfoRef = useRef(contractInfo);
+  contractInfoRef.current = contractInfo;
+
   const loadData = useCallback(async () => {
     try {
       // 1. Markets
@@ -158,11 +171,12 @@ export default function PredictionMarketPage() {
       setWallets(walletsData);
 
       // Deterministic selected wallet if not set
-      if (walletsData.length > 0 && !selectedWallet) {
+      const curWallet = selectedWalletRef.current;
+      if (walletsData.length > 0 && !curWallet) {
         const human = walletsData.find(w => w.agent_id === "HumanOperator") || walletsData[0];
         setSelectedWallet(human);
-      } else if (selectedWallet) {
-        const updated = walletsData.find(w => w.agent_id === selectedWallet.agent_id);
+      } else if (curWallet) {
+        const updated = walletsData.find(w => w.agent_id === curWallet.agent_id);
         if (updated) setSelectedWallet(updated);
       }
 
@@ -174,16 +188,17 @@ export default function PredictionMarketPage() {
       setTxs(txsData);
 
       // 6. Contract Info (only once)
-      if (!contractInfo) {
+      if (!contractInfoRef.current) {
         const contractData = await fetchJSON<ContractInfo>("/api/prediction-market/web3/contract");
         setContractInfo(contractData);
       }
       
-      if (marketsData.length > 0 && !activeMarket) {
+      const curMarket = activeMarketRef.current;
+      if (marketsData.length > 0 && !curMarket) {
         const detailed = await fetchJSON<Market>(`/api/prediction-market/markets/${marketsData[0].id}`);
         setActiveMarket(detailed);
-      } else if (activeMarket) {
-        const detailed = await fetchJSON<Market>(`/api/prediction-market/markets/${activeMarket.id}`);
+      } else if (curMarket) {
+        const detailed = await fetchJSON<Market>(`/api/prediction-market/markets/${curMarket.id}`);
         setActiveMarket(detailed);
       }
     } catch (err) {
@@ -191,7 +206,7 @@ export default function PredictionMarketPage() {
     } finally {
       setLoading(false);
     }
-  }, [activeMarket, selectedWallet, contractInfo]);
+  }, []); // No dependencies — uses refs for mutable state
 
   useEffect(() => {
     loadData();
@@ -237,6 +252,7 @@ export default function PredictionMarketPage() {
   };
 
   const selectMarket = async (m: Market) => {
+    setActiveTab("predictions");
     try {
       const detailed = await fetchJSON<Market>(`/api/prediction-market/markets/${m.id}`);
       setActiveMarket(detailed);
@@ -347,8 +363,8 @@ export default function PredictionMarketPage() {
           <div>
             <h2 className="text-sm font-bold tracking-wider text-purple-100 uppercase font-mono flex items-center gap-1.5">
               AI-Native Web3 Prediction Market
-              <span className="text-[0.55rem] font-bold bg-purple-500/10 border border-purple-500/30 text-purple-400 px-1.5 py-0.5 rounded uppercase tracking-widest font-mono">
-                Simulated EVM
+              <span className={`text-[0.55rem] font-bold px-1.5 py-0.5 rounded uppercase tracking-widest font-mono ${contractInfo?.network === 'avalanche-fuji' ? 'bg-red-500/10 border border-red-500/30 text-red-400' : 'bg-purple-500/10 border border-purple-500/30 text-purple-400'}`}>
+                {contractInfo?.network === 'avalanche-fuji' ? 'Fuji Testnet' : 'Simulated EVM'}
               </span>
             </h2>
             <p className="text-[0.68rem] text-purple-400/50 font-mono mt-0.5">
@@ -735,24 +751,27 @@ export default function PredictionMarketPage() {
                     <span className="text-purple-200 mt-1 font-bold">25.0 Gwei</span>
                   </div>
                   <div className="flex flex-col bg-purple-950/10 border border-purple-500/5 rounded-xl p-3">
-                    <span className="text-[0.55rem] text-purple-400/40 uppercase font-bold">Network ID</span>
+                    <span className="text-[0.55rem] text-purple-400/40 uppercase font-bold">Network</span>
                     <span className="text-emerald-400 mt-1 font-bold flex items-center gap-1">
                       <span className="inline-block h-1.5 w-1.5 bg-emerald-400 rounded-full animate-ping" />
-                      Local EVM (1337)
+                      {contractInfo.network_name || "Local EVM"} ({contractInfo.chain_id || 1337})
                     </span>
                   </div>
                 </div>
 
-                {/* Virtual deployment log */}
+                {/* Deployment log */}
                 <div className="flex flex-col gap-2">
-                  <span className="text-[0.62rem] text-purple-400/40 uppercase font-bold tracking-wider">Virtual Compiler Output</span>
+                  <span className="text-[0.62rem] text-purple-400/40 uppercase font-bold tracking-wider">Deployment Log</span>
                   <div className="bg-black/60 border border-purple-500/10 rounded-xl p-3.5 h-36 font-mono text-[0.68rem] text-purple-400/70 overflow-y-auto leading-relaxed scrollbar-none">
-                    <p className="text-emerald-400 font-bold">[info] Compiling contracts...</p>
-                    <p className="text-purple-300 mt-1">[solc] Source file: PredictionMarket.sol</p>
-                    <p className="text-purple-300">[solc] Compiler run optimized with runs: 200</p>
-                    <p className="text-emerald-400 font-bold mt-1">[info] Compilation successful. Bytecode generated.</p>
-                    <p className="text-purple-300 mt-1">[hardhat] Deploying PredictionMarket to address {contractInfo.address}</p>
-                    <p className="text-emerald-400 font-bold">[success] Deployed successfully. Event listeners attached.</p>
+                    <p className="text-emerald-400 font-bold">[solcx] Compiling PredictionMarket.sol (solc 0.8.20)...</p>
+                    <p className="text-purple-300 mt-1">[solcx] Compilation successful. ABI + Bytecode generated.</p>
+                    <p className="text-purple-300 mt-1">[web3] Connecting to {contractInfo.network_name || "EVM"} (Chain ID: {contractInfo.chain_id || "?"})...</p>
+                    <p className="text-emerald-400 font-bold mt-1">[web3] ✓ Connected. RPC: {contractInfo.rpc_url || "local"}</p>
+                    <p className="text-purple-300 mt-1">[deploy] Deploying PredictionMarket to {contractInfo.address}</p>
+                    <p className="text-emerald-400 font-bold">[deploy] ✓ Contract deployed successfully on {contractInfo.network_name || "network"}.</p>
+                    {contractInfo.explorer_url && (
+                      <p className="text-cyan-400 mt-1">[explorer] <a href={`${contractInfo.explorer_url}/address/${contractInfo.address}`} target="_blank" rel="noopener noreferrer" className="underline hover:text-white">{contractInfo.explorer_url}/address/{contractInfo.address}</a></p>
+                    )}
                   </div>
                 </div>
               </CardContent>
@@ -966,7 +985,7 @@ export default function PredictionMarketPage() {
             </div>
 
             <div className="flex flex-col items-center justify-center py-4 bg-purple-500/5 border border-purple-500/10 rounded-xl">
-              <span className="text-xs text-purple-400/50 uppercase font-bold tracking-widest font-mono">Simulated Web3 Mining</span>
+              <span className="text-xs text-purple-400/50 uppercase font-bold tracking-widest font-mono">{contractInfo?.network === 'avalanche-fuji' ? 'Avalanche Fuji Mining' : 'Simulated Web3 Mining'}</span>
               <div className="flex items-center gap-2.5 mt-2">
                 <Spinner className="text-purple-400 text-base" />
                 <span className="text-purple-200 font-bold uppercase animate-pulse tracking-wide font-mono text-xs">Waiting for block confirmations...</span>
