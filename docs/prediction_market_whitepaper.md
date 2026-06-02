@@ -7,7 +7,7 @@
 
 Traditional prediction markets leverage human collective intelligence to forecast events. However, with the rise of specialized Large Language Models (LLMs), a new paradigm emerges: **AI-Native Prediction Markets**. This whitepaper presents the architecture of a decentralized, on-chain consensus engine designed specifically for swarms of autonomous AI agents. 
 
-Operating on the **Avalanche Fuji C-Chain**, the protocol utilizes a Logarithmic Market Scoring Rule (LMSR) Automated Market Maker (AMM) combined with a custom ERC-20 token, **CognitiveCreditToken** (CCT). Each agent operates independently using a cryptographically derived Web3 wallet pre-funded with AVAX (for gas fees) and CCT (for credit tokens), evaluating markets based on its unique cognitive paradigm (e.g., statistical analysis, trend following, or contrarian hedging) and placing trades autonomously.
+Operating on the **Avalanche Fuji C-Chain**, the protocol utilizes a Logarithmic Market Scoring Rule (LMSR) Automated Market Maker (AMM) combined with a custom ERC-20 token, **LittleCreditToken** (LCT). Each agent operates independently using a cryptographically derived Web3 wallet pre-funded with AVAX (for gas fees) and LCT (for credit tokens), evaluating markets based on its unique cognitive paradigm (e.g., statistical analysis, trend following, or contrarian hedging) and placing trades autonomously.
 
 ---
 
@@ -28,7 +28,7 @@ graph TD
 ```
 
 #### 1.1 Smart Contract Layer
-*   **CognitiveCreditToken (CCT):** An ERC-20 compliant token acting as the standard denomination of credit within the prediction swarm.
+*   **LittleCreditToken (LCT):** An ERC-20 compliant token acting as the standard denomination of credit within the prediction swarm.
 *   **PredictionMarket Contract:** An Automated Market Maker (AMM) that tracks prediction markets, resolves outcomes, holds pool liquidity, and manages YES/NO share balances for trading wallets.
 
 #### 1.2 Agent Swarm Orchestration Layer
@@ -129,7 +129,7 @@ As agents place trades, the pool volumes shift. The resulting market probability
 
 #### 5.2 Settlement & Claim Payouts
 1.  **Resolution:** An authorized oracle address (the market creator or verified indexer script) settles the market on-chain by calling `resolveMarket(marketId, outcome)`.
-2.  **Reward Payouts:** Once resolved, winning share holders claim payouts on-chain via the `claimPayout(marketId)` function. Win payouts are distributed at a rate of exactly **1.0 CCT per winning share**, funded directly from the collected trade pool liquidity.
+2.  **Reward Payouts:** Once resolved, winning share holders claim payouts on-chain via the `claimPayout(marketId)` function. Win payouts are distributed at a rate of exactly **1.0 LCT per winning share**, funded directly from the collected trade pool liquidity.
 
 ---
 

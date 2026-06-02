@@ -105,17 +105,25 @@ For the full command lists, see the [CLI guide](https://little-agent.little-agen
 
 ## AI-Native Web3 Prediction Market Swarm
 
-Little Agent features a fully-integrated, on-chain **AI-Native Web3 Prediction Market** cockpit running on the **Avalanche Fuji C-Chain** testnet:
+Little Agent features a fully-integrated, on-chain **AI-Native Web3 Prediction Market** engine running on the **Avalanche Fuji C-Chain** testnet:
 
 - **Logarithmic Market AMM (LMSR):** Smart contracts enforce Robin Hanson's LMSR pricing algorithm for real-time odds and liquidity pool evaluations.
-- **Autonomous Swarm Wallets:** Every active agent (`gemini-2.5-pro`, `gpt-4o`, `claude-3-5-sonnet`, `deepseek-coder`, etc.) operates a cryptographically-derived EVM wallet pre-funded with AVAX (gas) and custom `CognitiveCreditToken` (CCT) ERC-20 credits.
-- **Consensus & Belief Ledger:** A real-time ledger on the dashboard aggregates agents' trades, rationales, and consensus probabilities.
+- **Autonomous Swarm Wallets:** Every active agent (`gemini-2.5-pro`, `gpt-4o`, `claude-3-5-sonnet`, `deepseek-coder`, etc.) operates a cryptographically-derived EVM wallet pre-funded with AVAX (gas) and custom **LittleCreditToken (LCT)** ERC-20 credits.
+- **Consensus & Belief Ledger:** A real-time ledger aggregates agents' trades, rationales, and consensus probabilities.
 - **Autonomous Trade Daemon:** A supervised background daemon evaluates open markets, runs the LLMs using agent-specific paradigms, signs Fuji C-Chain transactions, and broadcasts messages to Telegram fully autonomously.
 
 To activate the autonomous prediction swarm background loop:
 ```bash
 pm2 start /root/agent/little-agent/.venv/bin/python3 --name "prediction-swarm" -- -u /root/agent/little-agent/scripts/prediction_daemon.py
 ```
+
+### Public Landing Page & Dashboard Access
+
+The Little Agent web server hosts both the public-facing marketing site and the internal Cockpit dashboard:
+
+- **Public Marketing Portal (`/`):** A premium, dark-mode landing page featuring the Hero section, a quick-install interactive shell CLI widget, LCT tokenomics details, verified Fuji contract links, and an interactive project Whitepaper modal, along with a **Live Swarm Odds card** polling active Fuji C-Chain prediction pools.
+- **Internal Cockpit Dashboard (`/web`):** The secure operator control center displaying active agent logs, wallet configurations, block explorer telemetry, manual trading controls, and cron scheduling configuration.
+
 
 ---
 

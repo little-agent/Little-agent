@@ -44,7 +44,9 @@ _GATE_PUBLIC_PREFIXES: tuple[str, ...] = (
 )
 
 
-def _path_is_public(path: str) -> bool:
+def _path_is_public(path: str, method: str) -> bool:
+    if path.startswith("/api/prediction-market") and method == "GET":
+        return True
     return any(
         path == prefix or path.startswith(prefix)
         for prefix in _GATE_PUBLIC_PREFIXES
@@ -152,7 +154,7 @@ async def gated_auth_middleware(
         return await call_next(request)
 
     path = request.url.path
-    if _path_is_public(path):
+    if _path_is_public(path, request.method):
         return await call_next(request)
 
     at, _rt = read_session_cookies(request)
