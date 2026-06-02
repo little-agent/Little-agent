@@ -363,8 +363,8 @@ export default function PredictionMarketPage() {
           <div>
             <h2 className="text-sm font-bold tracking-wider text-purple-100 uppercase font-mono flex items-center gap-1.5">
               AI-Native Web3 Prediction Market
-              <span className={`text-[0.55rem] font-bold px-1.5 py-0.5 rounded uppercase tracking-widest font-mono ${contractInfo?.network === 'avalanche-fuji' ? 'bg-red-500/10 border border-red-500/30 text-red-400' : 'bg-purple-500/10 border border-purple-500/30 text-purple-400'}`}>
-                {contractInfo?.network === 'avalanche-fuji' ? 'Fuji Testnet' : 'Simulated EVM'}
+              <span className={`text-[0.55rem] font-bold px-1.5 py-0.5 rounded uppercase tracking-widest font-mono ${contractInfo?.network === 'local' ? 'bg-purple-500/10 border border-purple-500/30 text-purple-400' : 'bg-red-500/10 border border-red-500/30 text-red-400'}`}>
+                {contractInfo?.network === 'local' ? 'Simulated EVM' : 'Fuji Testnet'}
               </span>
             </h2>
             <p className="text-[0.68rem] text-purple-400/50 font-mono mt-0.5">
@@ -985,7 +985,7 @@ export default function PredictionMarketPage() {
             </div>
 
             <div className="flex flex-col items-center justify-center py-4 bg-purple-500/5 border border-purple-500/10 rounded-xl">
-              <span className="text-xs text-purple-400/50 uppercase font-bold tracking-widest font-mono">{contractInfo?.network === 'avalanche-fuji' ? 'Avalanche Fuji Mining' : 'Simulated Web3 Mining'}</span>
+              <span className="text-xs text-purple-400/50 uppercase font-bold tracking-widest font-mono">{contractInfo?.network === 'local' ? 'Simulated Web3 Mining' : 'Avalanche Fuji Mining'}</span>
               <div className="flex items-center gap-2.5 mt-2">
                 <Spinner className="text-purple-400 text-base" />
                 <span className="text-purple-200 font-bold uppercase animate-pulse tracking-wide font-mono text-xs">Waiting for block confirmations...</span>
