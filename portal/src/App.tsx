@@ -86,7 +86,7 @@ function App() {
         </div>
         <div className="nav-links">
           <span className="nav-link" onClick={() => setShowWhitepaper(true)}>Whitepaper</span>
-          <a href="/docs" className="nav-link" target="_blank" rel="noopener noreferrer">Docs</a>
+          <a href="https://github.com/little-agent/Little-agent/tree/main/docs" className="nav-link" target="_blank" rel="noopener noreferrer">Docs</a>
           <a href="https://github.com/little-agent/Little-agent" className="nav-link" target="_blank" rel="noopener noreferrer">GitHub</a>
           <button className="btn-primary" onClick={() => window.open(window.location.protocol + '//' + window.location.hostname + ':1409', '_blank')}>
             Launch Dashboard
@@ -319,7 +319,7 @@ function App() {
       <footer className="footer">
         <div className="footer-links">
           <span className="footer-link" style={{ cursor: 'pointer' }} onClick={() => setShowWhitepaper(true)}>Whitepaper</span>
-          <a href="/docs" className="footer-link" target="_blank" rel="noopener noreferrer">Docs</a>
+          <a href="https://github.com/little-agent/Little-agent/tree/main/docs" className="footer-link" target="_blank" rel="noopener noreferrer">Docs</a>
           <a href="https://github.com/little-agent/Little-agent" className="footer-link" target="_blank" rel="noopener noreferrer">GitHub</a>
           <span className="footer-link" style={{ cursor: 'pointer' }} onClick={() => window.open(window.location.protocol + '//' + window.location.hostname + ':1409', '_blank')}>Cockpit</span>
         </div>

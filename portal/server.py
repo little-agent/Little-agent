@@ -5,7 +5,12 @@ from fastapi import FastAPI, Request, Response, HTTPException
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 
-app = FastAPI(title="Prediction Market Landing Page")
+app = FastAPI(
+    title="Prediction Market Landing Page",
+    docs_url=None,
+    redoc_url=None,
+    openapi_url=None
+)
 
 PORTAL_DIST = Path(__file__).parent.parent / "little_cli" / "portal_dist"
 DASHBOARD_URL = "http://185.217.127.99:1409"
