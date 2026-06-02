@@ -429,14 +429,35 @@ function App() {
                 To avoid storing persistent unencrypted private keys in plaintext files, agent credentials are derived deterministically on-chain using a combination of the agent's unique string ID and a stable system salt.
               </p>
               <p>
-                Given an agent identifier ID_agent and a system salt S_sys:
+                Given an agent identifier ID<sub>agent</sub> and a system salt S<sub>sys</sub>:
               </p>
-              <blockquote>
-                <strong>Seed = ID_agent || ":" || S_sys</strong> <br />
-                <strong>Private Key = "0x" || SHA256(Seed || "_privatekey")</strong>
-              </blockquote>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', margin: '1.5rem 0' }}>
+                <div style={{ background: 'rgba(168, 85, 247, 0.08)', border: '1px solid rgba(168, 85, 247, 0.3)', padding: '1.25rem 2rem', borderRadius: '0.75rem', fontFamily: 'var(--font-mono)', color: '#c084fc', boxShadow: '0 0 15px rgba(168, 85, 247, 0.1)', display: 'flex', flexDirection: 'column', gap: '0.75rem', width: '100%', maxWidth: '600px', fontSize: '0.95rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', justifyContent: 'center' }}>
+                    <span style={{ color: '#e9d5ff', fontWeight: 600 }}>Seed</span>
+                    <span style={{ color: 'rgba(168, 85, 247, 0.8)' }}>=</span>
+                    <span style={{ color: '#a78bfa' }}>ID<sub>agent</sub></span>
+                    <span style={{ color: '#ec4899', fontWeight: 'bold', margin: '0 0.25rem', fontSize: '1.1rem' }} title="Concatenation">||</span>
+                    <span style={{ color: '#fb7185', background: 'rgba(251, 113, 133, 0.1)', padding: '0.1rem 0.4rem', borderRadius: '0.25rem' }}>&quot;:&quot;</span>
+                    <span style={{ color: '#ec4899', fontWeight: 'bold', margin: '0 0.25rem', fontSize: '1.1rem' }} title="Concatenation">||</span>
+                    <span style={{ color: '#a78bfa' }}>S<sub>sys</sub></span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', justifyContent: 'center' }}>
+                    <span style={{ color: '#e9d5ff', fontWeight: 600 }}>Private Key</span>
+                    <span style={{ color: 'rgba(168, 85, 247, 0.8)' }}>=</span>
+                    <span style={{ color: '#fb7185', background: 'rgba(251, 113, 133, 0.1)', padding: '0.1rem 0.4rem', borderRadius: '0.25rem' }}>&quot;0x&quot;</span>
+                    <span style={{ color: '#ec4899', fontWeight: 'bold', margin: '0 0.25rem', fontSize: '1.1rem' }} title="Concatenation">||</span>
+                    <span style={{ color: '#f472b6', fontWeight: 600 }}>SHA256</span>
+                    <span style={{ color: '#e9d5ff' }}>(</span>
+                    <span style={{ color: '#a78bfa' }}>Seed</span>
+                    <span style={{ color: '#ec4899', fontWeight: 'bold', margin: '0 0.25rem', fontSize: '1.1rem' }} title="Concatenation">||</span>
+                    <span style={{ color: '#fb7185', background: 'rgba(251, 113, 133, 0.1)', padding: '0.1rem 0.4rem', borderRadius: '0.25rem' }}>&quot;_privatekey&quot;</span>
+                    <span style={{ color: '#e9d5ff' }}>)</span>
+                  </div>
+                </div>
+              </div>
               <p>
-                The public address Address_agent is derived cryptographically from the Private Key using standard ECDSA secp256k1 elliptic curve multiplication. This ensures global identification, self-sovereign signatures, and stable wallet states across restarts.
+                The public address Address<sub>agent</sub> is derived cryptographically from the Private Key using standard ECDSA secp256k1 elliptic curve multiplication. This ensures global identification, self-sovereign signatures, and stable wallet states across restarts.
               </p>
 
               <hr />
