@@ -1,62 +1,99 @@
 import os
+import requests
+import json
+import time
 from dotenv import load_dotenv
+
 load_dotenv("/root/agent/little-agent/.env")
 load_dotenv("/root/.little/.env")
 
 API_KEY = os.getenv("SNOWTRACE_API_KEY", "78XJKTK21P5P4F3J6N6GDDCYMP313FSC13")
-CONTRACT_ADDRESS = "0x2ee7e9CA2629B2450ae97daC4fa14f1B9E57E4ff"
 COMPILER_VERSION = "v0.8.20+commit.a1b79de6"
 
-def verify():
-    source_file = "/root/agent/little-agent/little_cli/contracts/PredictionMarket.sol"
+TOKEN_ADDRESS = "0x40de668c0e684C30D1DBef428f64df6E1086DCCa"
+MARKET_ADDRESS = "0xeA41C8959c62008Ad509f7aD1D16181a07Bcd58B"
+
+def check_status(guid):
+    url = "https://api-testnet.snowtrace.io/api"
+    print(f"Checking verification status for GUID: {guid}")
+    for i in range(15):
+        time.sleep(5)
+        status_url = f"{url}?module=contract&action=checkverifystatus&guid={guid}&apikey={API_KEY}"
+        resp = requests.get(status_url)
+        res_data = resp.json()
+        print(f"[{i+1}] Status: {res_data.get('result')}")
+        if "Pass" in res_data.get("result", "") or "Verified" in res_data.get("result", ""):
+            print("✓ Verified successfully!")
+            return True
+        elif "Fail" in res_data.get("result", ""):
+            print("✗ Verification failed.")
+            return False
+    return False
+
+def verify_token():
+    source_file = "/root/agent/little-agent/little_cli/contracts/CognitiveCreditToken.sol"
     with open(source_file, "r") as f:
         source_code = f.read()
 
-    print(f"Submitting contract {CONTRACT_ADDRESS} verification to Snowtrace...")
-    
+    print(f"\nSubmitting CognitiveCreditToken ({TOKEN_ADDRESS}) verification...")
+    # Constructor argument: uint256 10000000 -> hex 989680 padded to 32 bytes
+    constructor_args = "0000000000000000000000000000000000000000000000000000000000989680"
+
     url = "https://api-testnet.snowtrace.io/api"
     data = {
         "apikey": API_KEY,
         "module": "contract",
         "action": "verifysourcecode",
-        "contractaddress": CONTRACT_ADDRESS,
+        "contractaddress": TOKEN_ADDRESS,
+        "sourceCode": source_code,
+        "codeformat": "solidity-single-file",
+        "contractname": "CognitiveCreditToken",
+        "compilerversion": COMPILER_VERSION,
+        "optimizationUsed": 0,
+        "runs": 200,
+        "licenseType": 3, # MIT
+        "constructorArguments": constructor_args
+    }
+
+    resp = requests.post(url, data=data)
+    res_data = resp.json()
+    if res_data.get("status") == "1":
+        check_status(res_data.get("result"))
+    else:
+        print(f"Failed to submit: {res_data}")
+
+def verify_market():
+    source_file = "/root/agent/little-agent/little_cli/contracts/PredictionMarket.sol"
+    with open(source_file, "r") as f:
+        source_code = f.read()
+
+    print(f"\nSubmitting PredictionMarket ({MARKET_ADDRESS}) verification...")
+    # Constructor argument: address TOKEN_ADDRESS -> remove 0x, pad to 32 bytes
+    token_addr_clean = TOKEN_ADDRESS.replace("0x", "").zfill(64).lower()
+
+    url = "https://api-testnet.snowtrace.io/api"
+    data = {
+        "apikey": API_KEY,
+        "module": "contract",
+        "action": "verifysourcecode",
+        "contractaddress": MARKET_ADDRESS,
         "sourceCode": source_code,
         "codeformat": "solidity-single-file",
         "contractname": "PredictionMarket",
         "compilerversion": COMPILER_VERSION,
         "optimizationUsed": 0,
         "runs": 200,
-        "licenseType": 3 # MIT
+        "licenseType": 3, # MIT
+        "constructorArguments": token_addr_clean
     }
 
     resp = requests.post(url, data=data)
-    print(f"Status Code: {resp.status_code}")
-    print(f"Response JSON: {resp.text}")
-    
-    try:
-        res_data = resp.json()
-        if res_data.get("status") == "1":
-            guid = res_data.get("result")
-            print(f"Successfully submitted. GUID: {guid}")
-            
-            # Poll status
-            print("Checking verification status...")
-            for i in range(15):
-                time.sleep(5)
-                status_url = f"{url}?module=contract&action=checkverifystatus&guid={guid}&apikey={API_KEY}"
-                status_resp = requests.get(status_url)
-                status_data = status_resp.json()
-                print(f"[{i+1}] Status response: {status_data}")
-                if status_data.get("result") == "Pass - Verified" or "Verified" in status_data.get("result", ""):
-                    print("Contract verified successfully!")
-                    break
-                elif "Fail" in status_data.get("result", ""):
-                    print("Verification failed.")
-                    break
-        else:
-            print("Submission failed.")
-    except Exception as e:
-        print(f"Error checking status: {e}")
+    res_data = resp.json()
+    if res_data.get("status") == "1":
+        check_status(res_data.get("result"))
+    else:
+        print(f"Failed to submit: {res_data}")
 
 if __name__ == "__main__":
-    verify()
+    verify_token()
+    verify_market()

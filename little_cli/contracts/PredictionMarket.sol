@@ -2,10 +2,19 @@
 pragma solidity ^0.8.20;
 
 /**
+ * @notice Standard ERC-20 Interface for token operations
+ */
+interface IERC20 {
+    function balanceOf(address account) external view returns (uint256);
+    function transfer(address to, uint256 value) external returns (bool);
+    function transferFrom(address from, address to, uint256 value) external returns (bool);
+}
+
+/**
  * @title PredictionMarket
  * @author Swarm Command Cockpit Engine
  * @notice An on-chain Automated Market Maker (AMM) prediction market for AI agents
- * utilizing Robin Hanson's Logarithmic Market Scoring Rule (LMSR).
+ * utilizing Robin Hanson's Logarithmic Market Scoring Rule (LMSR) and an external ERC-20 token.
  */
 contract PredictionMarket {
     
@@ -23,7 +32,7 @@ contract PredictionMarket {
         Outcome outcome;
         uint256 yesShares;
         uint256 noShares;
-        uint256 liquidityPool; // Represented in Credit Tokens
+        uint256 liquidityPool; // Represented in ERC-20 Credit Tokens
         uint256 createdAt;
         uint256 expiresAt;
     }
@@ -47,8 +56,11 @@ contract PredictionMarket {
     mapping(string => mapping(address => uint256)) public agentYesShares;
     mapping(string => mapping(address => uint256)) public agentNoShares;
     
-    // Cognitive Credit Token balances
-    mapping(address => uint256) public tokenBalances;
+    // Track if an agent has claimed their payout for a given resolved market
+    mapping(string => mapping(address => bool)) public hasClaimed;
+
+    // The ERC-20 Token contract used for credits
+    address public tokenAddress;
     address[] public registeredAgents;
 
     // LMSR AMM Constant Liquidity Parameter b
@@ -58,6 +70,7 @@ contract PredictionMarket {
     event MarketCreated(string marketId, string title, address indexed creator, uint256 expiresAt);
     event TradePlaced(string marketId, address indexed trader, TradeType indexed tradeType, uint256 shares, uint256 cost, string rationale);
     event MarketResolved(string marketId, Outcome outcome, uint256 totalPayout);
+    event PayoutClaimed(string marketId, address indexed trader, uint256 amount);
     event BalanceUpdated(address indexed agent, uint256 newBalance);
 
     modifier onlyOpen(string memory _marketId) {
@@ -66,17 +79,15 @@ contract PredictionMarket {
         _;
     }
 
-    constructor() {
-        // Seed default agents with initial tokens
-        _mint(msg.sender, 5000 * 1e18);
+    constructor(address _tokenAddress) {
+        tokenAddress = _tokenAddress;
     }
 
-    function _mint(address _agent, uint256 _amount) internal {
-        if (tokenBalances[_agent] == 0) {
-            registeredAgents.push(_agent);
-        }
-        tokenBalances[_agent] += _amount;
-        emit BalanceUpdated(_agent, tokenBalances[_agent]);
+    /**
+     * @notice Backward compatible helper to fetch token balance of an agent
+     */
+    function tokenBalances(address _agent) public view returns (uint256) {
+        return IERC20(tokenAddress).balanceOf(_agent);
     }
 
     /**
@@ -108,6 +119,9 @@ contract PredictionMarket {
         });
 
         marketIds.push(_marketId);
+        
+        // Track unique registered agents (creator)
+        _registerAgent(msg.sender);
         
         emit MarketCreated(_marketId, _title, msg.sender, _expiresAt);
         return _marketId;
@@ -143,10 +157,13 @@ contract PredictionMarket {
         uint256 costAfter = calculateLmsrCost(yesAfter, noAfter);
         cost = costAfter - costBefore;
         
-        require(tokenBalances[msg.sender] >= cost, "Insufficient Cognitive Credit balance");
+        require(IERC20(tokenAddress).balanceOf(msg.sender) >= cost, "Insufficient ERC-20 credit balance");
         
-        // Execute token transfer
-        tokenBalances[msg.sender] -= cost;
+        // Execute token transfer from trader to this contract
+        require(
+            IERC20(tokenAddress).transferFrom(msg.sender, address(this), cost),
+            "Token transfer failed"
+        );
         market.liquidityPool += cost;
         
         // Distribute shares
@@ -158,25 +175,65 @@ contract PredictionMarket {
             market.noShares = noAfter;
         }
         
+        _registerAgent(msg.sender);
+        
         emit TradePlaced(_marketId, msg.sender, _tradeType, _shares, cost, _rationale);
-        emit BalanceUpdated(msg.sender, tokenBalances[msg.sender]);
+        emit BalanceUpdated(msg.sender, IERC20(tokenAddress).balanceOf(msg.sender));
         
         return cost;
     }
 
     /**
-     * @notice Resolve prediction market and distribute payouts
+     * @notice Resolve prediction market
      */
     function resolveMarket(string memory _marketId, Outcome _outcome) external {
         Market storage market = markets[_marketId];
         require(market.status == MarketStatus.OPEN, "Market must be open to resolve");
-        require(msg.sender == market.creator || tokenBalances[msg.sender] > 0, "Unauthorized resolver");
+        require(msg.sender == market.creator || IERC20(tokenAddress).balanceOf(msg.sender) > 0, "Unauthorized resolver");
         require(_outcome == Outcome.YES || _outcome == Outcome.NO, "Invalid outcome");
         
         market.status = MarketStatus.RESOLVED;
         market.outcome = _outcome;
         
         emit MarketResolved(_marketId, _outcome, market.liquidityPool);
+    }
+
+    /**
+     * @notice Claim winning payout for a resolved prediction market
+     * Win pays exactly 1 CCT per share.
+     */
+    function claimPayout(string memory _marketId) external {
+        Market storage market = markets[_marketId];
+        require(market.status == MarketStatus.RESOLVED, "Market must be resolved to claim");
+        require(!hasClaimed[_marketId][msg.sender], "Payout already claimed");
+
+        uint256 winningShares = 0;
+        if (market.outcome == Outcome.YES) {
+            winningShares = agentYesShares[_marketId][msg.sender];
+        } else if (market.outcome == Outcome.NO) {
+            winningShares = agentNoShares[_marketId][msg.sender];
+        }
+
+        require(winningShares > 0, "No winning shares to claim");
+        hasClaimed[_marketId][msg.sender] = true;
+
+        // Execute token payout from contract back to trader
+        require(
+            IERC20(tokenAddress).transfer(msg.sender, winningShares),
+            "Token payout transfer failed"
+        );
+
+        emit PayoutClaimed(_marketId, msg.sender, winningShares);
+        emit BalanceUpdated(msg.sender, IERC20(tokenAddress).balanceOf(msg.sender));
+    }
+
+    function _registerAgent(address _agent) internal {
+        for (uint256 i = 0; i < registeredAgents.length; i++) {
+            if (registeredAgents[i] == _agent) {
+                return;
+            }
+        }
+        registeredAgents.push(_agent);
     }
 
     /**

@@ -130,9 +130,9 @@ def init_web3_db() -> None:
             cursor = conn.execute("SELECT value FROM pm_system_config WHERE key = 'system_salt'")
             row = cursor.fetchone()
             if not row:
-                system_salt = os.urandom(16).hex()
+                system_salt = "cockpit_prediction_market_stable_salt_fuji_v1"
                 conn.execute("INSERT INTO pm_system_config (key, value) VALUES ('system_salt', ?)", (system_salt,))
-                _log.info(f"System salt generated for secure wallet hashing: {system_salt}")
+                _log.info(f"System salt set to stable value: {system_salt}")
 
             # Ensure last_indexed_block exists
             cursor_idx = conn.execute("SELECT value FROM pm_system_config WHERE key = 'last_indexed_block'")
@@ -213,11 +213,14 @@ def generate_wallet(agent_id: str) -> Dict[str, str]:
 
         # Create wallet deterministic from agent_id combined with system_salt hash
         hash_seed = f"{agent_id}:{system_salt}".encode('utf-8')
-        addr_hash = hashlib.sha256(hash_seed + b"_address").hexdigest()[:40]
         pk_hash = hashlib.sha256(hash_seed + b"_privatekey").hexdigest()
-        
-        address = "0x" + addr_hash
         private_key = "0x" + pk_hash
+        
+        # Derive cryptographically valid public address from the private key
+        from web3 import Web3
+        w3_temp = Web3()
+        account = w3_temp.eth.account.from_key(private_key)
+        address = account.address
 
         # Replicate cognitive credits from normal db into wallet balance
         credits = pm_db.get_agent_balance(agent_id)
@@ -248,31 +251,61 @@ def get_wallets() -> List[Dict[str, Any]]:
     # Retrieve all wallets from local database
     conn = pm_db.connect()
     try:
+        # Pre-seed standard agent wallets if they do not exist in the SQLite database
+        for agent_id in ["gemini-2.5-pro", "gemini-2.5-flash", "claude-3-5-sonnet", "gpt-4o", "deepseek-coder", "swarm-moderator"]:
+            cursor = conn.execute("SELECT address FROM pm_wallets WHERE agent_id = ?", (agent_id,))
+            if not cursor.fetchone():
+                # generate_wallet will create and insert the wallet into pm_wallets table
+                generate_wallet(agent_id)
+                
         cursor = conn.execute("SELECT * FROM pm_wallets")
         wallets = [dict(r) for r in cursor.fetchall()]
     finally:
         conn.close()
 
     if config:
-        # Override HumanOperator wallet with Fuji balance of AVAX instead
         w3 = Web3(Web3.HTTPProvider(config["rpc_url"]))
-        try:
-            balance_wei = w3.eth.get_balance(config["owner_address"])
-            balance_avax = float(w3.from_wei(balance_wei, 'ether'))
-        except Exception:
-            balance_avax = 1.55
-            
+        
+        # Instantiate CCT Token Contract
+        token_addr = config.get("token_address")
+        token_abi = config.get("token_abi")
+        token_contract = None
+        if token_addr and token_abi:
+            try:
+                token_contract = w3.eth.contract(address=token_addr, abi=token_abi)
+            except Exception as e:
+                _log.error(f"Failed to load token contract: {e}")
+
+        # Human Operator custom entry setup
         operator_wallet = {
             "agent_id": "HumanOperator",
             "address": config["owner_address"],
             "private_key": config["private_key"],
-            "balance": balance_avax,
-            "nonce": w3.eth.get_transaction_count(config["owner_address"]) if w3.is_connected() else 0
+            "balance": 0.0,
+            "nonce": 0
         }
-        # Update or insert Operator
         wallets = [w for w in wallets if w["agent_id"] != "HumanOperator"]
         wallets.insert(0, operator_wallet)
-        
+
+        # Update each wallet with real on-chain CCT token balance and nonce
+        if w3.is_connected():
+            for wallet in wallets:
+                # 1. Fetch token balance (scaled by 1e18)
+                if token_contract:
+                    try:
+                        checksum_addr = w3.to_checksum_address(wallet["address"])
+                        bal_wei = token_contract.functions.balanceOf(checksum_addr).call()
+                        wallet["balance"] = float(bal_wei) / 1e18
+                    except Exception as e:
+                        _log.error(f"Failed to fetch CCT balance for {wallet['address']}: {e}")
+                
+                # 2. Fetch transaction count (nonce)
+                try:
+                    checksum_addr = w3.to_checksum_address(wallet["address"])
+                    wallet["nonce"] = w3.eth.get_transaction_count(checksum_addr)
+                except Exception:
+                    pass
+                    
     return wallets
 
 def mine_block(from_address: str, to_address: str, value: float, gas_used: float, input_data: str, status: int, event_logs: List[Dict[str, Any]]) -> str:
@@ -637,23 +670,39 @@ def sync_blockchain_events() -> None:
 # Fuji Testnet Transaction Dispatcher Helper
 # ---------------------------------------------------------------------------
 
-def fuji_send_transaction(func_call, value_wei: int = 0) -> str:
+def fuji_send_transaction(func_call, private_key=None, value_wei: int = 0) -> str:
     config = load_fuji_config()
     if not config:
         raise ValueError("Fuji config not loaded.")
     w3 = Web3(Web3.HTTPProvider(config["rpc_url"]))
-    nonce = w3.eth.get_transaction_count(config["owner_address"])
     
+    # Use specified private key or default to owner
+    pk = private_key or config["private_key"]
+    account = w3.eth.account.from_key(pk)
+    from_address = account.address
+    
+    nonce = w3.eth.get_transaction_count(from_address)
+    
+    # Dynamic gas estimation
+    try:
+        gas_estimate = func_call.estimate_gas({
+            'from': from_address,
+            'value': value_wei
+        })
+        gas = int(gas_estimate * 1.2)  # 20% buffer
+    except Exception:
+        gas = 800000
+        
     tx = func_call.build_transaction({
         'chainId': 43113,
-        'gas': 800000,
+        'gas': gas,
         'gasPrice': w3.eth.gas_price,
         'nonce': nonce,
         'value': value_wei,
-        'from': config["owner_address"]
+        'from': from_address
     })
     
-    signed_tx = w3.eth.account.sign_transaction(tx, private_key=config["private_key"])
+    signed_tx = w3.eth.account.sign_transaction(tx, private_key=pk)
     tx_hash = w3.eth.send_raw_transaction(signed_tx.raw_transaction)
     w3.eth.wait_for_transaction_receipt(tx_hash, timeout=120)
     return tx_hash.hex()
@@ -787,10 +836,52 @@ def web3_place_trade(agent_id: str, market_id: str, trade_type: str, shares: flo
     w3 = Web3(Web3.HTTPProvider(config["rpc_url"]))
     contract = w3.eth.contract(address=config["contract_address"], abi=config["abi"])
     
+    # 1. Resolve trader's private key and address
+    if agent_id == "HumanOperator":
+        trader_pk = config["private_key"]
+        trader_address = config["owner_address"]
+    else:
+        trader_wallet = generate_wallet(agent_id)
+        trader_pk = trader_wallet["private_key"]
+        trader_address = trader_wallet["address"]
+        
     trade_type_int = 0 if trade_type == "BUY_YES" else 1
     # Scale to 18 decimals on Ethereum standard smart contracts
     shares_wei = int(shares * 1e18)
     
+    # 2. Calculate the exact trade cost in CCT tokens from the contract's LMSR pricing
+    try:
+        m_info = contract.functions.markets(market_id).call()
+        yes_shares = m_info[7]
+        no_shares = m_info[8]
+        
+        current_lmsr = contract.functions.calculateLmsrCost(yes_shares, no_shares).call()
+        new_yes = yes_shares + shares_wei if trade_type == "BUY_YES" else yes_shares
+        new_no = no_shares + shares_wei if trade_type == "BUY_NO" else no_shares
+        after_lmsr = contract.functions.calculateLmsrCost(new_yes, new_no).call()
+        cost_wei = after_lmsr - current_lmsr
+    except Exception as e:
+        _log.error(f"Failed to calculate on-chain trade cost: {e}")
+        cost_wei = int(shares_wei) # Fallback
+        
+    # 3. Handle ERC-20 token approval if spender allowance is insufficient
+    token_addr = config.get("token_address")
+    token_abi = config.get("token_abi")
+    if token_addr and token_abi:
+        try:
+            token_contract = w3.eth.contract(address=w3.to_checksum_address(token_addr), abi=token_abi)
+            c_trader = w3.to_checksum_address(trader_address)
+            c_market = w3.to_checksum_address(config["contract_address"])
+            allowance = token_contract.functions.allowance(c_trader, c_market).call()
+            if allowance < cost_wei:
+                _log.info(f"Insufficient allowance ({allowance}) for cost ({cost_wei}). Executing CCT approval...")
+                approve_func = token_contract.functions.approve(c_market, 10**32)
+                approve_tx = fuji_send_transaction(approve_func, private_key=trader_pk)
+                _log.info(f"CCT token approved successfully. Tx: {approve_tx}")
+        except Exception as e:
+            _log.error(f"ERC-20 token approval check failed: {e}")
+
+    # 4. Dispatch placeTrade transaction signed by the trader
     func = contract.functions.placeTrade(
         market_id,
         trade_type_int,
@@ -798,7 +889,7 @@ def web3_place_trade(agent_id: str, market_id: str, trade_type: str, shares: flo
         rationale or ""
     )
     
-    tx_hash = fuji_send_transaction(func)
+    tx_hash = fuji_send_transaction(func, private_key=trader_pk)
     sync_blockchain_events()
     
     res = pm_db.get_market(market_id)
