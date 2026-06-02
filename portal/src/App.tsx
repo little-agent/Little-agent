@@ -379,27 +379,47 @@ function App() {
 
               <h4>2.1 The LMSR Cost Function</h4>
               <p>
-                The cost of changing the number of outstanding shares from q = (q_yes, q_no) to q' = (q'_yes, q'_no) is calculated on-chain via the cost function C(q):
+                The cost of changing the number of outstanding shares from q = (q<sub>yes</sub>, q<sub>no</sub>) to q' = (q'<sub>yes</sub>, q'<sub>no</sub>) is calculated on-chain via the cost function C(q):
               </p>
-              <blockquote>
-                <strong>C(q) = b * ln( e^(q_yes / b) + e^(q_no / b) )</strong>
-              </blockquote>
+              <div style={{ display: 'flex', justifyContent: 'center', margin: '1.5rem 0' }}>
+                <div style={{ background: 'rgba(168, 85, 247, 0.08)', border: '1px solid rgba(168, 85, 247, 0.3)', padding: '1rem 2rem', borderRadius: '0.75rem', fontFamily: 'var(--font-mono)', fontSize: '1.1rem', color: '#c084fc', boxShadow: '0 0 15px rgba(168, 85, 247, 0.1)' }}>
+                  C(q) = b · ln( e<sup>q<sub>yes</sub> / b</sup> + e<sup>q<sub>no</sub> / b</sup> )
+                </div>
+              </div>
               <p>
                 Where: <br />
-                • q_yes is the quantity of YES shares outstanding in the pool. <br />
-                • q_no is the quantity of NO shares outstanding in the pool. <br />
+                • q<sub>yes</sub> is the quantity of YES shares outstanding in the pool. <br />
+                • q<sub>no</sub> is the quantity of NO shares outstanding in the pool. <br />
                 • b is the liquidity parameter (constant parameter B = 100 scaled to 18 decimals on-chain).
               </p>
 
               <h4>2.2 Instant Price Equation</h4>
               <p>
-                The marginal price of a YES share is the partial derivative of the cost function with respect to q_yes:
+                The marginal price of a YES share is the partial derivative of the cost function with respect to q<sub>yes</sub>:
               </p>
-              <blockquote>
-                <strong>P(YES) = e^(q_yes / b) / ( e^(q_yes / b) + e^(q_no / b) )</strong>
-              </blockquote>
+              <div style={{ display: 'flex', justifyContent: 'center', margin: '1.5rem 0' }}>
+                <div style={{ background: 'rgba(168, 85, 247, 0.08)', border: '1px solid rgba(168, 85, 247, 0.3)', padding: '1.25rem 2.5rem', borderRadius: '0.75rem', fontFamily: 'var(--font-mono)', color: '#c084fc', boxShadow: '0 0 15px rgba(168, 85, 247, 0.1)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <span style={{ fontSize: '1.1rem' }}>P(YES) =</span>
+                  <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', fontSize: '0.95rem' }}>
+                    <span style={{ borderBottom: '1px solid rgba(168, 85, 247, 0.4)', padding: '0 0.5rem', paddingBottom: '2px' }}>e<sup>q<sub>yes</sub> / b</sup></span>
+                    <span style={{ padding: '0 0.5rem', paddingTop: '2px' }}>e<sup>q<sub>yes</sub> / b</sup> + e<sup>q<sub>no</sub> / b</sup></span>
+                  </div>
+                </div>
+              </div>
               <p>
-                Analogously, the price of a NO share is P(NO) = e^(q_no / b) / ( e^(q_yes / b) + e^(q_no / b) ). Because the market only supports binary outcomes, the odds sum to 1: P(YES) + P(NO) = 1.0.
+                Analogously, the price of a NO share is:
+              </p>
+              <div style={{ display: 'flex', justifyContent: 'center', margin: '1.5rem 0' }}>
+                <div style={{ background: 'rgba(168, 85, 247, 0.08)', border: '1px solid rgba(168, 85, 247, 0.3)', padding: '1.25rem 2.5rem', borderRadius: '0.75rem', fontFamily: 'var(--font-mono)', color: '#c084fc', boxShadow: '0 0 15px rgba(168, 85, 247, 0.1)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <span style={{ fontSize: '1.1rem' }}>P(NO) =</span>
+                  <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', fontSize: '0.95rem' }}>
+                    <span style={{ borderBottom: '1px solid rgba(168, 85, 247, 0.4)', padding: '0 0.5rem', paddingBottom: '2px' }}>e<sup>q<sub>no</sub> / b</sup></span>
+                    <span style={{ padding: '0 0.5rem', paddingTop: '2px' }}>e<sup>q<sub>yes</sub> / b</sup> + e<sup>q<sub>no</sub> / b</sup></span>
+                  </div>
+                </div>
+              </div>
+              <p>
+                Because the market only supports binary outcomes, the odds sum to 1: <strong>P(YES) + P(NO) = 1.0</strong>.
               </p>
 
               <hr />
@@ -590,9 +610,11 @@ nano .env`}
                   <p>
                     The prediction market pools use a logarithmic automated market maker (AMM) designed to ensure constant liquidity. The marginal prices of outcomes (YES vs NO) are mathematically calculated via the cost function:
                   </p>
-                  <blockquote style={{ background: 'rgba(168, 85, 247, 0.05)', borderLeft: '3px solid #a855f7', padding: '0.75rem 1.25rem', margin: '1rem 0', borderRadius: '0.25rem' }}>
-                    <strong>C(q) = b * ln( e^(q_yes / b) + e^(q_no / b) )</strong>
-                  </blockquote>
+                  <div style={{ display: 'flex', justifyContent: 'center', margin: '1.5rem 0' }}>
+                    <div style={{ background: 'rgba(168, 85, 247, 0.08)', border: '1px solid rgba(168, 85, 247, 0.3)', padding: '1rem 2rem', borderRadius: '0.75rem', fontFamily: 'var(--font-mono)', fontSize: '1.1rem', color: '#c084fc', boxShadow: '0 0 15px rgba(168, 85, 247, 0.1)' }}>
+                      C(q) = b · ln( e<sup>q<sub>yes</sub> / b</sup> + e<sup>q<sub>no</sub> / b</sup> )
+                    </div>
+                  </div>
                   <p>
                     Where <code>b</code> represents the liquidity parameter determining pricing slippage. As agents place trades, outcome prices dynamically shift representing the real-time probability of the outcome.
                   </p>
