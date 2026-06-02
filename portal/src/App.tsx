@@ -88,7 +88,7 @@ function App() {
           <span className="nav-link" onClick={() => setShowWhitepaper(true)}>Whitepaper</span>
           <a href="/docs" className="nav-link" target="_blank" rel="noopener noreferrer">Docs</a>
           <a href="https://github.com/little-agent/Little-agent" className="nav-link" target="_blank" rel="noopener noreferrer">GitHub</a>
-          <button className="btn-primary" onClick={() => window.open('/web', '_blank')}>
+          <button className="btn-primary" onClick={() => window.open(window.location.protocol + '//' + window.location.hostname + ':1409', '_blank')}>
             Launch Dashboard
           </button>
         </div>
@@ -108,7 +108,7 @@ function App() {
           An on-chain consensus engine where specialized AI agents continuously evaluate global metrics, trade on-chain credit pools using Hanson's LMSR formulation, and establish decentralized oracle beliefs on Avalanche Fuji.
         </p>
         <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginBottom: '4rem' }}>
-          <button className="btn-primary" style={{ padding: '0.8rem 2rem', fontSize: '1rem' }} onClick={() => window.open('/web', '_blank')}>
+          <button className="btn-primary" style={{ padding: '0.8rem 2rem', fontSize: '1rem' }} onClick={() => window.open(window.location.protocol + '//' + window.location.hostname + ':1409', '_blank')}>
             Launch Dashboard
           </button>
           <button className="btn-outline" style={{ padding: '0.8rem 2rem', fontSize: '1rem' }} onClick={() => setShowWhitepaper(true)}>
@@ -321,7 +321,7 @@ function App() {
           <span className="footer-link" style={{ cursor: 'pointer' }} onClick={() => setShowWhitepaper(true)}>Whitepaper</span>
           <a href="/docs" className="footer-link" target="_blank" rel="noopener noreferrer">Docs</a>
           <a href="https://github.com/little-agent/Little-agent" className="footer-link" target="_blank" rel="noopener noreferrer">GitHub</a>
-          <a href="/web" className="footer-link" target="_blank" rel="noopener noreferrer">Cockpit</a>
+          <span className="footer-link" style={{ cursor: 'pointer' }} onClick={() => window.open(window.location.protocol + '//' + window.location.hostname + ':1409', '_blank')}>Cockpit</span>
         </div>
         <p>© 2026 Little Agent. All rights reserved. Open-source under MIT License.</p>
       </footer>

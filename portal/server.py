@@ -7,7 +7,7 @@ from fastapi.staticfiles import StaticFiles
 
 app = FastAPI(title="Prediction Market Landing Page")
 
-PORTAL_DIST = Path(__file__).parent / "dist"
+PORTAL_DIST = Path(__file__).parent.parent / "little_cli" / "portal_dist"
 DASHBOARD_URL = "http://185.217.127.99:1409"
 
 # Proxy GET requests to /api/prediction-market/* to the dashboard backend
