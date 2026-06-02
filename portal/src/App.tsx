@@ -64,7 +64,7 @@ function App() {
   }, [refreshKey])
 
   const copyInstallCmd = () => {
-    navigator.clipboard.writeText('git clone https://github.com/little-agent/Little-agent.git && cd Little-agent && ./setup-little.sh')
+    navigator.clipboard.writeText('curl -fsSL https://raw.githubusercontent.com/little-agent/Little-agent/main/scripts/install.sh | bash')
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -222,7 +222,7 @@ function App() {
               <div className="terminal-line">
                 <span className="terminal-prompt">$</span>
                 <span className="terminal-cmd">
-                  git clone https://github.com/little-agent/Little-agent.git && cd Little-agent && ./setup-little.sh
+                  curl -fsSL https://raw.githubusercontent.com/little-agent/Little-agent/main/scripts/install.sh | bash
                 </span>
               </div>
               <div className="terminal-output">
