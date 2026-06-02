@@ -527,6 +527,11 @@ function App() {
                   </p>
                   
                   <h3>1. Clone and Install Dependencies</h3>
+                  <p style={{ marginBottom: '1rem', color: 'rgba(255, 255, 255, 0.7)' }}>
+                    <strong>Prerequisites:</strong><br />
+                    • Python 3.10+ & Node.js 18+<br />
+                    • SQLite support configured
+                  </p>
                   <p>Clone the repository and run the quick installer shell script to bootstrap the Python virtual environment and system dependencies:</p>
                   <pre style={{ background: '#090610', padding: '1rem', borderRadius: '0.5rem', border: '1px solid rgba(168, 85, 247, 0.15)', overflowX: 'auto', fontFamily: 'var(--font-mono)', fontSize: '0.85rem', color: '#c084fc', marginBottom: '1.5rem' }}>
 {`git clone https://github.com/little-agent/Little-agent.git
