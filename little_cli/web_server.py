@@ -274,9 +274,8 @@ async def auth_middleware(request: Request, call_next):
     if getattr(request.app.state, "auth_required", False):
         return await call_next(request)
     path = request.url.path
-    if path.startswith("/api/") and path not in _PUBLIC_API_PATHS:
-        if path.startswith("/api/prediction-market") and request.method == "GET":
-            return await call_next(request)
+    is_public_pm = path.startswith("/api/prediction-market") and request.method == "GET"
+    if path.startswith("/api/") and path not in _PUBLIC_API_PATHS and not is_public_pm:
         if not _has_valid_session_token(request):
             return JSONResponse(
                 status_code=401,
@@ -3818,30 +3817,43 @@ def _normalise_prefix(raw: Optional[str]) -> str:
 
 
 def mount_spa(application: FastAPI):
-    """Mount the built SPA. Falls back to index.html for client-side routing."""
-    PORTAL_DIST = Path(__file__).parent / "portal_dist"
-    WEB_DIST = Path(__file__).parent / "web_dist"
+    """Mount the built SPA. Falls back to index.html for client-side routing.
 
-    if not PORTAL_DIST.exists():
-        PORTAL_DIST.mkdir(parents=True, exist_ok=True)
+    The session token is injected into index.html via a ``<script>`` tag so
+    the SPA can authenticate against protected API endpoints without a
+    separate (unauthenticated) token-dispensing endpoint.
+
+    When served behind a path-prefix reverse proxy (e.g.
+    ``mission-control.tilos.com/little/*`` -> local Caddy -> :9119), the
+    proxy injects ``X-Forwarded-Prefix: /little`` on every request. We
+    rewrite the served ``index.html`` so absolute asset URLs (``/assets/...``)
+    and the SPA's runtime ``__LITTLE_BASE_PATH__`` honour that prefix
+    without rebuilding the bundle.
+    """
     if not WEB_DIST.exists():
-        WEB_DIST.mkdir(parents=True, exist_ok=True)
+        @application.get("/{full_path:path}")
+        async def no_frontend(full_path: str):
+            return JSONResponse(
+                {"error": "Frontend not built. Run: cd web && npm run build"},
+                status_code=404,
+            )
+        return
 
-    _index_path_web = WEB_DIST / "index.html"
-    _index_path_portal = PORTAL_DIST / "index.html"
+    _index_path = WEB_DIST / "index.html"
 
-    # Middleware to strip /web from API and dashboard-plugins paths
-    @application.middleware("http")
-    async def web_prefix_middleware(request: Request, call_next):
-        path = request.url.path
-        if path.startswith("/web/api/") or path.startswith("/web/dashboard-plugins/"):
-            request.scope["path"] = path[4:]  # strip '/web'
-        return await call_next(request)
+    def _serve_index(prefix: str = ""):
+        """Return index.html with the session token + base-path injected.
 
-    def _serve_index_web(prefix: str = "/web"):
-        if not _index_path_web.exists():
-            return HTMLResponse("Dashboard index.html not found. Run npm run build in web directory.", status_code=404)
-        html = _index_path_web.read_text()
+        ``prefix`` is the normalised ``X-Forwarded-Prefix`` (e.g. ``/little``)
+        or empty string when served at root.
+
+        When the OAuth auth gate is active (``app.state.auth_required``),
+        the legacy ``_SESSION_TOKEN`` is NOT injected — the SPA reads
+        identity from ``/api/auth/me`` over cookie auth instead.  The
+        ``__LITTLE_AUTH_REQUIRED__`` flag lets the SPA pick the right
+        auth scheme for /api/pty and /api/ws (ticket vs token).
+        """
+        html = _index_path.read_text()
         chat_js = "true" if _DASHBOARD_EMBEDDED_CHAT_ENABLED else "false"
         gated = bool(getattr(app.state, "auth_required", False))
         gated_js = "true" if gated else "false"
@@ -3861,56 +3873,51 @@ def mount_spa(application: FastAPI):
                 f"window.__LITTLE_AUTH_REQUIRED__={gated_js};"
                 f"</script>"
             )
-        
-        # Rewrite absolute asset URLs baked into the Vite build
-        html = html.replace('href="/assets/', f'href="{prefix}/assets/')
-        html = html.replace('src="/assets/', f'src="{prefix}/assets/')
-        html = html.replace('href="/favicon.ico"', f'href="{prefix}/favicon.ico"')
-        html = html.replace('href="/fonts/', f'href="{prefix}/fonts/')
-        html = html.replace('href="/ds-assets/', f'href="{prefix}/ds-assets/')
-        html = html.replace('src="/ds-assets/', f'src="{prefix}/ds-assets/')
+        if prefix:
+            # Rewrite absolute asset URLs baked into the Vite build so the
+            # browser fetches them through the same proxy prefix.
+            html = html.replace('href="/assets/', f'href="{prefix}/assets/')
+            html = html.replace('src="/assets/', f'src="{prefix}/assets/')
+            html = html.replace('href="/favicon.ico"', f'href="{prefix}/favicon.ico"')
+            html = html.replace('href="/fonts/', f'href="{prefix}/fonts/')
+            html = html.replace('href="/ds-assets/', f'href="{prefix}/ds-assets/')
+            html = html.replace('src="/ds-assets/', f'src="{prefix}/ds-assets/')
         html = html.replace("</head>", f"{bootstrap_script}</head>", 1)
         return HTMLResponse(
             html,
             headers={"Cache-Control": "no-store, no-cache, must-revalidate"},
         )
 
-    def _serve_index_portal():
-        if not _index_path_portal.exists():
-            return HTMLResponse("Portal index.html not found. Run npm run build in portal directory.", status_code=404)
-        html = _index_path_portal.read_text()
-        return HTMLResponse(
-            html,
-            headers={"Cache-Control": "no-store, no-cache, must-revalidate"},
-        )
-
-    # Intercept CSS asset requests for dashboard
-    @application.get("/web/assets/{filename}.css")
-    async def serve_dashboard_css(filename: str, request: Request):
+    # When served behind a path-prefix proxy, the built CSS contains
+    # absolute ``url(/fonts/...)`` and ``url(/ds-assets/...)`` references.
+    # Browsers resolve those against the document origin, which means
+    # under ``/little`` they'd hit ``mission-control.tilos.com/fonts/...``
+    # (the MC Pages app), not the Little backend. Intercept CSS asset
+    # requests BEFORE the StaticFiles mount and rewrite the absolute paths
+    # when a prefix is in play.
+    @application.get("/assets/{filename}.css")
+    async def serve_css(filename: str, request: Request):
         css_path = WEB_DIST / "assets" / f"{filename}.css"
         if not css_path.is_file() or not css_path.resolve().is_relative_to(
             WEB_DIST.resolve()
         ):
             return JSONResponse({"error": "not found"}, status_code=404)
-        prefix = "/web"
+        prefix = _normalise_prefix(request.headers.get("x-forwarded-prefix"))
         css = css_path.read_text()
-        for asset_dir in ("/fonts/", "/fonts-terminal/", "/ds-assets/", "/assets/"):
-            css = css.replace(f"url({asset_dir}", f"url({prefix}{asset_dir}")
-            css = css.replace(f"url(\"{asset_dir}", f"url(\"{prefix}{asset_dir}")
-            css = css.replace(f"url('{asset_dir}", f"url('{prefix}{asset_dir}")
+        if prefix:
+            for asset_dir in ("/fonts/", "/fonts-terminal/", "/ds-assets/", "/assets/"):
+                css = css.replace(f"url({asset_dir}", f"url({prefix}{asset_dir}")
+                css = css.replace(f"url(\"{asset_dir}", f"url(\"{prefix}{asset_dir}")
+                css = css.replace(f"url('{asset_dir}", f"url('{prefix}{asset_dir}")
         return Response(content=css, media_type="text/css")
 
-    # Mount static assets
-    application.mount("/assets", StaticFiles(directory=PORTAL_DIST / "assets"), name="assets")
-    application.mount("/web/assets", StaticFiles(directory=WEB_DIST / "assets"), name="web_assets")
+    application.mount("/assets", StaticFiles(directory=WEB_DIST / "assets"), name="assets")
 
-    # Serve the dashboard under /web
-    @application.get("/web/{full_path:path}")
-    async def serve_dashboard(full_path: str, request: Request):
-        if full_path.startswith("assets/"):
-            # Handled by StaticFiles mount or custom CSS endpoint
-            pass
+    @application.get("/{full_path:path}")
+    async def serve_spa(full_path: str, request: Request):
+        prefix = _normalise_prefix(request.headers.get("x-forwarded-prefix"))
         file_path = WEB_DIST / full_path
+        # Prevent path traversal via url-encoded sequences (%2e%2e/)
         if (
             full_path
             and file_path.resolve().is_relative_to(WEB_DIST.resolve())
@@ -3918,24 +3925,7 @@ def mount_spa(application: FastAPI):
             and file_path.is_file()
         ):
             return FileResponse(file_path)
-        return _serve_index_web("/web")
-
-    @application.get("/web")
-    async def serve_dashboard_root(request: Request):
-        return _serve_index_web("/web")
-
-    # Serve the public portal at /
-    @application.get("/{full_path:path}")
-    async def serve_portal(full_path: str, request: Request):
-        file_path = PORTAL_DIST / full_path
-        if (
-            full_path
-            and file_path.resolve().is_relative_to(PORTAL_DIST.resolve())
-            and file_path.exists()
-            and file_path.is_file()
-        ):
-            return FileResponse(file_path)
-        return _serve_index_portal()
+        return _serve_index(prefix)
 
 
 # ---------------------------------------------------------------------------
