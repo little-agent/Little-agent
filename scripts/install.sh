@@ -33,12 +33,14 @@ fi
 export UV_NO_CONFIG=1
 
 # Colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[0;33m'
-BLUE='\033[0;34m'
-MAGENTA='\033[0;35m'
-CYAN='\033[0;36m'
+GREEN='\033[38;2;34;197;94m'      # Emerald Green
+YELLOW='\033[38;2;234;179;8m'     # Gold / Amber
+BLUE='\033[38;2;59;130;246m'      # Royal Blue
+CYAN='\033[38;2;168;85;247m'       # Purple
+RED='\033[38;2;239;68;68m'         # Coral Red
+MAGENTA='\033[38;2;236;72;153m'    # Pink
+LIGHT_BLUE='\033[38;2;56;189;248m' # Neon Blue
+GRAY='\033[38;2;156;163;175m'       # Muted Gray
 NC='\033[0m' # No Color
 BOLD='\033[1m'
 
@@ -164,13 +166,13 @@ done
 
 print_banner() {
     echo ""
-    echo -e "${MAGENTA}${BOLD}"
-    echo "┌─────────────────────────────────────────────────────────┐"
-    echo "│             ⚕ Little Agent Installer                    │"
-    echo "├─────────────────────────────────────────────────────────┤"
-    echo "│  An open source AI agent by Little Agent Team.              │"
-    echo "└─────────────────────────────────────────────────────────┘"
-    echo -e "${NC}"
+    echo -e "  ${CYAN}${BOLD}⚕ Little Agent Installer${NC}"
+    echo -e "  ${GRAY}──────────────────────────────────────────────────${NC}"
+    echo -e "  ${MAGENTA}►${NC} ${YELLOW}Version:${NC}       ${LIGHT_BLUE}v2.5.0-Fuji${NC}"
+    echo -e "  ${MAGENTA}►${NC} ${YELLOW}Platform:${NC}      ${LIGHT_BLUE}Linux / macOS / WSL2 / Termux${NC}"
+    echo -e "  ${MAGENTA}►${NC} ${YELLOW}Repository:${NC}    ${LIGHT_BLUE}github.com/little-agent/Little-agent${NC}"
+    echo -e "  ${GRAY}──────────────────────────────────────────────────${NC}"
+    echo ""
 }
 
 log_info() {

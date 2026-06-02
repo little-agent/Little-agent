@@ -20,11 +20,15 @@
 set -e
 
 # Colors
-GREEN='\033[0;32m'
-YELLOW='\033[0;33m'
-CYAN='\033[0;36m'
-RED='\033[0;31m'
+GREEN='\033[38;2;34;197;94m'      # Emerald Green
+YELLOW='\033[38;2;234;179;8m'     # Gold / Amber
+CYAN='\033[38;2;168;85;247m'       # Purple
+RED='\033[38;2;239;68;68m'         # Coral Red
+MAGENTA='\033[38;2;236;72;153m'    # Pink
+LIGHT_BLUE='\033[38;2;56;189;248m' # Neon Blue
+GRAY='\033[38;2;156;163;175m'       # Muted Gray
 NC='\033[0m'
+BOLD='\033[1m'
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
@@ -56,9 +60,11 @@ get_command_link_display_dir() {
 }
 
 echo ""
-echo -e "${CYAN}⚕ Little Agent Setup${NC}"
-echo -e "  ${GREEN}•${NC} Python 3.10+ & Node.js 18+"
-echo -e "  ${GREEN}•${NC} SQLite support configured"
+echo -e "  ${CYAN}${BOLD}⚕ Little Agent Setup${NC}"
+echo -e "  ${GRAY}──────────────────────────────────────────────────${NC}"
+echo -e "  ${MAGENTA}►${NC} ${YELLOW}Prerequisites:${NC} ${LIGHT_BLUE}Python 3.10+ & Node.js 18+${NC}"
+echo -e "  ${MAGENTA}►${NC} ${YELLOW}Database:${NC}      ${LIGHT_BLUE}SQLite support configured${NC}"
+echo -e "  ${GRAY}──────────────────────────────────────────────────${NC}"
 echo ""
 
 # ============================================================================
